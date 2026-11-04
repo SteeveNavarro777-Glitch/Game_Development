@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 public class Assets {
     public static final int TILE = 32;                 // tile size in art pixels
 
-    public static BufferedImage[][] idle, walk, run, attack, hurt;   // [0]=facing right, [1]=facing left
+    public static BufferedImage[][] idle, walk, run, attack, hurt;   // [DOWN, UP, LEFT, RIGHT][frame]
     public static BufferedImage[] die;
     public static BufferedImage front, back;
 
@@ -21,31 +21,60 @@ public class Assets {
     public static BufferedImage[] slime = new BufferedImage[2], slimeFlash = new BufferedImage[2];
 
     public static void load() throws IOException {
-        idle = strip("idle", 3); walk = strip("walk", 4); run = strip("run", 4);
-        attack = strip("attack", 3); hurt = strip("hurt", 2);
-        BufferedImage d = load("die");
-        die = new BufferedImage[]{d, flip(d)};
-        front = load("front"); back = load("back");
+        // Direction indices match Player.Dir: DOWN, UP, LEFT, RIGHT.
+        idle = directional(frames("idle", 8), frames("front", 8), frames("back", 8));
+        walk = directional(frames("walk", 8), idle[0], idle[1]);
+        run = directional(frames("run", 8), idle[0], idle[1]);
+        SpearAttack.loadWeapon(idle[3][0]);
+        // Bodies and spear are separate so the weapon can really swing in all directions.
+        attack = directional(SpearAttack.bodies(idle[3]),
+                SpearAttack.bodies(idle[0]), SpearAttack.bodies(idle[1]));
+        CombatBody.load();
+        ShieldGuard.load(new BufferedImage[]{
+                load("guard_down"), load("guard_up"), load("guard_left"), load("guard_right")});
+        hurt = directional(
+                new BufferedImage[]{load("reaction_6"), load("reaction_7")},
+                new BufferedImage[]{load("reaction_4"), load("reaction_5")},
+                new BufferedImage[]{load("back_reaction_0"), load("back_reaction_1")});
+        BufferedImage death = load("die");
+        die = new BufferedImage[]{death, death, flip(death), death};
+        front = idle[0][0]; back = idle[1][0];
         buildWorldArt();
     }
 
-    private static BufferedImage[][] strip(String name, int n) throws IOException {
-        BufferedImage[][] out = new BufferedImage[2][n];
-        for (int i = 0; i < n; i++) { out[0][i] = load(name + "_" + i); out[1][i] = flip(out[0][i]); }
-        return out;
+    private static BufferedImage[] frames(String name, int count) throws IOException {
+        BufferedImage[] result = new BufferedImage[count];
+        for (int i = 0; i < count; i++) result[i] = load(name + "_" + i);
+        return result;
+    }
+
+    private static BufferedImage[][] directional(BufferedImage[] right, BufferedImage[] down, BufferedImage[] up) {
+        BufferedImage[] left = new BufferedImage[right.length];
+        for (int i = 0; i < right.length; i++) left[i] = flip(right[i]);
+        return new BufferedImage[][]{down, up, left, right};
     }
 
     private static BufferedImage load(String name) throws IOException {
-        File f = new File("res/agyu/" + name + ".png");
-        if (!f.exists()) throw new IOException("Missing " + f.getPath() + "\nRun slice_sprites.py, and start the game from the project folder.");
-        return ImageIO.read(f);
+        String path = "res/agyu-v2/" + name + ".png";
+        BufferedImage image;
+        try (java.io.InputStream stream = Assets.class.getResourceAsStream("/" + path)) {
+            if (stream != null) image = ImageIO.read(stream);
+            else {
+                File file = new File(path);
+                if (!file.isFile()) throw new IOException("Missing " + path + ". Start with run.bat or include the project root on the classpath.");
+                image = ImageIO.read(file);
+            }
+        }
+        if (image == null) throw new IOException("Unreadable PNG: " + path);
+        return image;
     }
 
     public static BufferedImage flip(BufferedImage src) {
         BufferedImage out = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = out.createGraphics();
-        g.drawImage(src, src.getWidth(), 0, -src.getWidth(), src.getHeight(), null);
-        g.dispose();
+        // Copy RGBA directly so mirroring cannot round semi-transparent edge colors.
+        for (int y = 0; y < src.getHeight(); y++)
+            for (int x = 0; x < src.getWidth(); x++)
+                out.setRGB(src.getWidth() - 1 - x, y, src.getRGB(x, y));
         return out;
     }
 

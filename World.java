@@ -1,108 +1,135 @@
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-/** The tile map (all units are art pixels). */
-public class World {
-    static final int T = Assets.TILE;
-    static final int GRASS = 0, DIRT = 1, WATER = 2, ROCK = 3;
-
+/** Static tile arrays and a uniform-grid index of exact tree colliders. */
+public final class World {
+    static final int T = Assets.TILE, GRASS = 0, DIRT = 1, WATER = 2, ROCK = 3;
+    static final int[][] LANDMARKS = {{32,27}, {12,12}, {49,26}, {28,39}, {51,39}};
+    static final double SPAWN_X = 32.5 * T, SPAWN_Y = 27.5 * T;
+    private static final int[][] DIRECTIONS = {{0,-1},{0,1},{-1,0},{1,0}};
     final int cols = 64, rows = 48;
-    final int[][] tile = new int[rows][cols];
-    final int[][] variant = new int[rows][cols];
+    final int[][] tile = new int[rows][cols], variant = new int[rows][cols];
     final List<Tree> trees = new ArrayList<>();
-    static final double SPAWN_X = 32 * T, SPAWN_Y = 27 * T;
+    private final List<List<Tree>> buckets = new ArrayList<>();
+    private final boolean[][] navigation = new boolean[rows][cols];
+    long collisionChecks;
 
     World(long seed) {
-        Random r = new Random(seed);
-        for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++) {
-            int n = r.nextInt(40);
-            variant[y][x] = n < 24 ? n % 4 : n < 33 ? 4 + n % 2 : n < 37 ? 6 : n < 38 ? 7 : n % 4;
+        Random random = new Random(seed);
+        for (int i = 0; i < rows * cols; i++) buckets.add(new ArrayList<>());
+        for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) variant[r][c] = random.nextInt(8);
+        pond(16,36,7,5); pond(48,10,6,4);
+        for (int c = 2; c < cols-2; c++) {
+            int y = 24 + (int)Math.round(3 * Math.sin(c * 0.2));
+            tile[y][c] = tile[y+1][c] = DIRT;
         }
-        pond(16, 36, 7, 5); pond(48, 10, 6, 4);
-        for (int x = 2; x < cols - 2; x++) {                 // winding dirt path
-            int cy = 24 + (int) Math.round(3 * Math.sin(x * 0.2));
-            for (int y = cy; y <= cy + 1; y++) if (tile[y][x] == GRASS) tile[y][x] = DIRT;
+        // Explicit connecting roads make every mission location reachable.
+        for (int[] landmark : LANDMARKS) {
+            for (int c = Math.min(32,landmark[0]); c <= Math.max(32,landmark[0]); c++)
+                clearRoad(c,27);
+            for (int r = Math.min(27,landmark[1]); r <= Math.max(27,landmark[1]); r++)
+                clearRoad(landmark[0],r);
+            for (int r = landmark[1]-3; r <= landmark[1]+3; r++)
+                for (int c = landmark[0]-3; c <= landmark[0]+3; c++) tile[r][c] = GRASS;
+            tile[landmark[1]][landmark[0]] = DIRT;
         }
-        for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++)
-            if (x < 2 || y < 2 || x >= cols - 2 || y >= rows - 2) tile[y][x] = ROCK;
-
+        for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++)
+            if (c < 2 || r < 2 || c >= cols-2 || r >= rows-2) tile[r][c] = ROCK;
         int tries = 0;
         while (trees.size() < 85 && tries++ < 4000) {
-            int c = 3 + r.nextInt(cols - 6), rw = 4 + r.nextInt(rows - 6);
-            if (tile[rw][c] != GRASS) continue;
-            double tx = c * T + T / 2.0, ty = rw * T + T;
-            if (Math.hypot(tx - SPAWN_X, ty - SPAWN_Y) < 110) continue;
-            boolean ok = true;
-            for (Tree o : trees) if (Math.hypot(o.x - tx, o.y - ty) < 56) { ok = false; break; }
-            if (ok) trees.add(new Tree(tx, ty, r.nextDouble() < 0.3));
+            int c = 3+random.nextInt(cols-6), r = 4+random.nextInt(rows-6);
+            if (tile[r][c] != GRASS) continue;
+            double x = (c+0.5)*T, y = (r+1.0)*T;
+            boolean okay = true;
+            for (int[] landmark : LANDMARKS)
+                if (Math.hypot(x-(landmark[0]+0.5)*T,y-(landmark[1]+0.5)*T) < 150) okay = false;
+            for (Tree tree : trees) if (Math.hypot(tree.x-x,tree.y-y) < 56) okay = false;
+            if (okay) trees.add(new Tree(x,y,random.nextDouble()<0.3));
+        }
+        for (Tree tree : trees) {
+            Rectangle2D box = tree.trunk;
+            for (int r = row(box.getMinY()); r <= row(Math.nextDown(box.getMaxY())); r++)
+                for (int c = col(box.getMinX()); c <= col(Math.nextDown(box.getMaxX())); c++)
+                    if (inside(c,r)) buckets.get(r*cols+c).add(tree);
+        }
+        for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++)
+            // Reserve the whole cell plus actor clearance, including tree trunks on tile edges.
+            navigation[r][c] = !blocked(new Rectangle2D.Double(c*T-10,r*T-10,T+20,T+10));
+        collisionChecks = 0;
+    }
+    private void clearRoad(int c, int r) {
+        for (int y = r-1; y <= r+1; y++) for (int x = c-1; x <= c+1; x++) tile[y][x] = DIRT;
+    }
+    private void pond(double cx,double cy,double rx,double ry) {
+        for (int r=0;r<rows;r++) for(int c=0;c<cols;c++) {
+            double d = Math.pow((c-cx)/rx,2)+Math.pow((r-cy)/ry,2);
+            if(d<1) tile[r][c]=WATER; else if(d<1.4) tile[r][c]=DIRT;
         }
     }
-
-    private void pond(double cx, double cy, double rx, double ry) {
-        for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++) {
-            double d = Math.pow((x - cx) / rx, 2) + Math.pow((y - cy) / ry, 2);
-            if (d < 1) tile[y][x] = WATER; else if (d < 1.4 && tile[y][x] == GRASS) tile[y][x] = DIRT;
-        }
-    }
-
-    private int at(int c, int r) { return (c < 0 || r < 0 || c >= cols || r >= rows) ? ROCK : tile[r][c]; }
-
-    boolean solidTile(int c, int r) { int t = at(c, r); return t == WATER || t == ROCK; }
+    static int col(double x) { return (int)Math.floor(x/T); }
+    static int row(double y) { return (int)Math.floor(y/T); }
+    boolean inside(int c,int r) { return c>=0 && r>=0 && c<cols && r<rows; }
+    private int at(int c,int r) { return inside(c,r) ? tile[r][c] : ROCK; }
+    boolean solidTile(int c,int r) { int t=at(c,r); return t==WATER || t==ROCK; }
+    boolean walkable(int c,int r) { return inside(c,r) && navigation[r][c]; }
 
     boolean blocked(Rectangle2D box) {
-        int c0 = (int) Math.floor(box.getMinX() / T), c1 = (int) Math.floor(box.getMaxX() / T);
-        int r0 = (int) Math.floor(box.getMinY() / T), r1 = (int) Math.floor(box.getMaxY() / T);
-        for (int r = r0; r <= r1; r++) for (int c = c0; c <= c1; c++) if (solidTile(c, r)) return true;
-        for (Tree t : trees) if (t.trunk().intersects(box)) return true;
+        int c0=col(box.getMinX()), c1=col(Math.nextDown(box.getMaxX()));
+        int r0=row(box.getMinY()), r1=row(Math.nextDown(box.getMaxY()));
+        for(int r=r0;r<=r1;r++) for(int c=c0;c<=c1;c++) {
+            if(solidTile(c,r)) return true;
+            for(Tree tree:buckets.get(r*cols+c)) {
+                collisionChecks++;
+                if(tree.trunk.intersects(box)) return true;
+            }
+        }
         return false;
     }
-
-    void drawGround(Graphics2D g, int camX, int camY, int vw, int vh, double time) {
-        int c0 = Math.max(0, Math.floorDiv(camX, T)), c1 = Math.min(cols - 1, Math.floorDiv(camX + vw, T));
-        int r0 = Math.max(0, Math.floorDiv(camY, T)), r1 = Math.min(rows - 1, Math.floorDiv(camY + vh, T));
-        int wf = ((int) (time * 2)) % 2;
-        for (int r = r0; r <= r1; r++) for (int c = c0; c <= c1; c++) {
-            int v = variant[r][c], t = tile[r][c];
-            BufferedImage img = t == DIRT ? Assets.dirt[v % 3] : t == WATER ? Assets.water[wf] : t == ROCK ? Assets.rock : Assets.grass[v];
-            int x = c * T - camX, y = r * T - camY;
-            g.drawImage(img, x, y, null);
-            if (t == DIRT) {                                   // soft lip where the path meets grass
-                edges(g, x, y, c, r, GRASS, 0x8E6240, 0xD2A877);
-            } else if (t == WATER) {                           // foam line where the pond meets land
-                edges(g, x, y, c, r, -1, 0x3A6CB8, 0xBFE0FF);
+    // Reference implementation retained for automated index-equivalence tests.
+    boolean blockedBruteForce(Rectangle2D box) {
+        for(int r=row(box.getMinY());r<=row(Math.nextDown(box.getMaxY()));r++)
+            for(int c=col(box.getMinX());c<=col(Math.nextDown(box.getMaxX()));c++)
+                if(solidTile(c,r)) return true;
+        for(Tree tree:trees) if(tree.trunk.intersects(box)) return true;
+        return false;
+    }
+    void drawGround(Graphics2D g,int cx,int cy,int vw,int vh,double time) {
+        int c0=Math.max(0,Math.floorDiv(cx,T)), c1=Math.min(cols-1,Math.floorDiv(cx+vw,T));
+        int r0=Math.max(0,Math.floorDiv(cy,T)), r1=Math.min(rows-1,Math.floorDiv(cy+vh,T));
+        for(int r=r0;r<=r1;r++) for(int c=c0;c<=c1;c++) {
+            int kind=tile[r][c],v=variant[r][c], x=c*T-cx,y=r*T-cy;
+            BufferedImage image = kind==DIRT?Assets.dirt[v%3]:kind==WATER?Assets.water[((int)(time*2))%2]:
+                    kind==ROCK?Assets.rock:Assets.grass[v];
+            g.drawImage(image,x,y,null);
+            if(kind==WATER || kind==DIRT) for(int[] direction:DIRECTIONS) {
+                int neighbor=at(c+direction[0],r+direction[1]);
+                if(kind==WATER?neighbor==WATER:neighbor!=GRASS) continue;
+                g.setColor(kind==WATER?new Color(0xBFE0FF):new Color(0xD2A877));
+                if(direction[1]<0) g.fillRect(x,y,T,1);
+                if(direction[1]>0) g.fillRect(x,y+T-1,T,1);
+                if(direction[0]<0) g.fillRect(x,y,1,T);
+                if(direction[0]>0) g.fillRect(x+T-1,y,1,T);
             }
         }
     }
-
-    /** Draws a 1px dark line + 1px highlight on each side whose neighbour is 'other' (or, for -1, "not water"). */
-    private void edges(Graphics2D g, int x, int y, int c, int r, int other, int dark, int light) {
-        int[][] d = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
-        for (int[] n : d) {
-            int nt = at(c + n[0], r + n[1]);
-            boolean hit = other == -1 ? nt != WATER : nt == other;
-            if (!hit) continue;
-            int sz = T;
-            if (n[1] == -1) { g.setColor(new Color(dark)); g.fillRect(x, y, sz, 1); g.setColor(new Color(light)); g.fillRect(x, y + 1, sz, 1); }
-            if (n[1] == 1)  { g.setColor(new Color(dark)); g.fillRect(x, y + sz - 1, sz, 1); g.setColor(new Color(light)); g.fillRect(x, y + sz - 2, sz, 1); }
-            if (n[0] == -1) { g.setColor(new Color(dark)); g.fillRect(x, y, 1, sz); g.setColor(new Color(light)); g.fillRect(x + 1, y, 1, sz); }
-            if (n[0] == 1)  { g.setColor(new Color(dark)); g.fillRect(x + sz - 1, y, 1, sz); g.setColor(new Color(light)); g.fillRect(x + sz - 2, y, 1, sz); }
+    static final class Tree implements Drawable {
+        final double x,y;
+        private final boolean pink;
+        final Rectangle2D.Double trunk;
+        Tree(double x,double y,boolean pink) {
+            this.x=x;this.y=y;this.pink=pink;
+            trunk=new Rectangle2D.Double(x-6,y-8,12,8);
         }
-    }
-
-    /** Trees are depth-sorted with the characters so Agyu can walk behind them. */
-    class Tree implements Drawable {
-        final double x, y; final boolean pink; final double phase;
-        Tree(double x, double y, boolean pink) { this.x = x; this.y = y; this.pink = pink; phase = x * 0.13; }
-        Rectangle2D.Double trunk() { return new Rectangle2D.Double(x - 6, y - 8, 12, 8); }
-        public double sortY() { return y; }
-        public void draw(Graphics2D g, int camX, int camY, double alpha) {
-            BufferedImage img = pink ? Assets.pinkTree : Assets.greenTree;
-            g.setColor(new Color(0, 0, 0, 55));
-            g.fillOval((int) x - camX - 15, (int) y - camY - 5, 30, 9);
-            g.drawImage(img, (int) x - camX - 24, (int) y - camY - 55, null);
+        public double sortY(){return y;}
+        public void draw(Graphics2D g,int cx,int cy,double alpha) {
+            g.setColor(new Color(0,0,0,55));
+            g.fillOval((int)x-cx-15,(int)y-cy-5,30,9);
+            g.drawImage(pink?Assets.pinkTree:Assets.greenTree,(int)x-cx-24,(int)y-cy-55,null);
         }
     }
 }

@@ -4,63 +4,154 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 /** Agyu. Units are art pixels. Smoothness comes from: acceleration, render interpolation, dust, hit-stop, shake. */
-public class Player implements Drawable {
-    public enum State { IDLE, WALK, RUN, ATTACK, HURT, DEAD }
+public final class Player implements Drawable, Damageable {
+    public enum State { IDLE, WALK, RUN, ATTACK, GUARD, HURT, DEAD }
     public enum Dir { DOWN, UP, LEFT, RIGHT }
 
     static final double WALK_SPEED = 92, RUN_SPEED = 150;       // art pixels per second
     static final double ACCEL = 900, DECEL = 1300;              // how fast velocity changes (px/s^2)
-    static final double ATTACK_TIME = 0.36, HIT_AT = 0.24, HURT_TIME = 0.30;
+    static final double ATTACK_TIME = 0.40, HIT_AT = 0.24, HURT_TIME = 0.30;
 
     double x, y, px, py;                // current and previous feet position (px,py are used for interpolation)
     double vx, vy;                      // current velocity
     Dir dir = Dir.DOWN;
     State state = State.IDLE;
     final int maxHp = 5;
-    int hp = maxHp;
+    private int hp = maxHp;
+    private final Inventory inventory = new Inventory();
     double stateTime, animTime, invincible, kbx, kby, dustT;
-    boolean hitDone;
+    private final SpearAttack spear = new SpearAttack();
+    private final ShieldGuard shield = new ShieldGuard();
+    private final JumpMotion jump = new JumpMotion();
+    private double attackBuffer,comboGrace;
+    private int nextCombo;
+    private Dir bufferedDir = Dir.DOWN;
 
-    Player(double x, double y) { this.x = px = x; this.y = py = y; }
+    Player(double x, double y) {
+        this.x = px = x; this.y = py = y;
+        inventory.add(Inventory.Item.HERB, 3);
+    }
+    public int health() { return hp; }
+    public int maxHealth() { return maxHp; }
+    Inventory inventory() { return inventory; }
+    boolean useHerb() {
+        if (!alive() || hp == maxHp || !inventory.consume(Inventory.Item.HERB)) return false;
+        hp = Math.min(maxHp, hp + 2);
+        Fx.burst(x, y - 16, 0xA4E3AE, 10, 35, 0.4, -20, 2);
+        return true;
+    }
 
-    void savePrev() { px = x; py = y; }
+    void savePrev() { px = x; py = y; jump.savePrev(); }
+    boolean airborne() { return jump.airborne(); }
+    double jumpHeight() { return jump.height(); }
+    int comboStep() { return state == State.ATTACK || comboGrace > 0 ? spear.stage() + 1 : 0; }
+    String comboName() { return comboStep() == 0 ? "" : SpearAttack.name(spear.stage()); }
+    double comboGrace() { return comboGrace; }
     Rectangle2D.Double feetBox() { return new Rectangle2D.Double(x - 5, y - 6, 10, 6); }
 
-    void update(double dt, KeyHandler k, World world, List<Slime> slimes) {
-        animTime += dt; stateTime += dt;
-        if (invincible > 0) invincible -= dt;
-        boolean wantAttack = k.attackPressed; k.attackPressed = false;
-
-        switch (state) {
-            case DEAD: return;
-            case HURT:
-                move(kbx * dt, kby * dt, world); kbx *= 0.9; kby *= 0.9; vx = vy = 0;
-                if (stateTime >= HURT_TIME) setState(State.IDLE);
-                return;
-            case ATTACK:
-                if (!hitDone && stateTime >= HIT_AT) { hitDone = true; strike(slimes); }
-                double lunge = (stateTime >= 0.12 && stateTime < HIT_AT + 0.06) ? 40 : 0;   // small step into the thrust
-                double[] d = vec(); move(d[0] * lunge * dt, d[1] * lunge * dt, world); vx = vy = 0;
-                if (stateTime >= ATTACK_TIME) setState(State.IDLE);
-                return;
-            default: break;
+    void update(double dt, KeyHandler.Input keys, World world, List<Enemy> enemies) {
+        animTime += dt;
+        double previousTime = stateTime;
+        stateTime += dt;
+        invincible = Math.max(0, invincible - dt);
+        comboGrace = Math.max(0, comboGrace - dt);
+        shield.update(dt);
+        boolean wasAirborne = jump.airborne();
+        if (jump.update(dt) && alive()) Fx.dust(x, y);
+        if (state == State.DEAD) {
+            resetCombo();
+            return;
         }
-
-        if (wantAttack) { setState(State.ATTACK); hitDone = false; return; }
-
-        double dx = (k.right ? 1 : 0) - (k.left ? 1 : 0), dy = (k.down ? 1 : 0) - (k.up ? 1 : 0);
-        boolean moving = dx != 0 || dy != 0;
-        double sp = k.run ? RUN_SPEED : WALK_SPEED, len = Math.max(1, Math.hypot(dx, dy));
-        vx = approach(vx, moving ? dx / len * sp : 0, (moving ? ACCEL : DECEL) * dt);   // ease in / ease out
-        vy = approach(vy, moving ? dy / len * sp : 0, (moving ? ACCEL : DECEL) * dt);
-        move(vx * dt, vy * dt, world);
-
+        if (state == State.HURT) {
+            resetCombo();
+            move(kbx * dt, kby * dt, world);
+            kbx *= Math.exp(-6 * dt); kby *= Math.exp(-6 * dt); vx = vy = 0;
+            if (stateTime >= HURT_TIME) setState(State.IDLE);
+            return;
+        }
+        // Guard wins simultaneous ground inputs, but never snaps an airborne hop down.
+        boolean freeToJump = state == State.IDLE || state == State.WALK || state == State.RUN;
+        if (keys.pressed(KeyHandler.JUMP) && freeToJump && !keys.guard && !wasAirborne) {
+            resetCombo();jump.begin();
+        }
+        if (jump.airborne()) resetCombo();
+        if (keys.guard && !jump.airborne()) {
+            // Shield input has priority and cancels any current or queued swing.
+            resetCombo();
+            if (state != State.GUARD) { vx = vy = 0; setState(State.GUARD); }
+            dir = facingFor(keys);
+            moveFromInput(dt, keys, world, WALK_SPEED * 0.4);
+            return;
+        }
+        if (state == State.GUARD) setState(State.IDLE);
+        if (keys.pressed(KeyHandler.ATTACK) && !jump.airborne()) {
+            attackBuffer = 1; // One follow-up slot; it survives until this move can chain.
+            bufferedDir = facingFor(keys);
+        }
+        if (state != State.ATTACK) dir = facingFor(keys);
+        if (state == State.ATTACK) {
+            double lunge = spear.lungeSpeed(stateTime);
+            double[] direction = vec();
+            move(direction[0] * lunge * dt, direction[1] * lunge * dt, world);
+            vx = vy = 0;
+            spear.update(this, previousTime, stateTime, enemies);
+            if (attackBuffer > 0 && stateTime >= SpearAttack.chainAt(spear.stage())) {
+                beginAttack();
+            } else if (stateTime >= spear.duration()) {
+                nextCombo = (spear.stage() + 1) % SpearAttack.STAGES;
+                spear.cancel();
+                setState(State.IDLE);
+                comboGrace = .30;
+            }
+            return;
+        }
+        if (attackBuffer > 0) {
+            beginAttack();
+            return;
+        }
+        boolean moving = moveFromInput(dt, keys, world, keys.run ? RUN_SPEED : WALK_SPEED);
         if (moving) {
-            if (dx != 0) dir = dx < 0 ? Dir.LEFT : Dir.RIGHT; else dir = dy < 0 ? Dir.UP : Dir.DOWN;
-            setState(k.run ? State.RUN : State.WALK);
+            setState(keys.run ? State.RUN : State.WALK);
             dustT -= dt;
-            if (dustT <= 0) { Fx.dust(x - vx * 0.03, y); dustT = k.run ? 0.09 : 0.22; }    // footstep puffs
+            if (dustT <= 0 && !jump.airborne()) {
+                Fx.dust(x - vx * 0.03, y);
+                dustT = keys.run ? 0.09 : 0.22;
+            }
         } else if (Math.hypot(vx, vy) < 8) setState(State.IDLE);
+    }
+
+    private boolean moveFromInput(double dt, KeyHandler.Input keys, World world, double speed) {
+        double dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+        double dy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+        boolean moving = dx != 0 || dy != 0;
+        double length = Math.max(1, Math.hypot(dx, dy));
+        vx = approach(vx, moving ? dx / length * speed : 0, (moving ? ACCEL : DECEL) * dt);
+        vy = approach(vy, moving ? dy / length * speed : 0, (moving ? ACCEL : DECEL) * dt);
+        move(vx * dt, vy * dt, world);
+        return moving;
+    }
+
+    private Dir facingFor(KeyHandler.Input keys) {
+        int dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+        int dy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+        if (dx != 0) return dx < 0 ? Dir.LEFT : Dir.RIGHT;
+        if (dy != 0) return dy < 0 ? Dir.UP : Dir.DOWN;
+        return dir;
+    }
+
+    private void resetCombo() {
+        attackBuffer = comboGrace = 0;nextCombo = 0;spear.cancel();
+    }
+
+    private void beginAttack() {
+        int stage = state == State.ATTACK ? (spear.stage() + 1) % SpearAttack.STAGES :
+                comboGrace > 0 ? nextCombo : 0;
+        dir = bufferedDir;
+        setState(State.ATTACK);
+        stateTime = 0;
+        attackBuffer = comboGrace = 0;
+        vx = vy = 0;
+        spear.begin(stage);
     }
 
     private static double approach(double v, double target, double step) {
@@ -84,21 +175,18 @@ public class Player implements Drawable {
     }
 
     Rectangle2D.Double attackBox() {
-        switch (dir) {
-            case RIGHT: return new Rectangle2D.Double(x + 4, y - 28, 34, 24);
-            case LEFT:  return new Rectangle2D.Double(x - 38, y - 28, 34, 24);
-            case UP:    return new Rectangle2D.Double(x - 11, y - 46, 22, 34);
-            default:    return new Rectangle2D.Double(x - 11, y - 3, 22, 32);
-        }
+        return spear.bounds(x, y, dir, stateTime);
     }
 
-    private void strike(List<Slime> slimes) {
-        Rectangle2D.Double box = attackBox();
-        for (Slime s : slimes) if (s.alive() && box.intersects(s.hurtBox())) { s.damage(1, x, y); }
+    boolean blocksFrom(double fromX, double fromY) {
+        return state == State.GUARD && alive() && ShieldGuard.faces(dir, fromX - x, fromY - y);
     }
 
-    void hurt(int dmg, double fromX, double fromY) {
-        if (invincible > 0 || state == State.DEAD) return;
+    public void damage(int dmg, double fromX, double fromY) {
+        if (dmg <= 0 || state == State.DEAD) return;
+        if (blocksFrom(fromX, fromY)) { shield.block(this); return; }
+        if (invincible > 0) return;
+        resetCombo();
         hp -= dmg; invincible = 1.0;
         Fx.shake(3, 0.25); Fx.hitStop(0.07);
         if (hp <= 0) { hp = 0; state = State.DEAD; stateTime = 0; return; }
@@ -109,38 +197,64 @@ public class Player implements Drawable {
 
     public double sortY() { return y; }
 
-    public void draw(Graphics2D g, int camX, int camY, double a) {
-        // interpolate between the previous and current update so motion is smooth at any refresh rate
-        int sx = (int) Math.round(px + (x - px) * a) - camX, sy = (int) Math.round(py + (y - py) * a) - camY;
+    public void draw(Graphics2D g, int camX, int camY, double alpha) {
+        int sx = (int) Math.round(px + (x - px) * alpha) - camX;
+        int sy = (int) Math.round(py + (y - py) * alpha) - camY;
         g.setColor(new Color(0, 0, 0, 70));
         g.fillOval(sx - 11, sy - 4, 22, 8);
-
-        int side = dir == Dir.LEFT ? 1 : 0;
-        boolean sideView = dir == Dir.LEFT || dir == Dir.RIGHT;
-        BufferedImage vert = dir == Dir.UP ? Assets.back : Assets.front;
-        BufferedImage img; int bob = 0;
-
+        // The shadow and collision stay on the ground; all held gear rises with Agyu.
+        sy -= (int) Math.round(jump.renderHeight(alpha));
+        int facing = dir.ordinal();
+        boolean side = dir == Dir.LEFT || dir == Dir.RIGHT;
+        BufferedImage image;
+        BufferedImage[] sequence;
+        int bob = 0;
         switch (state) {
-            case DEAD:   img = Assets.die[side]; break;
-            case HURT:   img = Assets.hurt[side][(int) (stateTime * 10) % 2]; break;
-            case ATTACK: img = sideView ? Assets.attack[side][Math.min(2, (int) (stateTime / (ATTACK_TIME / 3)))] : vert; break;
-            case RUN:    img = sideView ? Assets.run[side][(int) (animTime * 12) % 4] : vert;
-                         bob = sideView ? 0 : (int) (Math.abs(Math.sin(animTime * 14)) * 2.4); break;
-            case WALK:   img = sideView ? Assets.walk[side][(int) (animTime * 8) % 4] : vert;
-                         bob = sideView ? 0 : (int) (Math.abs(Math.sin(animTime * 9)) * 1.9); break;
-            default:     img = sideView ? Assets.idle[side][(int) (animTime * 4) % 3] : vert;
+            case DEAD:
+                image = Assets.die[facing];
+                break;
+            case HURT:
+                sequence = Assets.hurt[facing];
+                image = sequence[Math.min(sequence.length - 1, (int) (stateTime / HURT_TIME * sequence.length))];
+                break;
+            case ATTACK:
+                if (CombatBody.ready()) image = CombatBody.frame(dir, spear.stage(), stateTime).image();
+                else {
+                    int bodyFacing = SpearAttack.bodyDirection(dir, stateTime, spear.stage()).ordinal();
+                    sequence = Assets.attack[bodyFacing];
+                    image = sequence[Math.min(sequence.length - 1, (int) (stateTime / spear.duration() * sequence.length))];
+                }
+                break;
+            case GUARD:
+                sequence = ShieldGuard.bodies[facing];
+                image = sequence[(int) (animTime * 4) % sequence.length];
+                break;
+            case RUN:
+                sequence = Assets.run[facing];
+                image = sequence[(int) (animTime * (side ? 24 : 5)) % sequence.length];
+                bob = side ? 0 : (int) (Math.abs(Math.sin(animTime * 14)) * 2.4);
+                break;
+            case WALK:
+                sequence = Assets.walk[facing];
+                image = sequence[(int) (animTime * (side ? 16 : 5)) % sequence.length];
+                bob = side ? 0 : (int) (Math.abs(Math.sin(animTime * 9)) * 1.9);
+                break;
+            default:
+                sequence = Assets.idle[facing];
+                image = sequence[(int) (animTime * 5) % sequence.length];
         }
-
-        Composite old = g.getComposite();
+        if (jump.airborne()) bob = 0;
+        Composite original = g.getComposite();
         if (invincible > 0 && state != State.DEAD && ((int) (invincible * 14)) % 2 == 0)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
-        g.drawImage(img, sx - img.getWidth() / 2, sy - img.getHeight() + 1 - bob, null);
-        g.setComposite(old);
-
-        if (state == State.ATTACK && !sideView && stateTime >= HIT_AT - 0.04) {       // vertical thrust streak
-            Rectangle2D.Double b = attackBox();
-            g.setColor(new Color(235, 240, 250, 190));
-            g.fillRect((int) (b.x + b.width / 2) - 1 - camX, (int) b.y - camY, 2, (int) b.height);
-        }
+        // Weapon angle determines layering during both directional cuts and the full turn.
+        boolean attacking = state == State.ATTACK;
+        if (attacking && spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
+        int leanX = attacking ? SpearAttack.bodyOffsetX(dir, stateTime, spear.stage()) : 0;
+        int leanY = attacking ? SpearAttack.bodyOffsetY(dir, stateTime, spear.stage()) : 0;
+        g.drawImage(image, sx - image.getWidth() / 2 + leanX, sy - image.getHeight() + 1 - bob + leanY, null);
+        if (attacking && !spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
+        if (state == State.GUARD) shield.drawImpact(g, sx, sy, dir);
+        g.setComposite(original);
     }
 }

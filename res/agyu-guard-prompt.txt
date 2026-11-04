@@ -1,0 +1,13 @@
+Use case: identity-preserve game-sprite edit.
+Asset type: production-ready transparent sprite sheet for a Java pixel-art game.
+Input image: the supplied Agyu sprite sheet is the exact character/design reference.
+Create FOUR complete, intact SHIELD-BLOCKING poses of this same Agyu, arranged in a strict 2 by 2 equal-cell grid on a genuinely transparent square canvas.
+Top-left: FRONT / facing DOWN toward camera.
+Top-right: BACK / facing UP away from camera.
+Bottom-left: RIGHT-facing profile.
+Bottom-right: LEFT-facing profile.
+Keep each entire character including spear tip and both boots well inside its own cell, with generous transparent margins and identical character scale and feet baseline relative to each cell. No text, labels, grid lines, floor, cast shadow, scenery, or interface.
+Preserve the supplied character exactly: chibi proportions, big head, red tied bandana, black hair, tan face, red short-sleeved tunic with gold trim, brown belt and pants, brown boots, spear with pale-blue metal head, small round brown wood/leather shield with dark rim and central metal boss. Match the source's crisp chunky pixel art and limited palette, not smooth illustration.
+Change the pose to a believable defensive stance: planted feet, slight brace, LEFT elbow bent, left forearm visibly attached to the shoulder and supporting the round shield IN FRONT of the torso in the direction he faces. His left hand grips the handle/strap BEHIND the shield. Keep the shield at lower chest height, below the chin; leave his face and bandana fully visible. Right hand continues holding the spear upright at his right side. Shield should be modest, about one third of the character height. It is visibly held rather than floating next to the body or strapped on his back.
+Especially in the side views, show a connected bent elbow/forearm leading into the back of the shield at chest height, with intact torso, sleeve, waist, and both legs. In the back view show the raised shield beside the left-front shoulder, connected to his bent left arm; do not leave a shield strapped flat to his back. Exactly two arms, two hands, one spear, one shield per pose. Never stretch a hand across the face, never erase holes from clothing, never show dismembered or translucent body patches.
+This is one coherent four-direction blocking sprite set; no attack or walking animations.
