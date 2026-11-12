@@ -40,6 +40,7 @@ public class Assets {
         die = new BufferedImage[]{death, death, flip(death), death};
         front = idle[0][0]; back = idle[1][0];
         buildWorldArt();
+        VillageArt.load();
     }
 
     private static BufferedImage[] frames(String name, int count) throws IOException {
@@ -127,8 +128,8 @@ public class Assets {
         }
         rock = rk;
 
-        pinkTree  = tree(0xF7C1D0, 0xEE9DB4, 0xD9809D, 0xB5607E, 0xFFE3EA);
-        greenTree = tree(0x7ACB8A, 0x4FA66B, 0x3A8556, 0x276243, 0xA4E3AE);
+        pinkTree  = tree(0xA3BB6C, 0x78994E, 0x536F3D, 0x374D2B, 0xC1D18C);
+        greenTree = tree(0x89AC65, 0x628B50, 0x446C40, 0x2C4C32, 0xADCA85);
 
         for (int f = 0; f < 2; f++) {                           // slime 20x16, two squash frames
             BufferedImage s = art(20, 16);

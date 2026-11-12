@@ -6,7 +6,7 @@ Agyu restores three guarded shrines, collects their seals, awakens the guardian,
 
 ## Run
 
-Install a **JDK 17 or newer** and put its bin directory on PATH. Double-click **run.bat**, or run it from a terminal. There are no third-party Java dependencies and no network requirement.
+Install a **JDK 17 or newer** and put its bin directory on PATH. Double-click **run.bat**, or run it from a terminal. There are no third-party Java dependencies and no runtime network requirement. Custom artwork is included in res/rpg-village, so a fresh clone runs offline. Optional creator house overrides stay local; see CREDITS.md.
 
 Manual commands, from this folder:
 
@@ -22,13 +22,14 @@ java -cp "build;." Main
 | --- | --- |
 | Enter | Start; resume when paused |
 | WASD / arrows | Move |
-| Shift | Run |
+| Shift | Sprint while energy lasts |
+| Q / Ctrl | Lightning dash (25 energy; movement direction or current facing) |
 | Left mouse / J | Spear combo (tap again to chain) |
 | Space | Jump (one hop per press) |
 | Hold right mouse | Raise shield; block frontal hits; move slowly |
-| E | Restore a cleared shrine / interact with a beacon |
+| E | Talk to nearby villagers / restore a cleared shrine / interact with a beacon |
 | H | Consume an herb to restore 2 missing health |
-| M | Map; close again to resume |
+| M | Full village map; green arrow marks Agyu; close again to resume |
 | Tab | Objective journal; close again to resume |
 | N | Toggle A* trail to the nearest unfinished objective |
 | Esc / P | Pause / resume |
@@ -37,7 +38,13 @@ java -cp "build;." Main
 
 Tap left mouse or J repeatedly to chain six spear moves, ending in a gold Sunbreaker finisher. The next press is buffered; a short pause restarts the chain. See **COMBOS.md** for the moves and previews. Face toward the attacker while holding right mouse. Shielding cancels attacks and prevents running; attacks from the rear still hurt. Keyboard movement determines facing. Space makes a short moving hop. Attacks are ignored in midair; holding right mouse during a jump raises the shield on landing. Jumping preserves terrain collision and does not grant invulnerability. Clicking the game gives it keyboard focus.
 
+Health is shown as a continuous red bar. The cyan energy bar holds 100 points: sprinting uses 25 per second, and each lightning dash costs 25. Energy recovers at 22 per second after 0.8 seconds without spending it. Empty energy forces walking until 20 energy returns. Sprinting in place does not spend energy. Dashes travel up to 115 art pixels over 0.16 seconds, have a 0.55-second cooldown, and briefly evade damage during the burst. Terrain stops the dash. Dash cancels a spear combo, cannot begin in midair or while shielding, and takes priority over simultaneous attack/jump inputs. New attacks/jumps during a dash are ignored; held shield raises afterward.
+
 Focus loss pauses the game and clears held keys and mouse buttons. The map and journal also pause combat.
+
+## Village map
+
+The world has 20 homes across eight style slots, using custom Bukidnon-inspired raised homes and optional creator house overrides. This local project includes four free premade house exteriors; fresh clones use full-size custom alternatives in those slots. Twelve friendly villagers work and patrol near the market, loom, forge and river. Detailed foliage, irregular paths and animated water bring the setting to life. The top-right minimap uses a green arrow for Agyu and rotates it with his facing. M opens the labelled full map. Houses have solid exteriors; they cannot be entered. Press E near an NPC for a conversation. See **RPG_ART.md** for current artwork, source credits, saved prompts and previews; **VILLAGE.md** retains the architectural references.
 
 ## How to finish
 
@@ -61,7 +68,7 @@ See **TEST_REPORT.md** for the latest verification results. Run **test.bat**. It
 
 The progression check drives real game update and interaction methods while programmatically positioning Agyu and defeating enemies. It verifies state transitions; it is not a substitute for a human combat/balance playtest.
 
-F1 reports rolling update/render CPU time, paint frequency, BFS/A* builds, tree-collision checks, and particle count. Paint frequency is not a guarantee of monitor presentation rate.
+F1 reports rolling update/render CPU time, paint frequency, BFS/A* builds, tree/house collision checks, and particle count. Paint frequency is not a guarantee of monitor presentation rate.
 
 ## Artwork
 

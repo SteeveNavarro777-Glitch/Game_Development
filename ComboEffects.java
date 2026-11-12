@@ -51,7 +51,7 @@ final class ComboEffects {
     }
     /** Tip coordinates are world coordinates. Body is an existing cached weaponless sprite. */
     static void step(int stage,Player.Dir dir,double previous,double current,double x,double y,
-            double tipX,double tipY,BufferedImage body,int offsetX,int offsetY){
+            double tipX,double tipY,BufferedImage body,double offsetX,double offsetY){
         stage(stage);
         if(current<=previous)return;
         for(double event:GHOST_EVENTS[stage])if(crossed(previous,current,event)&&body!=null){
@@ -68,10 +68,10 @@ final class ComboEffects {
             Fx.burst(tipX,tipY,COLORS[stage].getRGB(),stage==5?5:2,stage>=4?36:24,.19,0,1);
         if(stage==5){
             if(crossed(previous,current,.16)){
-                ring(x,y,60,.48);
-                Fx.burst(x,y-10,0xFFD370,16,86,.34,14,1);
+                ring(x,y,60*GameScale.AGYU,.48);
+                Fx.burst(x,y-10*GameScale.AGYU,0xFFD370,16,86,.34,14,1);
             }
-            if(crossed(previous,current,.23))ring(x,y,43,.34);
+            if(crossed(previous,current,.23))ring(x,y,43*GameScale.AGYU,.34);
         }
     }
     static void hit(int stage,double x,double y){
@@ -111,11 +111,13 @@ final class ComboEffects {
                 double fade=Math.max(0,ghost.life/ghost.max);
                 int sx=(int)Math.round(ghost.x)-camX,sy=(int)Math.round(ghost.y)-camY;
                 g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)(global*.23*fade)));
-                g.drawImage(ghost.image,sx-ghost.image.getWidth()/2,sy-ghost.image.getHeight()+1,null);
-                g.setColor(COLORS[ghost.stage]);g.setStroke(THIN);
-                int streak=3+(int)Math.round((1-fade)*8);
-                g.drawLine(sx-ghost.dx*4,sy-17-ghost.dy*4,
-                        sx-ghost.dx*(4+streak),sy-17-ghost.dy*(4+streak));
+                Graphics2D body=GameScale.agyuGraphics(g,sx,sy);
+                try{
+                    body.drawImage(ghost.image,-ghost.image.getWidth()/2,-ghost.image.getHeight()+1,null);
+                    body.setColor(COLORS[ghost.stage]);body.setStroke(THIN);
+                    int streak=3+(int)Math.round((1-fade)*8);
+                    body.drawLine(-ghost.dx*4,-17-ghost.dy*4,-ghost.dx*(4+streak),-17-ghost.dy*(4+streak));
+                }finally{body.dispose();}
             }
             for(Impact impact:impacts)drawImpact(g,impact,camX,camY,global);
         }finally{g.dispose();}
@@ -146,7 +148,7 @@ final class ComboEffects {
         double progress=1-impact.life/impact.max;
         double fade=1-progress;
         int sx=(int)Math.round(impact.x)-camX,sy=(int)Math.round(impact.y)-camY;
-        double radius=(impact.stage==5?14:8)*(.6+.4*progress);
+        double radius=(impact.stage==5?14:8)*GameScale.AGYU*(.6+.4*progress);
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)(global*fade)));
         g.setStroke(THIN);
         for(int point=0;point<8;point++){

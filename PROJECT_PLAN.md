@@ -4,7 +4,7 @@
 
 **Platform:** Java 17+, desktop, keyboard, Java Swing/Java2D
 
-**Format:** one compact 64 x 48 tile world, single player, offline
+**Format:** one compact 64 x 48 tile village, single player, offline
 
 **Course purpose:** one playable game that makes DSA and OOP visible in real behavior
 
@@ -14,7 +14,7 @@
 
 The implemented journey is: title -> exploration -> clear three shrine guard groups -> restore three shrines -> fight the awakened guardian -> return home -> victory.
 
-Included: movement/run, Space jumping, six-move mouse spear combos with physical body animation, directional shield defense, health/hit reactions, herbs, three seals, two enemy types, visible guardian pulse warning, five named beacons, connected roads, map, journal, optional route trail, pause, defeat/victory, restart, pixel rendering, and diagnostics.
+Included: energy-limited sprinting, eight-direction lightning dash, continuous health/energy bars, Space jumping, six-move mouse spear combos with physical body animation, directional shield defense, health/hit reactions, herbs, three seals, two enemy types, visible guardian pulse warning, five named beacons, 20 houses across eight designs with solid exteriors, 12 friendly workers/villagers with dialogue and patrols, connected village streets/gardens/bridges, live arrow minimap, full map, journal, optional route trail, pause, defeat/victory, restart, pixel rendering, and diagnostics.
 
 This is a deliberately short, complete classroom game loop. Actual play length and difficulty still require human testing. It is not an open-world RPG. Save files, crafting, multiplayer, equipment trees, large dialogue systems, and additional levels are outside this release.
 
@@ -46,12 +46,12 @@ The queue and stack are both backed by ArrayDeque but use different operation co
 
 | Pillar | Concrete evidence |
 | --- | --- |
-| Encapsulation | Inventory keeps its HashMap private and rejects invalid quantities; Player and Enemy keep health private and expose controlled damage/healing; QuestLog owns completion state |
+| Encapsulation | Inventory keeps its HashMap private and rejects invalid quantities; Player and Enemy keep health private and expose controlled damage/healing; QuestLog owns completion state; EnergyMeter keeps spending, delayed recovery and exhaustion rules private |
 | Abstraction | Abstract Enemy contains shared lifecycle, collision, rendering and navigation; speed/contactDamage are abstract operations |
 | Inheritance | Slime and Guardian extend Enemy and reuse its behavior |
 | Polymorphism | A List<Enemy> invokes update/draw on both concrete types; Guardian overrides update/draw and combat stats; Drawable and Damageable are focused interfaces |
 
-Composition is also explicit: Player owns Inventory, JumpMotion, SpearAttack and ShieldGuard; SpearAttack stores six immutable move definitions in an array; Enemy owns CircularList patrol data; GamePanel owns World, Player, QuestLog and enemy objects. Enums represent input actions/items/player/session state; constructors establish initial health and inventory; IOException reports missing/unreadable art.
+Composition is also explicit: Npc composes cached Sprite providers and CircularList patrols; Player owns Inventory, EnergyMeter, DashMotion, JumpMotion, SpearAttack and ShieldGuard; SpearAttack stores six immutable move definitions in an array; Enemy owns CircularList patrol data; GamePanel owns World, Player, QuestLog and enemy objects. Enums represent input actions/items/player/session state; constructors establish initial health and inventory; IOException reports missing/unreadable art.
 
 Some spatial state remains package-visible to fit the existing small Java project. The design does not claim every field is private or that the code is a full engine framework.
 
@@ -100,9 +100,12 @@ classDiagram
 - Keep update and HUD/render reads under the same lock.
 - Consume synchronized immutable input snapshots; suppress key autorepeat; clear inputs and pause on focus loss.
 - Make loop startup idempotent and stop it when the window closes.
-- Cache each tree's exact collider and index it in every overlapping grid cell. Query local cells instead of scanning all 85 trees per collision. This adds O(grid cells + indexed references) memory; a crowded bucket can still degrade to O(n).
-- Precompute conservative enemy walkability once per world, reserving whole tiles plus actor clearance so routes cannot cross boundary tree trunks. Build one BFS field shared by enemies, at most once per 0.35 seconds while the target tile changes. A* runs only with the trail enabled, at most once per 0.6 seconds.
-- Reuse the render list, cull off-screen trees/enemies, cache art, and cap live effects at 256 particles.
+- Cache exact tree and house colliders and index them in every overlapping grid cell. Query local cells instead of scanning every static obstacle per collision. This adds O(grid cells + indexed references) memory; a crowded bucket can still degrade to O(n).
+- Precompute conservative enemy walkability once per world, reserving whole tiles plus actor clearance, with actor-center clearance at narrow bridges/approaches; sampled edge checks cover those transitions. Build one BFS field shared by enemies, at most once per 0.35 seconds while the target tile changes. A* runs only with the trail enabled, at most once per 0.6 seconds.
+- Reuse the render list, cull off-screen trees/houses/enemies, cache art, and cap live effects at 256 particles, 20 dash afterimages and 32 lightning segments. Dash afterimages reuse cached sprite references.
+- Subdivide lightning dash travel into steps of at most 3 art pixels, so fast movement cannot skip narrow terrain or tree colliders. Normalize diagonal input before applying dash speed.
+- Cache NPC sprites/left mirrors once and prebake 16 edge-mask variants for terrain transitions and animated river phases. NPC A* routes are built only at patrol-leg boundaries.
+- Cache the village minimap terrain once per World; redraw only the live player arrow and quest markers.
 - Keep exact collision checks during movement. Navigation is a tile-center approximation; geometry and chase behavior still need manual playtesting around corners.
 
 No measured FPS improvement or percentage speedup is claimed. F1 timings are rolling CPU measurements on the running machine. Indexed/brute-force equivalence is a correctness comparison, not an FPS benchmark.
@@ -113,11 +116,14 @@ Run test.bat to compile with -Xlint:all and perform:
 
 - 20,000 seeded collision queries comparing the spatial index with a brute-force exact reference.
 - Sweep every traversable navigation edge with an enemy-sized collider, including positions between tile centers.
+- Verify sprint depletion/recovery/exhaustion, dash cost/cooldown/eight-direction speed, real input priorities, high-speed terrain collisions, temporary dash protection, effect caps, paused timers and health/energy HUD fills.
 - Verify a spear attack hits exactly once in all four directions and that healing consumes items only when needed.
 - Every ordered pair of mission landmarks: reachable by BFS; A* length equals the BFS shortest distance; route steps are adjacent/walkable and end at the goal.
 - Invalid/blocked endpoints, empty and circular linked-list behavior, item validation/overflow, prerequisite/duplicate quest guards, key autorepeat/focus clearing, and once-only defeat rewards.
 - An automated session from title to all shrine interactions, guardian defeat and home victory; map/pause behavior; fresh-session state after victory and defeat.
-- Off-screen renders for title, gameplay, map, journal, and victory under build/.
+- Check NPC patrol collision, occupations, sprite/work animation, dialogue priorities, pause/focus/hit-stop and restart.
+- Check all house approaches and dash collisions; verify arrow position/facing, map graphics-state preservation, and minimap/combo layout.
+- Off-screen renders for title, gameplay, village streets/overview, map, journal, and victory under build/.
 
 Remaining human acceptance:
 

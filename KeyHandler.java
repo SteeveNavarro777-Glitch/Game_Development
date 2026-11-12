@@ -8,7 +8,7 @@ import java.util.Set;
 /** Keyboard and mouse share one synchronized input snapshot. */
 public final class KeyHandler extends KeyAdapter implements MouseListener {
     public static final int ATTACK=1,INTERACT=2,HEAL=4,PAUSE=8,MAP=16,
-            JOURNAL=32,START=64,RESTART=128,HINT=256,DEBUG=512,JUMP=1024;
+            JOURNAL=32,START=64,RESTART=128,HINT=256,DEBUG=512,JUMP=1024,DASH=2048;
     private final Set<Integer> held=new HashSet<>();
     private int edges;
     private boolean leftMouse,rightMouse;
@@ -26,6 +26,7 @@ public final class KeyHandler extends KeyAdapter implements MouseListener {
         if(!held.add(code))return;
         switch(code){
             case KeyEvent.VK_SPACE:edges|=JUMP;break;
+            case KeyEvent.VK_Q:case KeyEvent.VK_CONTROL:edges|=DASH;break;
             case KeyEvent.VK_J:edges|=ATTACK;break;
             case KeyEvent.VK_E:edges|=INTERACT;break;
             case KeyEvent.VK_H:edges|=HEAL;break;

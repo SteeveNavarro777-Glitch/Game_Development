@@ -43,8 +43,10 @@ public final class GuardVisualTests {
                 BufferedImage expected=new BufferedImage(192,144,BufferedImage.TYPE_INT_ARGB);
                 Graphics2D reference=expected.createGraphics();
                 try{
-                    reference.setColor(new Color(0,0,0,70));reference.fillOval(85,96,22,8);
-                    reference.drawImage(original,64,37,null);
+                    reference.translate(96,100);reference.scale(GameScale.AGYU,GameScale.AGYU);
+                    reference.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                    reference.setColor(new Color(0,0,0,70));reference.fillOval(-11,-4,22,8);
+                    reference.drawImage(original,-32,-63,null);
                 }finally{reference.dispose();}
                 boolean oneWholePose=true;
                 for(int y=0;y<144;y++)for(int x=0;x<192;x++)

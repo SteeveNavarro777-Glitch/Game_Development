@@ -37,7 +37,7 @@ public final class ShieldGuard {
         if(cooldown>0)return;
         cooldown=0.14;
         int[] point=impact(owner.dir);
-        Fx.spark(owner.x+point[0],owner.y+point[1]);
+        Fx.spark(owner.x+point[0]*GameScale.AGYU,owner.y+point[1]*GameScale.AGYU);
         Fx.hitStop(0.025);
     }
     private static int[] impact(Player.Dir dir){return IMPACT[dir.ordinal()];}

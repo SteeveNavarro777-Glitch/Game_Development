@@ -12,7 +12,7 @@ public class Fx {
     static int shakeX,shakeY;
 
     static void clear(){
-        list.clear();ComboEffects.clear();
+        list.clear();ComboEffects.clear();DashEffects.clear();
         hitStop=shakeT=shakeMax=shakeMag=0;shakeX=shakeY=0;
     }
     static void burst(double x,double y,int rgb,int n,double speed,double life,double grav,int size){
@@ -40,7 +40,7 @@ public class Fx {
             if(p.life<=0){list.remove(i);continue;}
             p.vy+=p.grav*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
         }
-        ComboEffects.update(dt);
+        ComboEffects.update(dt);DashEffects.update(dt);
         if(shakeT>0){
             shakeT=Math.max(0,shakeT-dt);double m=shakeMag*Math.max(0,shakeT/shakeMax);
             shakeX=(int)Math.round((rnd.nextDouble()-.5)*2*m);

@@ -5,7 +5,7 @@ import java.util.List;
 
 /** Agyu. Units are art pixels. Smoothness comes from: acceleration, render interpolation, dust, hit-stop, shake. */
 public final class Player implements Drawable, Damageable {
-    public enum State { IDLE, WALK, RUN, ATTACK, GUARD, HURT, DEAD }
+    public enum State { IDLE, WALK, RUN, DASH, ATTACK, GUARD, HURT, DEAD }
     public enum Dir { DOWN, UP, LEFT, RIGHT }
 
     static final double WALK_SPEED = 92, RUN_SPEED = 150;       // art pixels per second
@@ -23,6 +23,8 @@ public final class Player implements Drawable, Damageable {
     private final SpearAttack spear = new SpearAttack();
     private final ShieldGuard shield = new ShieldGuard();
     private final JumpMotion jump = new JumpMotion();
+    private final EnergyMeter energy = new EnergyMeter();
+    private final DashMotion dash = new DashMotion();
     private double attackBuffer,comboGrace;
     private int nextCombo;
     private Dir bufferedDir = Dir.DOWN;
@@ -33,11 +35,16 @@ public final class Player implements Drawable, Damageable {
     }
     public int health() { return hp; }
     public int maxHealth() { return maxHp; }
+    public double energy() { return energy.value(); }
+    public double maxEnergy() { return EnergyMeter.MAX; }
+    boolean energyExhausted() { return energy.exhausted(); }
+    boolean dashing() { return state == State.DASH; }
+    double dashCooldown() { return dash.cooldown(); }
     Inventory inventory() { return inventory; }
     boolean useHerb() {
         if (!alive() || hp == maxHp || !inventory.consume(Inventory.Item.HERB)) return false;
         hp = Math.min(maxHp, hp + 2);
-        Fx.burst(x, y - 16, 0xA4E3AE, 10, 35, 0.4, -20, 2);
+        Fx.burst(x, y - 16*GameScale.AGYU, 0xA4E3AE, 10, 35, 0.4, -20, 2);
         return true;
     }
 
@@ -47,7 +54,7 @@ public final class Player implements Drawable, Damageable {
     int comboStep() { return state == State.ATTACK || comboGrace > 0 ? spear.stage() + 1 : 0; }
     String comboName() { return comboStep() == 0 ? "" : SpearAttack.name(spear.stage()); }
     double comboGrace() { return comboGrace; }
-    Rectangle2D.Double feetBox() { return new Rectangle2D.Double(x - 5, y - 6, 10, 6); }
+    Rectangle2D.Double feetBox() { return new Rectangle2D.Double(x-5*GameScale.AGYU,y-6*GameScale.AGYU,10*GameScale.AGYU,6*GameScale.AGYU); }
 
     void update(double dt, KeyHandler.Input keys, World world, List<Enemy> enemies) {
         animTime += dt;
@@ -56,6 +63,8 @@ public final class Player implements Drawable, Damageable {
         invincible = Math.max(0, invincible - dt);
         comboGrace = Math.max(0, comboGrace - dt);
         shield.update(dt);
+        dash.updateCooldown(dt);
+        if (alive()) energy.update(dt, state != State.RUN && state != State.DASH);
         boolean wasAirborne = jump.airborne();
         if (jump.update(dt) && alive()) Fx.dust(x, y);
         if (state == State.DEAD) {
@@ -67,6 +76,22 @@ public final class Player implements Drawable, Damageable {
             move(kbx * dt, kby * dt, world);
             kbx *= Math.exp(-6 * dt); kby *= Math.exp(-6 * dt); vx = vy = 0;
             if (stateTime >= HURT_TIME) setState(State.IDLE);
+            return;
+        }
+        if (state == State.DASH) {
+            updateDash(dt, world);
+            return; // Inputs during the burst do not leave a queued jump or attack.
+        }
+        if (keys.pressed(KeyHandler.DASH) && !keys.guard && !wasAirborne && !jump.airborne()
+                && dash.ready() && energy.spend(DashMotion.COST)) {
+            resetCombo();
+            dir = facingFor(keys);
+            double dx = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+            double dy = (keys.down ? 1 : 0) - (keys.up ? 1 : 0);
+            if (dx == 0 && dy == 0) { double[] facing = vec(); dx = facing[0]; dy = facing[1]; }
+            dash.begin(dx, dy); vx = vy = 0; setState(State.DASH);
+            Fx.burst(x, y - 15*GameScale.AGYU, 0x9EF3FF, 10, 65, .2, 0, 1);
+            updateDash(dt, world);
             return;
         }
         // Guard wins simultaneous ground inputs, but never snaps an airborne hop down.
@@ -109,15 +134,44 @@ public final class Player implements Drawable, Damageable {
             beginAttack();
             return;
         }
-        boolean moving = moveFromInput(dt, keys, world, keys.run ? RUN_SPEED : WALK_SPEED);
+        boolean sprinting = keys.run && energy.canSprint();
+        double beforeX = x, beforeY = y;
+        boolean moving = moveFromInput(dt, keys, world, sprinting ? RUN_SPEED : WALK_SPEED);
+        boolean traveled = Math.hypot(x - beforeX, y - beforeY) > 1e-6;
         if (moving) {
-            setState(keys.run ? State.RUN : State.WALK);
+            if (sprinting && traveled) energy.sprint(dt);
+            setState(sprinting && traveled ? State.RUN : State.WALK);
             dustT -= dt;
             if (dustT <= 0 && !jump.airborne()) {
                 Fx.dust(x - vx * 0.03, y);
-                dustT = keys.run ? 0.09 : 0.22;
+                dustT = state == State.RUN ? 0.09 : 0.22;
             }
         } else if (Math.hypot(vx, vy) < 8) setState(State.IDLE);
+    }
+
+    private void updateDash(double dt, World world) {
+        double travel = dash.advance(dt);
+        // At most three art pixels per collision query, even with a coarse simulation step.
+        int steps = Math.max(1, (int) Math.ceil(travel / 3));
+        double mx = dash.dx() * travel / steps, my = dash.dy() * travel / steps;
+        double trailX = x, trailY = y;
+        for (int i = 0; i < steps; i++) {
+            double beforeX = x, beforeY = y;
+            move(mx, my, world);
+            if (Math.hypot(x - trailX, y - trailY) >= 11 || i == steps - 1) {
+                BufferedImage[] frames = Assets.run[dir.ordinal()];
+                BufferedImage body = frames[(int) (animTime * 30) % frames.length];
+                DashEffects.emit(trailX, trailY, x, y, body); trailX = x; trailY = y;
+            }
+            if (Math.abs(x - beforeX - mx) > 1e-6 || Math.abs(y - beforeY - my) > 1e-6) {
+                dash.cancel(); break;
+            }
+        }
+        vx = vy = 0;
+        if (!dash.active()) {
+            Fx.burst(x, y - 12*GameScale.AGYU, 0x9EF3FF, 5, 34, .16, 0, 1);
+            setState(State.IDLE);
+        }
     }
 
     private boolean moveFromInput(double dt, KeyHandler.Input keys, World world, double speed) {
@@ -183,7 +237,7 @@ public final class Player implements Drawable, Damageable {
     }
 
     public void damage(int dmg, double fromX, double fromY) {
-        if (dmg <= 0 || state == State.DEAD) return;
+        if (dmg <= 0 || state == State.DEAD || state == State.DASH) return;
         if (blocksFrom(fromX, fromY)) { shield.block(this); return; }
         if (invincible > 0) return;
         resetCombo();
@@ -197,9 +251,12 @@ public final class Player implements Drawable, Damageable {
 
     public double sortY() { return y; }
 
-    public void draw(Graphics2D g, int camX, int camY, double alpha) {
+    public void draw(Graphics2D graphics, int camX, int camY, double alpha) {
         int sx = (int) Math.round(px + (x - px) * alpha) - camX;
         int sy = (int) Math.round(py + (y - py) * alpha) - camY;
+        Graphics2D g=GameScale.agyuGraphics(graphics,sx,sy);
+        try{
+        sx=sy=0;
         g.setColor(new Color(0, 0, 0, 70));
         g.fillOval(sx - 11, sy - 4, 22, 8);
         // The shadow and collision stay on the ground; all held gear rises with Agyu.
@@ -229,6 +286,10 @@ public final class Player implements Drawable, Damageable {
                 sequence = ShieldGuard.bodies[facing];
                 image = sequence[(int) (animTime * 4) % sequence.length];
                 break;
+            case DASH:
+                sequence = Assets.run[facing];
+                image = sequence[(int) (animTime * 30) % sequence.length];
+                break;
             case RUN:
                 sequence = Assets.run[facing];
                 image = sequence[(int) (animTime * (side ? 24 : 5)) % sequence.length];
@@ -256,5 +317,6 @@ public final class Player implements Drawable, Damageable {
         if (attacking && !spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
         if (state == State.GUARD) shield.drawImpact(g, sx, sy, dir);
         g.setComposite(original);
+        }finally{g.dispose();}
     }
 }

@@ -1,0 +1,36 @@
+[
+  {
+    "key": "terrain",
+    "transparent": false,
+    "refs": [
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\build\\village-references\\House 1.png"
+    ],
+    "prompt": "Production sprites for a top-down 32x32-tile Java RPG. Match the references' handcrafted pixel art: refined colored outlines, rich small pixel clusters, warm natural light, sharp square pixels, no smooth painting or vector look. No text, labels, watermark or UI. Create a square terrain texture atlas, EXACTLY 4 equal columns and 4 equal rows, 16 equal cells, no gutters/borders/gridlines. Each cell is a seamless top-down 32x32 game tile enlarged sharply. Row 1: four variations of lush fine-bladed lime/olive green upland grass with deep green leaf shadows and lighter yellowgreen tips, no large objects. Row 2: four warm golden packed-earth footpath textures with tiny pebbles, subtle irregular wear and terra cotta grains, no grass. Row 3: four variations of irregular rounded warm gray-beige village paving stones with fine earthy seams, clearly flat ground rather than wall bricks. Row 4: four consecutive coherent animation frames of clear turquoise blue river water with a fine broken cyan/white ripple lattice and gentle current, no shore or objects. Every texture fills its cell. Opposite edges join seamlessly. Consistent mean color within each row, moderate contrast so actors remain legible. No framing, perspective or patches crossing cells."
+  },
+  {
+    "key": "foliage",
+    "transparent": true,
+    "refs": [
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\build\\village-references\\House 1.png"
+    ],
+    "prompt": "Production sprites for a top-down 32x32-tile Java RPG. Match the references' handcrafted pixel art: refined colored outlines, rich small pixel clusters, warm natural light, sharp square pixels, no smooth painting or vector look. No text, labels, watermark or UI. Transparent foliage atlas, EXACTLY 3 columns by 2 rows, six isolated complete objects with broad clear gutters. Orthographic three-quarter top-down RPG view, feet point down. Top row: three distinct broadleaf upland Mindanao trees with rounded irregular densely layered canopies, green, slightly bluegreen, and warm olive variations; full branching ochre-brown trunks and roots. Bottom row: one taller spreading broadleaf tree; one banana plant cluster with split broad leaves and a small green fruit bunch; one low dense tropical white-flowered shrub. Refined natural interlocking 1-3 pixel leaf clusters, dappled light, detailed bark. Tree scale about 110 gamepixels tall; no giant sphere crowns. Minimum 40 transparent source pixels between objects and image edges. Entire silhouettes, no cropped leaves, no ground patches or outside cast shadow. Genuine alpha-zero background. No conifers or cherry blossoms."
+  },
+  {
+    "key": "npcs",
+    "transparent": true,
+    "refs": [
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\build\\village-references\\Villager and House 2.png",
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\build\\village-references\\Fisherman.png"
+    ],
+    "prompt": "Production sprites for a top-down 32x32-tile Java RPG. Match the references' handcrafted pixel art: refined colored outlines, rich small pixel clusters, warm natural light, sharp square pixels, no smooth painting or vector look. No text, labels, watermark or UI. Create a real transparent NPC animation sprite sheet, wide landscape, EXACTLY 8 equal columns and 6 equal rows, 48 isolated complete humans in a strict grid, no scenery/shadows. Slender detailed village humans about 44 gamepixels tall, heads about one fifth of body height, brown Filipino skin tones and dark hair. Fictional Bukidnon-inspired daily clothing: woven red/brown/cream/indigo cloth, simple geometric edging, practical wraps; no sacred costume claims, feather crowns, armor or wizard hats. Each ROW is one consistent character. Row1 male farmer with cream workshirt and red sash. Row2 woman weaver with maroon woven blouse and dark skirt. Row3 smith in brown apron with tied-back hair. Row4 fisher with light shirt, teal trousers/wrap and bamboo fishing rod. Row5 market woman in ochre blouse/dark skirt with woven basket. Row6 older storyteller with gray hair, cream tunic and dark red shoulder cloth. Columns in EVERY row: 1 front idle, 2 front left-foot-forward step, 3 back idle, 4 back right-foot-forward step, 5 right-facing step A, 6 right-facing step B, 7 occupation idle, 8 occupation action. Occupations last2columns: farmer uses little handtool; weaver handles folded cloth; smith raises/lowers small hammer without anvil; fisher adjusts rod pointingright; marketwoman lifts basket; elder gestures gently. Same outfit/head/scale through row, stable feet baseline in each gridcell. Minimum 20 percent transparent padding per cell; rod fits entire cell. Genuine transparent background; no labels or gridlines."
+  },
+  {
+    "key": "houses",
+    "transparent": true,
+    "refs": [
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\res\\rpg-village-local\\source\\Free Premade houses.png",
+      "C:\\Users\\User\\OneDrive\\Documents\\Agyu_Game\\res\\village-houses-sheet.png"
+    ],
+    "prompt": "Production sprites for a top-down 32x32-tile Java RPG. Match the references' handcrafted pixel art: refined colored outlines, rich small pixel clusters, warm natural light, sharp square pixels, no smooth painting or vector look. No text, labels, watermark or UI. Create a transparent 2 column by 2 row atlas of four complete fictional Bukidnon-inspired raised houses. Reference1 controls refined pixel material texture and native pixel density; reference2 guides bamboo/stilt silhouette but remove its heavy black lines. Top-left familyhouse: broad cogon thatch roof, woven bamboo walls, timber posts, porch and short steps. Top-right long raised familyhouse: layered straw roof, woven walls and bamboo porch rail. Bottom-left weaver workshop home: shaded veranda with modest hanging woven cloth. Bottom-right ordinary village gathering pavilion: broad grass roof and open posts, NOT a ritual building. Front doors face down, horizontal walls, orthographic three-quarter TOP-DOWN RPG camera, not isometric diamonds. Detailed straw fibres, warm weathered bamboo and timber, natural muted gold/brown with small red/cream woven cloth accents. No chimneys, medieval stone ground floor, glass dormers or ornate sacred carvings. Each complete object separate with wide transparent gutters and at least40sourcepixelmargin. Shared scale and baseline; at game scale about180pixelswide and150high. No ground/scenery/outside castshadow, no labels, genuine alpha-zero background."
+  }
+]

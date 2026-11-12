@@ -25,8 +25,10 @@ public final class GamePanel extends JPanel implements Runnable {
     private final BufferedImage buffer=new BufferedImage(VIEW_W,VIEW_H,BufferedImage.TYPE_INT_RGB);
     private final List<Drawable> drawList=new ArrayList<>(128);
     private final List<Enemy> enemies=new ArrayList<>();
+    private final List<Npc> npcs=new ArrayList<>();
     private final ArrayDeque<GameEvent> events=new ArrayDeque<>();
     private World world;
+    private VillageMap villageMap;
     private Player player;
     private QuestLog quests;
     private Mode mode=Mode.TITLE;
@@ -61,8 +63,9 @@ public final class GamePanel extends JPanel implements Runnable {
     void reset(){
         synchronized(lock){
             Fx.clear();keys.clear();
-            world=new World(7);player=new Player(World.SPAWN_X,World.SPAWN_Y);
+            world=new World(7);villageMap=new VillageMap(world);player=new Player(World.SPAWN_X,World.SPAWN_Y);
             quests=new QuestLog();enemies.clear();events.clear();drawList.clear();
+            npcs.clear();npcs.addAll(NpcPopulation.create(world));
             for(int group=0;group<3;group++){
                 int[] site=World.LANDMARKS[group+1];
                 int[][] offsets={{-2,0},{2,0},{0,-2},{0,2}};
@@ -108,7 +111,7 @@ public final class GamePanel extends JPanel implements Runnable {
     private double targetX(){return Math.max(0,Math.min(player.x-VIEW_W/2.0,world.cols*World.T-VIEW_W));}
     private double targetY(){return Math.max(0,Math.min(player.y-20-VIEW_H/2.0,world.rows*World.T-VIEW_H));}
     private void freezeInterpolation(){
-        player.savePrev();for(Enemy enemy:enemies)enemy.savePrev();
+        player.savePrev();for(Enemy enemy:enemies)enemy.savePrev();for(Npc npc:npcs)npc.savePrev();
         prevCamX=camX;prevCamY=camY;
     }
     void update(double dt){
@@ -133,16 +136,17 @@ public final class GamePanel extends JPanel implements Runnable {
         if(input.pressed(KeyHandler.HINT)){hint=!hint;pathTimer=0;}
         // Reading the map or journal pauses the world, including combat timers.
         if(mapOpen||journalOpen){freezeInterpolation();return;}
-        player.savePrev();for(Enemy enemy:enemies)enemy.savePrev();
+        player.savePrev();for(Enemy enemy:enemies)enemy.savePrev();for(Npc npc:npcs)npc.savePrev();
         prevCamX=camX;prevCamY=camY;
         if(Fx.hitStop>0){
-            keys.defer(input,KeyHandler.ATTACK|KeyHandler.JUMP|KeyHandler.INTERACT|KeyHandler.HEAL);
+            keys.defer(input,KeyHandler.ATTACK|KeyHandler.JUMP|KeyHandler.DASH|KeyHandler.INTERACT|KeyHandler.HEAL);
             Fx.hitStop=Math.max(0,Fx.hitStop-dt);Fx.update(dt);return;
         }
-        time+=dt;noticeTimer=Math.max(0,noticeTimer-dt);
+        time+=dt;world.updateAmbient(dt);noticeTimer=Math.max(0,noticeTimer-dt);
         if(input.pressed(KeyHandler.HEAL))
             say(player.useHerb()?"Herb used: +2 health.":"You need missing health and an herb.");
         player.update(dt,input,world,enemies);
+        for(Npc npc:npcs)npc.update(dt,world,player);
         updateNavigation(dt);
         for(Enemy enemy:enemies){
             enemy.update(dt,player,world,flow);
@@ -151,7 +155,7 @@ public final class GamePanel extends JPanel implements Runnable {
         processEvents();
         enemies.removeIf(Enemy::removable);
         if(!player.alive()){mode=Mode.DEFEAT;freezeInterpolation();}
-        else if(input.pressed(KeyHandler.INTERACT)&&!player.airborne())interact();
+        else if(input.pressed(KeyHandler.INTERACT)&&!player.airborne()&&!player.dashing())interact();
         Fx.update(dt);
         double follow=1-Math.exp(-6*dt);
         camX+=(targetX()-camX)*follow;camY+=(targetY()-camY)*follow;
@@ -216,7 +220,12 @@ public final class GamePanel extends JPanel implements Runnable {
             }else say(quests.seals()<3?"The guardian sleeps. Restore all three shrines.":"Keep clear of the guardian's warning ring.");
             return;
         }
-        say("Stand near a beacon to interact. M opens the map.");
+        Npc nearest=null;double range=Double.MAX_VALUE;
+        for(Npc npc:npcs)if(npc.canTalk(player)){
+            double d=Math.hypot(npc.x()-player.x,npc.y()-player.y);
+            if(d<range){range=d;nearest=npc;}
+        }
+        if(nearest!=null)nearest.talk(player);
     }
     private void say(String text){notice=text;noticeTimer=3.5;}
     private int[] objectiveSite(){
@@ -246,13 +255,18 @@ public final class GamePanel extends JPanel implements Runnable {
                 }
                 if(mode!=Mode.TITLE)drawBeacons(g,cx,cy);
                 drawList.clear();
-                for(World.Tree tree:world.trees)if(visible(tree.x,tree.y,cx,cy,65))drawList.add(tree);
+                for(World.Tree tree:world.trees)if(visible(tree.x,tree.y,cx,cy,160))drawList.add(tree);
+                for(World.Building house:world.buildings)if(visible(house.x,house.y,cx,cy,224))drawList.add(house);
+                for(World.Prop prop:world.props)if(visible(prop.x,prop.y,cx,cy,160))drawList.add(prop);
+                for(Npc npc:npcs)if(visible(npc.x(),npc.y(),cx,cy,112))drawList.add(npc);
                 for(Enemy enemy:enemies)if(visible(enemy.x,enemy.y,cx,cy,50))drawList.add(enemy);
                 if(mode!=Mode.TITLE)drawList.add(player);
                 drawList.sort(Comparator.comparingDouble(Drawable::sortY));
+                // Keep lightning and afterimages behind the complete current character.
+                DashEffects.draw(g,cx,cy);
                 for(Drawable drawable:drawList)drawable.draw(g,cx,cy,alpha);
                 Fx.draw(g,cx,cy);
-                if(mode!=Mode.TITLE)drawHud(g);
+                if(mode!=Mode.TITLE){for(Npc npc:npcs)npc.drawDialogue(g,cx,cy,alpha,VIEW_W,VIEW_H);drawHud(g);}
                 if(mapOpen)drawMap(g);
                 if(journalOpen)drawJournal(g);
                 if(debug)drawDiagnostics(g);
@@ -302,52 +316,45 @@ public final class GamePanel extends JPanel implements Runnable {
     private void center(Graphics2D g,String text,int y,Color color){
         text(g,text,(VIEW_W-g.getFontMetrics().stringWidth(text))/2,y,color);
     }
+    private void vitalBar(Graphics2D g,int x,int y,int width,int height,double ratio,String label,Color fill,Color shine){
+        g.setColor(new Color(0x080F17));g.fillRect(x-1,y-1,width+2,height+2);
+        g.setColor(new Color(0x35444C));g.fillRect(x,y,width,height);
+        int filled=(int)Math.round(width*Math.max(0,Math.min(1,ratio)));
+        g.setColor(fill);g.fillRect(x,y,filled,height);
+        if(filled>0){g.setColor(shine);g.fillRect(x,y,filled,2);}
+        int tx=x+width/2-g.getFontMetrics().stringWidth(label)/2;
+        text(g,label,tx+1,y+9,INK);text(g,label,tx,y+8,CREAM);
+    }
     private void drawHud(Graphics2D g){
-        card(g,10,10,230,57);g.setFont(BOLD);
-        text(g,"AGYU / LOST GROVE",18,25,GOLD);
-        for(int i=0;i<player.maxHealth();i++){
-            g.setColor(i<player.health()?new Color(0xE66A66):new Color(0x46534A));
-            g.fillRect(18+i*13,34,9,8);
-        }
         g.setFont(SMALL);
-        text(g,"SEALS "+quests.seals()+"/3   HERBS "+player.inventory().count(Inventory.Item.HERB)+" [H]",92,42,CREAM);
-        text(g,"M map  Tab journal  N trail",18,58,MUTED);
-        card(g,VIEW_W-132,10,121,34);
-        text(g,"LOST GROVE / "+(int)(time/60)+":"+String.format("%02d",(int)time%60),VIEW_W-124,24,CREAM);
-        text(g,"Guards defeated: "+kills,VIEW_W-124,36,MUTED);
+        text(g,"HEALTH",19,22,INK);text(g,"HEALTH",18,21,CREAM);
+        vitalBar(g,66,13,170,10,player.health()/(double)player.maxHealth(),
+                player.health()+" / "+player.maxHealth(),new Color(0xDB585B),new Color(0xFFA38B));
+        text(g,"ENERGY",19,38,INK);text(g,"ENERGY",18,37,CREAM);
+        vitalBar(g,66,29,170,10,player.energy()/player.maxEnergy(),
+                (int)Math.ceil(player.energy())+" / "+(int)player.maxEnergy(),
+                new Color(player.energyExhausted()?0xB77837:0x37AFC7),
+                new Color(player.energyExhausted()?0xF6CB77:0x9BFAE9));
+        card(g,VIEW_W-112,10,104,92);
+        text(g,"VILLAGE",VIEW_W-104,21,GOLD);text(g,"N",VIEW_W-22,21,MUTED);
+        g.setColor(new Color(0x796848));g.drawRect(VIEW_W-109,25,98,74);
+        villageMap.draw(g,player,quests,VIEW_W-108,26,96,72,alpha,false);
         if(player.comboStep()>0){
-            card(g,VIEW_W-186,52,175,47);
+            card(g,VIEW_W-186,112,175,47);
             int step=player.comboStep();
-            text(g,step+" / "+player.comboName(),VIEW_W-178,65,step==6?GOLD:CREAM);
+            text(g,step+" / "+player.comboName(),VIEW_W-178,125,step==6?GOLD:CREAM);
             for(int i=0;i<SpearAttack.STAGES;i++){
                 g.setColor(i<step?new Color(SpearAttack.color(i)):new Color(0x3C514D));
-                g.fillRect(VIEW_W-178+i*26,71,21,3);
+                g.fillRect(VIEW_W-178+i*26,131,21,3);
             }
-            text(g,"Tap LMB / J to chain",VIEW_W-178,89,MUTED);
+            text(g,"Tap LMB / J to chain",VIEW_W-178,149,MUTED);
         }
-        card(g,10,VIEW_H-66,VIEW_W-21,55);g.setFont(SMALL);
-        text(g,noticeTimer>0?notice:quests.objective(),18,VIEW_H-50,noticeTimer>0?GOLD:CREAM);
-        text(g,"WASD move  Shift run  Space jump  E interact",18,VIEW_H-35,MUTED);
-        text(g,"Tap LMB / J combo  Hold RMB shield  H heal",18,VIEW_H-21,MUTED);
     }
     private void drawMap(Graphics2D g){
         g.setColor(new Color(0,0,0,145));g.fillRect(0,0,VIEW_W,VIEW_H);
-        card(g,66,42,348,277);g.setFont(BOLD);center(g,"MAP OF THE LOST GROVE",61,GOLD);
-        int ox=80,oy=72,scale=5;
-        for(int r=0;r<world.rows;r++)for(int c=0;c<world.cols;c++){
-            int tile=world.tile[r][c];
-            g.setColor(new Color(tile==World.WATER?0x5088AB:tile==World.ROCK?0x52594F:tile==World.DIRT?0xAF9465:0x427359));
-            g.fillRect(ox+c*scale,oy+r*scale,scale,scale);
-        }
-        for(World.Tree tree:world.trees){g.setColor(new Color(0x294D3C));g.fillRect(ox+World.col(tree.x)*scale,oy+World.row(tree.y)*scale,3,3);}
-        for(int i=0;i<World.LANDMARKS.length;i++){
-            int[] s=World.LANDMARKS[i];int x=ox+s[0]*scale,y=oy+s[1]*scale;
-            g.setColor(INK);g.fillRect(x-2,y-2,10,10);
-            g.setColor(siteColor(i));g.fillRect(x,y,6,6);
-            g.setFont(SMALL);text(g,siteName(i),x-10,y-4,CREAM);
-        }
-        g.setColor(Color.WHITE);g.fillRect(ox+World.col(player.x)*scale,oy+World.row(player.y)*scale,4,4);
-        g.setFont(SMALL);center(g,"White: Agyu   Gold: shrine   M: close / resume",332,CREAM);
+        card(g,66,42,348,277);g.setFont(BOLD);center(g,"VILLAGE OF THE LOST GROVE",61,GOLD);
+        villageMap.draw(g,player,quests,80,72,320,240,alpha,true);
+        g.setFont(SMALL);center(g,"Green arrow: Agyu   Gold: shrine   M: close",332,CREAM);
     }
     private void drawJournal(Graphics2D g){
         g.setColor(new Color(0,0,0,145));g.fillRect(0,0,VIEW_W,VIEW_H);
@@ -369,11 +376,11 @@ public final class GamePanel extends JPanel implements Runnable {
         center(g,"Tab: close / resume",330,CREAM);
     }
     private void drawDiagnostics(Graphics2D g){
-        card(g,10,78,259,66);g.setFont(SMALL);
-        text(g,"F1 / ALGORITHM DIAGNOSTICS",18,92,GOLD);
-        text(g,String.format(java.util.Locale.ROOT,"Paint %d/s | update %.2fms | render %.2fms",shownFps,updateMs,renderMs),18,106,CREAM);
-        text(g,"BFS builds "+flowBuilds+" | A* builds "+pathBuilds+" | trail "+path.size(),18,120,CREAM);
-        text(g,"Tree checks "+world.collisionChecks+" | particles "+Fx.list.size(),18,134,MUTED);
+        card(g,10,112,259,66);g.setFont(SMALL);
+        text(g,"F1 / ALGORITHM DIAGNOSTICS",18,126,GOLD);
+        text(g,String.format(java.util.Locale.ROOT,"Paint %d/s | update %.2fms | render %.2fms",shownFps,updateMs,renderMs),18,140,CREAM);
+        text(g,"BFS builds "+flowBuilds+" | A* builds "+pathBuilds+" | trail "+path.size(),18,154,CREAM);
+        text(g,"Tree checks "+world.collisionChecks+" | particles "+Fx.list.size(),18,168,MUTED);
     }
     private void drawTitle(Graphics2D g){
         g.setColor(new Color(10,18,20,215));g.fillRect(0,0,VIEW_W,VIEW_H);
@@ -384,8 +391,8 @@ public final class GamePanel extends JPanel implements Runnable {
         g.drawImage(hero,VIEW_W/2-hero.getWidth(),133,hero.getWidth()*2,hero.getHeight()*2,null);
         g.setFont(SMALL);
         center(g,"Restore three shrines. Awaken the guardian. Return home.",267,CREAM);
-        center(g,"WASD move / Shift run / Space jump / E interact",282,MUTED);
-        center(g,"Tap LMB / J combo / hold RMB shield / H heal",298,MUTED);
+        center(g,"WASD move / Shift sprint / Space jump / Q or Ctrl dash",282,MUTED);
+        center(g,"LMB / J combo / RMB shield / E interact / H heal",298,MUTED);
         g.setFont(BOLD);center(g,"PRESS ENTER TO BEGIN",321,GOLD);
         g.setFont(SMALL);center(g,"An original fictional adventure featuring your Agyu character",344,MUTED);
     }

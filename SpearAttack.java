@@ -186,8 +186,10 @@ public final class SpearAttack {
     Rectangle2D.Double bounds(double x,double y,Player.Dir dir,double time){
         Pose p=pose(dir,time,stage);
         double nearX=p.handX+Math.cos(p.angle)*8,nearY=p.handY+Math.sin(p.angle)*8;
-        return new Rectangle2D.Double(x+Math.min(nearX,p.tipX())-RADIUS,y+Math.min(nearY,p.tipY())-RADIUS,
-                Math.abs(p.tipX()-nearX)+RADIUS*2,Math.abs(p.tipY()-nearY)+RADIUS*2);
+        double scale=GameScale.AGYU;
+        return new Rectangle2D.Double(x+(Math.min(nearX,p.tipX())-RADIUS)*scale,
+                y+(Math.min(nearY,p.tipY())-RADIUS)*scale,
+                (Math.abs(p.tipX()-nearX)+RADIUS*2)*scale,(Math.abs(p.tipY()-nearY)+RADIUS*2)*scale);
     }
     void update(Player owner,double previous,double current,List<Enemy> enemies){
         Move m=move(stage);
@@ -197,12 +199,13 @@ public final class SpearAttack {
             for(int sample=0;sample<=samples;sample++){
                 Pose p=pose(owner.dir,from+(to-from)*sample/samples,stage);
                 double cosine=Math.cos(p.angle),sine=Math.sin(p.angle);
-                double ax=owner.x+p.handX+cosine*8,ay=owner.y+p.handY+sine*8;
-                double bx=owner.x+p.tipX(),by=owner.y+p.tipY();
+                double scale=GameScale.AGYU;
+                double ax=owner.x+(p.handX+cosine*8)*scale,ay=owner.y+(p.handY+sine*8)*scale;
+                double bx=owner.x+p.tipX()*scale,by=owner.y+p.tipY()*scale;
                 for(Enemy enemy:enemies){
                     if(!enemy.alive()||hit.contains(enemy)||(stage!=4&&behind(owner,enemy)))continue;
                     Rectangle2D box=enemy.hurtBox();
-                    box.setRect(box.getX()-RADIUS,box.getY()-RADIUS,box.getWidth()+RADIUS*2,box.getHeight()+RADIUS*2);
+                    box.setRect(box.getX()-RADIUS*scale,box.getY()-RADIUS*scale,box.getWidth()+RADIUS*2*scale,box.getHeight()+RADIUS*2*scale);
                     if(box.intersectsLine(ax,ay,bx,by)){
                         hit.add(enemy);enemy.damage(m.damage,owner.x,owner.y);
                         enemy.kbx*=m.knockback;enemy.kby*=m.knockback;
@@ -220,8 +223,9 @@ public final class SpearAttack {
             BufferedImage[] sequence=Assets.attack[bodyDir.ordinal()];
             body=sequence[Math.min(sequence.length-1,Math.max(0,(int)(current/m.duration*sequence.length)))];
         }
-        ComboEffects.step(stage,owner.dir,previous,current,owner.x,owner.y,owner.x+p.tipX(),owner.y+p.tipY(),
-                body,bodyOffsetX(owner.dir,current,stage),bodyOffsetY(owner.dir,current,stage));
+        ComboEffects.step(stage,owner.dir,previous,current,owner.x,owner.y,
+                owner.x+p.tipX()*GameScale.AGYU,owner.y+p.tipY()*GameScale.AGYU,
+                body,bodyOffsetX(owner.dir,current,stage)*GameScale.AGYU,bodyOffsetY(owner.dir,current,stage)*GameScale.AGYU);
     }
     private static boolean behind(Player owner,Enemy target){
         return switch(owner.dir){case LEFT -> target.x>owner.x+4;case RIGHT -> target.x<owner.x-4;

@@ -79,9 +79,12 @@ public final class GameTests {
         checks += CombatBodyTests.run();
         checks += MouseGuardTests.run();
         checks += JumpTests.run();
+        checks += EnergyDashTests.run();
+        checks += VillageTests.run();
+        checks += NpcTests.run();
         checks += GuardVisualTests.run();
         testSession();
-        System.out.println("PASS: "+checks+" checks. Indexed trunk checks in 20,000 queries: "+indexedChecks);
+        System.out.println("PASS: "+checks+" checks. Indexed solid checks in 20,000 queries: "+indexedChecks);
     }
     private static void testNavigationEdges(World w){
         for(int r=0;r<w.rows;r++)for(int c=0;c<w.cols;c++)if(w.walkable(c,r)){

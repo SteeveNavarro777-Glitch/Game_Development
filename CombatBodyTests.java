@@ -151,8 +151,10 @@ public final class CombatBodyTests {
                     BufferedImage expected=new BufferedImage(192,144,BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g=expected.createGraphics();
                     try{
-                        g.setColor(new Color(0,0,0,70));g.fillOval(85,96,22,8);
-                        g.drawImage(frame.image(),64+offsetX,37+offsetY,null);
+                        g.translate(96,100);g.scale(GameScale.AGYU,GameScale.AGYU);
+                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                        g.setColor(new Color(0,0,0,70));g.fillOval(-11,-4,22,8);
+                        g.drawImage(frame.image(),-32+offsetX,-63+offsetY,null);
                     }finally{g.dispose();}
                     check(same(actual,expected),"Player did not render the selected complete body and grounded shadow");
                     check(actor.feetBox().equals(ground)&&actor.sortY()==sort&&actor.x==96&&actor.y==100,
@@ -176,8 +178,8 @@ public final class CombatBodyTests {
             BufferedImage source=(BufferedImage)field(ghost.getClass(),"image").get(ghost);
             check(source==CombatBody.frame(dir,stage,current).image(),"Afterimage still uses an idle body");
             double x=field(ghost.getClass(),"x").getDouble(ghost),y=field(ghost.getClass(),"y").getDouble(ghost);
-            check(Math.abs(x-actor.x-SpearAttack.bodyOffsetX(dir,current,stage))<1e-9&&
-                    Math.abs(y-actor.y-SpearAttack.bodyOffsetY(dir,current,stage))<1e-9,
+            check(Math.abs(x-actor.x-SpearAttack.bodyOffsetX(dir,current,stage)*GameScale.AGYU)<1e-9&&
+                    Math.abs(y-actor.y-SpearAttack.bodyOffsetY(dir,current,stage)*GameScale.AGYU)<1e-9,
                     "Afterimage ignores the body motion offset");
         }
         Fx.clear();

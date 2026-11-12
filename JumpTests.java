@@ -86,9 +86,11 @@ public final class JumpTests {
             BufferedImage expected = new BufferedImage(192, 144, BufferedImage.TYPE_INT_ARGB);
             g = expected.createGraphics();
             try {
-                g.setColor(new Color(0, 0, 0, 70)); g.fillOval(85, 96, 22, 8);
+                g.translate(96,100);g.scale(GameScale.AGYU,GameScale.AGYU);
+                g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                g.setColor(new Color(0, 0, 0, 70)); g.fillOval(-11, -4, 22, 8);
                 BufferedImage body = Assets.idle[direction.ordinal()][(int) (view.animTime * 5) % Assets.idle[direction.ordinal()].length];
-                g.drawImage(body, 96 - body.getWidth() / 2, 100 - body.getHeight() + 1 - 18, null);
+                g.drawImage(body, -body.getWidth() / 2, -body.getHeight() + 1 - 18, null);
             } finally { g.dispose(); }
             boolean equal = true;
             for (int py = 0; py < 144; py++) for (int px = 0; px < 192; px++)

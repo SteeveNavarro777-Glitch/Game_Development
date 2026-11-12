@@ -1,0 +1,31 @@
+{
+  "creator": "Rafael Matos",
+  "free_house_url": "https://rafaelmatos.itch.io/epic-rpg-world-the-village-asset-pack",
+  "custom_mode": "built-in imagegen",
+  "source_files": {
+    "foliage.png": {
+      "sha256": "d44a4caf1e04006987bec92ac49406483bd485bf937ea961ebece7f5d172c552",
+      "bytes": 2464394
+    },
+    "Free Premade houses.png": {
+      "sha256": "1359a0bcffe63df85a1e5c587be5847e8ff9cdad4babceefce44453dc0657fc3",
+      "bytes": 412732
+    },
+    "houses-custom.png": {
+      "sha256": "465da1d20347afffeb29802379b4d18b4dd8ef8e67cd39de2837fea6eb3728b0",
+      "bytes": 2155914
+    },
+    "npcs.png": {
+      "sha256": "aaa9f02a479a461f1ac6118ab01f7779b253c44cdb4206d65532675c42ce0170",
+      "bytes": 1609544
+    },
+    "props.png": {
+      "sha256": "443c2c6e7a7b1b8fa2f77baa8a958b2c9e7d4552fdb060c475241ded2ab45647",
+      "bytes": 2143411
+    },
+    "terrain.png": {
+      "sha256": "973fe2d119505816f6b8617e5f2db91638a429ea0e5e469d2ce5310c560ad2bc",
+      "bytes": 2174094
+    }
+  }
+}
