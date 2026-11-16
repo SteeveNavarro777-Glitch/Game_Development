@@ -2,4 +2,4 @@ build/
 *.class
 __pycache__/
 # Optional creator house sheet and its packed sprites stay local.
-res/rpg-village-local/
+art/local-village/

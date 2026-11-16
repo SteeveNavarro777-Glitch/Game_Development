@@ -1,0 +1,177 @@
+# Organization and cleanup record
+
+Date: 14 November 2026 (Asia/Manila)
+
+## Structure
+
+Moved the 32 gameplay files into functional src folders, 11 regression suites into tests, five active import/preview tools into tools, and project documents into docs. Runtime player and village images live in res; current source atlases and saved artwork records live in art. The build scripts compile gameplay, tests and tools into separate fresh output folders, preventing stale old classes from satisfying a build.
+
+## Removed code and assets
+
+- The old 24-PNG Agyu set and obsolete Python slicer.
+- 24 unused raw action/slash/reaction frames; the active importer now omits them.
+- Four superseded house sprites, their earlier atlas/prompt/manifest and the replaced VillageHouseImporter.
+- The earlier right-facing combat source backup; the three current combat sheets remain.
+- An unused prop and 91 byte-identical local custom-art/source duplicates. The optional creator houses and original free sheet remain local.
+- Old overwritten procedural grass/dirt/water/tree art, unused asset caches, fields, attack constants and helper APIs.
+- The masked-idle attack fallback; rendering, effects and its regression fixtures now use the current authored combat poses directly.
+- The invisible notice subsystem left after the HUD change. Healing still calls useHerb; shrine, reward and guardian transitions are preserved.
+- Generated old class files, temporary repository snapshots and previous build output.
+
+The custom patrol linked list, actual queue/stack/graph implementations, current authored combat poses, collision reference, tests and current regeneration sources remain in use and are labeled.
+
+## Exact removed file list
+
+The cleanup removed 151 audited files, including 146 PNGs. Moves are recorded separately by Git as the new organization.
+
+- `res/agyu/attack_0.png`
+- `res/agyu/attack_1.png`
+- `res/agyu/attack_2.png`
+- `res/agyu/back.png`
+- `res/agyu/die.png`
+- `res/agyu/front.png`
+- `res/agyu/hurt_0.png`
+- `res/agyu/hurt_1.png`
+- `res/agyu/idle_0.png`
+- `res/agyu/idle_1.png`
+- `res/agyu/idle_2.png`
+- `res/agyu/jump_0.png`
+- `res/agyu/jump_1.png`
+- `res/agyu/run_0.png`
+- `res/agyu/run_1.png`
+- `res/agyu/run_2.png`
+- `res/agyu/run_3.png`
+- `res/agyu/shield.png`
+- `res/agyu/side.png`
+- `res/agyu/spear.png`
+- `res/agyu/walk_0.png`
+- `res/agyu/walk_1.png`
+- `res/agyu/walk_2.png`
+- `res/agyu/walk_3.png`
+- `res/village/frames.csv`
+- `res/village/house_0.png`
+- `res/village/house_1.png`
+- `res/village/house_2.png`
+- `res/village/house_3.png`
+- `res/agyu-v2/action_0.png`
+- `res/agyu-v2/action_1.png`
+- `res/agyu-v2/action_2.png`
+- `res/agyu-v2/action_3.png`
+- `res/agyu-v2/action_4.png`
+- `res/agyu-v2/action_5.png`
+- `res/agyu-v2/action_6.png`
+- `res/agyu-v2/action_7.png`
+- `res/agyu-v2/attack_0.png`
+- `res/agyu-v2/attack_1.png`
+- `res/agyu-v2/attack_2.png`
+- `res/agyu-v2/attack_3.png`
+- `res/agyu-v2/attack_4.png`
+- `res/agyu-v2/attack_5.png`
+- `res/agyu-v2/attack_6.png`
+- `res/agyu-v2/attack_7.png`
+- `res/agyu-v2/reaction_0.png`
+- `res/agyu-v2/reaction_1.png`
+- `res/agyu-v2/reaction_2.png`
+- `res/agyu-v2/reaction_3.png`
+- `res/agyu-v2/back_reaction_2.png`
+- `res/agyu-v2/back_reaction_3.png`
+- `res/agyu-v2/back_reaction_4.png`
+- `res/agyu-v2/back_reaction_5.png`
+- `res/rpg-village-local/foliage_0.png`
+- `res/rpg-village-local/foliage_1.png`
+- `res/rpg-village-local/foliage_2.png`
+- `res/rpg-village-local/foliage_3.png`
+- `res/rpg-village-local/foliage_4.png`
+- `res/rpg-village-local/foliage_5.png`
+- `res/rpg-village-local/house_0.png`
+- `res/rpg-village-local/house_1.png`
+- `res/rpg-village-local/house_2.png`
+- `res/rpg-village-local/house_3.png`
+- `res/rpg-village-local/npc_0_0.png`
+- `res/rpg-village-local/npc_0_1.png`
+- `res/rpg-village-local/npc_0_2.png`
+- `res/rpg-village-local/npc_0_3.png`
+- `res/rpg-village-local/npc_0_4.png`
+- `res/rpg-village-local/npc_0_5.png`
+- `res/rpg-village-local/npc_0_6.png`
+- `res/rpg-village-local/npc_0_7.png`
+- `res/rpg-village-local/npc_1_0.png`
+- `res/rpg-village-local/npc_1_1.png`
+- `res/rpg-village-local/npc_1_2.png`
+- `res/rpg-village-local/npc_1_3.png`
+- `res/rpg-village-local/npc_1_4.png`
+- `res/rpg-village-local/npc_1_5.png`
+- `res/rpg-village-local/npc_1_6.png`
+- `res/rpg-village-local/npc_1_7.png`
+- `res/rpg-village-local/npc_2_0.png`
+- `res/rpg-village-local/npc_2_1.png`
+- `res/rpg-village-local/npc_2_2.png`
+- `res/rpg-village-local/npc_2_3.png`
+- `res/rpg-village-local/npc_2_4.png`
+- `res/rpg-village-local/npc_2_5.png`
+- `res/rpg-village-local/npc_2_6.png`
+- `res/rpg-village-local/npc_2_7.png`
+- `res/rpg-village-local/npc_3_0.png`
+- `res/rpg-village-local/npc_3_1.png`
+- `res/rpg-village-local/npc_3_2.png`
+- `res/rpg-village-local/npc_3_3.png`
+- `res/rpg-village-local/npc_3_4.png`
+- `res/rpg-village-local/npc_3_5.png`
+- `res/rpg-village-local/npc_3_6.png`
+- `res/rpg-village-local/npc_3_7.png`
+- `res/rpg-village-local/npc_4_0.png`
+- `res/rpg-village-local/npc_4_1.png`
+- `res/rpg-village-local/npc_4_2.png`
+- `res/rpg-village-local/npc_4_3.png`
+- `res/rpg-village-local/npc_4_4.png`
+- `res/rpg-village-local/npc_4_5.png`
+- `res/rpg-village-local/npc_4_6.png`
+- `res/rpg-village-local/npc_4_7.png`
+- `res/rpg-village-local/npc_5_0.png`
+- `res/rpg-village-local/npc_5_1.png`
+- `res/rpg-village-local/npc_5_2.png`
+- `res/rpg-village-local/npc_5_3.png`
+- `res/rpg-village-local/npc_5_4.png`
+- `res/rpg-village-local/npc_5_5.png`
+- `res/rpg-village-local/npc_5_6.png`
+- `res/rpg-village-local/npc_5_7.png`
+- `res/rpg-village-local/prop_0.png`
+- `res/rpg-village-local/prop_1.png`
+- `res/rpg-village-local/prop_10.png`
+- `res/rpg-village-local/prop_11.png`
+- `res/rpg-village-local/prop_2.png`
+- `res/rpg-village-local/prop_3.png`
+- `res/rpg-village-local/prop_4.png`
+- `res/rpg-village-local/prop_5.png`
+- `res/rpg-village-local/prop_6.png`
+- `res/rpg-village-local/prop_7.png`
+- `res/rpg-village-local/prop_8.png`
+- `res/rpg-village-local/prop_9.png`
+- `res/rpg-village-local/terrain_0_0.png`
+- `res/rpg-village-local/terrain_0_1.png`
+- `res/rpg-village-local/terrain_0_2.png`
+- `res/rpg-village-local/terrain_0_3.png`
+- `res/rpg-village-local/terrain_1_0.png`
+- `res/rpg-village-local/terrain_1_1.png`
+- `res/rpg-village-local/terrain_1_2.png`
+- `res/rpg-village-local/terrain_1_3.png`
+- `res/rpg-village-local/terrain_2_0.png`
+- `res/rpg-village-local/terrain_2_1.png`
+- `res/rpg-village-local/terrain_2_2.png`
+- `res/rpg-village-local/terrain_2_3.png`
+- `res/rpg-village-local/terrain_3_0.png`
+- `res/rpg-village-local/terrain_3_1.png`
+- `res/rpg-village-local/terrain_3_2.png`
+- `res/rpg-village-local/terrain_3_3.png`
+- `res/rpg-village-local/source/foliage.png`
+- `res/rpg-village-local/source/houses-custom.png`
+- `res/rpg-village-local/source/npcs.png`
+- `res/rpg-village-local/source/props.png`
+- `res/rpg-village-local/source/terrain.png`
+- `res/rpg-village-local/frames.csv`
+- `res/rpg-village/prop_4.png`
+- `res/agyu-combat-right-source.png`
+- `res/village-houses-sheet.png`
+- `res/village-houses-prompt.txt`
+- `VillageHouseImporter.java`
+- `slice_sprites.py`

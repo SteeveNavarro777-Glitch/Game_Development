@@ -1,17 +1,8 @@
 @echo off
+rem FILE PURPOSE: Compile gameplay and open the Agyu window.
 setlocal
+rem BLOCK: Keep all source/resource paths relative to this project.
 cd /d "%~dp0"
-where javac >nul 2>nul
-if errorlevel 1 (
-    echo Java JDK 17 or newer is required. Add its bin folder to PATH.
-    pause
-    exit /b 1
-)
-if not exist build mkdir build
-javac -encoding UTF-8 -Xlint:all -d build *.java
-if errorlevel 1 (
-    pause
-    exit /b 1
-)
-java -cp "build;." Main
+rem BLOCK: Use the recursive build script and its separate compilation target.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build.ps1" -Target game -Run
 if errorlevel 1 pause
