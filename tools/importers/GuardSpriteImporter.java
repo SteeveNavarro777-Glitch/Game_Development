@@ -22,7 +22,8 @@ public final class GuardSpriteImporter {
     public static void main(String[] args)throws IOException{
         Path input=Path.of(args.length>0?args[0]:"art/source/player/agyu-guard-sheet.png");
         Path rearInput=Path.of(args.length>1?args[1]:"art/source/player/agyu-guard-rear-v2.png");
-        BufferedImage source=read(input),rear=read(rearInput);
+        Path sideInput=Path.of(args.length>2?args[2]:"art/source/player/agyu-guard-forward-v3.png");
+        BufferedImage source=read(input),rear=read(rearInput),sides=read(sideInput);
         int cellW=source.getWidth()/2,cellH=source.getHeight()/2;
         int[][] cells={{0,0},{1,0},{1,1},{0,1}}; // DOWN, UP, LEFT, RIGHT
         String[] names={"down","up","left","right"};
@@ -44,16 +45,18 @@ public final class GuardSpriteImporter {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             for(int dir=0;dir<4;dir++){
                 boolean replaceRear=dir==Player.Dir.UP.ordinal();
-                BufferedImage art=replaceRear?rear:source;
-                int[] b=replaceRear?rearBounds:bounds[dir];
-                int originX=replaceRear?0:cells[dir][0]*cellW,originY=replaceRear?0:cells[dir][1]*cellH;
-                int width=replaceRear?rear.getWidth():cellW,height=replaceRear?rear.getHeight():cellH;
+                boolean replaceSide=dir==Player.Dir.LEFT.ordinal()||dir==Player.Dir.RIGHT.ordinal();
+                BufferedImage art=replaceRear?rear:replaceSide?sides:source;
+                int width=replaceRear?rear.getWidth():replaceSide?sides.getWidth()/2:cellW;
+                int height=replaceRear?rear.getHeight():replaceSide?sides.getHeight()/2:cellH;
+                int originX=replaceRear?0:cells[dir][0]*width,originY=replaceRear?0:cells[dir][1]*height;
+                int[] b=replaceRear?rearBounds:replaceSide?bounds(sides,originX,originY,width,height):bounds[dir];
                 // The replacement rear pose has its own resolution, but the same 51px art height.
-                double scale=replaceRear?(b[3]-b[1]+1)/51.0:commonScale;
-                Packed packed=pack(art,b,originX,originY,width,height,scale,dir==0,replaceRear);
+                double scale=replaceRear||replaceSide?(b[3]-b[1]+1)/51.0:commonScale;
+                Packed packed=pack(art,b,originX,originY,width,height,scale,dir==0,replaceRear||replaceSide);
                 if(!ImageIO.write(packed.image(),"png",output.resolve("guard_"+names[dir]+".png").toFile()))
                     throw new IOException("PNG writer unavailable");
-                manifest.append(names[dir]).append(',').append((replaceRear?rearInput:input).getFileName()).append(',')
+                manifest.append(names[dir]).append(',').append((replaceRear?rearInput:replaceSide?sideInput:input).getFileName()).append(',')
                         .append(b[0]).append(',').append(b[1]).append(',').append(b[2]).append(',').append(b[3]).append(',')
                         .append(packed.footX()).append(',').append(packed.footY()).append(',').append(scale).append('\n');
                 g.setColor(new Color(0xF1C979));g.drawString(names[dir].toUpperCase(java.util.Locale.ROOT),dir*240+75,25);
@@ -63,7 +66,7 @@ public final class GuardSpriteImporter {
         }finally{g.dispose();}
         Files.writeString(output.resolve("guard-frames.csv"),manifest,StandardCharsets.UTF_8);
         ImageIO.write(preview,"png",Path.of("build/preview-guard-assets.png").toFile());
-        System.out.println("Packed four complete guard poses, including the corrected rear spear grip.");
+        System.out.println("Packed forward-pointing side guards; original front and corrected rear remain unchanged.");
     }
     // [BLOCK: ART TOOL] GuardSpriteImporter.read - Load or validate read data.
     private static BufferedImage read(Path input)throws IOException{

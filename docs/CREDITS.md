@@ -16,3 +16,9 @@ The optional creator sheet and its packed house sprites stay in the ignored art/
 The importer keeps those four packed creator house files local. It can also regenerate all included custom sprites without the optional sheet.
 
 - **Tank, Mage and Fighter:** sprite sheets supplied by the user on 16 November 2026. Original source PNGs are retained in art/source/bosses; authored frames and source hashes are recorded in res/bosses/frames.csv. No third-party creator attribution was provided with these sheets.
+
+- **Wild boar, white wolf and Sigbin:** 67 individual transparent PNG poses supplied by the user on 16 November 2026 from their BoarCombatEclipse, WolfCombatEclipse and SigbinCombatEclipse projects. Original files remain unchanged in art/source/boar, art/source/wolf and art/source/sigbin. Runtime atlas/portrait manifests record source SHA-256 hashes. No third-party creator attribution was provided with these images.
+
+- **Health, energy and shield potions:** 25 original PNGs supplied by the user from their Healing, Energy and Shield folders on 16 November 2026. All three bottles and 22 animation frames are retained unchanged in `art/source/potions/`; `res/items/frames.csv` records source SHA-256 hashes. No third-party creator attribution was supplied with these files. Runtime gear icons are cropped from the current Agyu spear/guard art.
+
+- **Forward side guards and held-item/drinking bodies:** derived Agyu artwork generated using the built-in imagegen tool on 17 November 2026. Final source PNGs, exact prompts, reference, hashes and reproducible import commands are recorded in [EQUIPMENT_ART.md](EQUIPMENT_ART.md). Original front/rear guard outputs and the existing combat bodies are retained.

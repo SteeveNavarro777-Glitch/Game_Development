@@ -193,7 +193,7 @@ public final class EnergyDashTests {
         for (int i = 0; i < 30; i++) step(actor, keys, world);
         check(actor.state != Player.State.ATTACK && actor.comboStep() == 0, "Dash retained attack input");
         actor = player(); keys = new KeyHandler(); press(keys, KeyEvent.VK_J);
-        Enemy target = new Slime(actor.x + 25, actor.y, 0); actor.dir = Player.Dir.RIGHT;
+        Enemy target = new WildBoar(actor.x + 25, actor.y, 0); actor.dir = Player.Dir.RIGHT;
         actor.update(DT, keys.poll(), world, List.of(target)); press(keys, KeyEvent.VK_Q);
         actor.update(DT, keys.poll(), world, List.of(target));
         check(actor.dashing(), "Dash failed to cancel attack");
@@ -299,9 +299,9 @@ public final class EnergyDashTests {
             Method draw = GamePanel.class.getDeclaredMethod("drawHud", Graphics2D.class);
             draw.setAccessible(true); draw.invoke(panel, g);
         } finally { g.dispose(); }
-        check(hud.getRGB(70, 16) == new Color(0xDB585B).getRGB(), "Health bar has no red fill");
+        check(hud.getRGB(70, 16) == new Color(0x69C833).getRGB(), "Health bar has no green potion fill");
         check(hud.getRGB(210, 16) == new Color(0x35444C).getRGB(), "Health bar ignored damage");
-        check(hud.getRGB(70, 32) == new Color(0x37AFC7).getRGB(), "Energy bar has no cyan fill");
+        check(hud.getRGB(70, 32) == new Color(0xED9C23).getRGB(), "Energy bar has no orange potion fill");
         check(hud.getRGB(230, 32) == new Color(0x35444C).getRGB(), "Energy bar ignored spending");
         BufferedImage image = new BufferedImage(GamePanel.W, GamePanel.H, BufferedImage.TYPE_INT_RGB);
         g = image.createGraphics();

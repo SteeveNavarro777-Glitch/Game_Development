@@ -13,7 +13,7 @@ Start in `src/dsa/` for the data structures, then follow their calls in `src/app
 
 | Topic | Where to read | What it does in this game |
 | --- | --- | --- |
-| Arrays / 2D arrays | [World](../src/world/World.java), [Assets](../src/rendering/Assets.java), [CombatBody](../src/combat/CombatBody.java) | Store terrain and cached navigation; index animation by direction, move and phase. |
+| Arrays / 2D arrays | [World](../src/world/World.java), [Assets](../src/rendering/Assets.java), [CombatBody](../src/combat/CombatBody.java), [Hotbar](../src/dsa/Hotbar.java), [PotionArt](../src/rendering/PotionArt.java) | Store terrain and cached navigation; index animation by direction, move and phase; select and swap nine item references and index potion effects. |
 | Circular singly linked list | [CircularList](../src/dsa/CircularList.java) | Nodes hold `value` and `next`; the tail reconnects to the first node. `add`, `current` and `advance` take O(1). |
 | Linked-list gameplay use | [Enemy](../src/entities/Enemy.java), [Npc](../src/entities/Npc.java) | Enemies and friendly villagers repeat their linked patrol waypoints. |
 | FIFO queue | [Pathfinder.distances](../src/dsa/Pathfinder.java), [GamePanel.processEvents](../src/app/GamePanel.java) | `addLast/removeFirst` expand BFS cells or process defeat rewards in arrival order. |
@@ -36,12 +36,12 @@ Queue and stack describe different operation rules even though both use ArrayDeq
 
 | Pillar | Where to read | Concrete evidence |
 | --- | --- | --- |
-| Encapsulation | [Inventory](../src/dsa/Inventory.java), [EnergyMeter](../src/combat/EnergyMeter.java), [Player](../src/entities/Player.java), [Enemy](../src/entities/Enemy.java) | Private resource/health fields change through validated methods such as `add`, `consume`, `spend`, `damage` and `useHerb`. |
-| Inheritance | [Slime](../src/entities/Slime.java), [Guardian](../src/entities/Guardian.java) | Both extend Enemy and reuse its health, patrol, movement and rendering behavior. |
+| Encapsulation | [Inventory](../src/dsa/Inventory.java), [EnergyMeter](../src/combat/EnergyMeter.java), [Player](../src/entities/Player.java), [Enemy](../src/entities/Enemy.java) | Private resource/health fields change through validated methods such as `add`, `consume`, `spend`, `damage` and `usePotion`. |
+| Inheritance | [ForestBeast](../src/entities/ForestBeast.java), [WildBoar](../src/entities/WildBoar.java), [Wolf](../src/entities/Wolf.java), [Sigbin](../src/entities/Sigbin.java) | Wildlife types extend ForestBeast, which extends Enemy. |
 | Abstraction | [Enemy](../src/entities/Enemy.java), [Drawable](../src/contracts/Drawable.java), [Damageable](../src/contracts/Damageable.java) | Abstract operations and interfaces define the behavior required from concrete objects. |
-| Polymorphism | [GamePanel](../src/app/GamePanel.java), [Guardian](../src/entities/Guardian.java) | `List<Enemy>` dispatches overridden guardian behavior; `List<Drawable>` renders players, NPCs, enemies and scenery through one contract. |
+| Polymorphism | [GamePanel](../src/app/GamePanel.java), [Sigbin](../src/entities/Sigbin.java) | `List<Enemy>` dispatches each concrete enemy's combat behavior; `List<Drawable>` renders players, NPCs, enemies and scenery through one contract. |
 
-Composition is visible in Player's owned Inventory, SpearAttack, ShieldGuard, JumpMotion, EnergyMeter and DashMotion, and in each actor's patrol object. Enums describe state, direction, items and NPC roles. Constructors establish valid initial state.
+Composition is visible in Player's owned Inventory, SpearAttack, ShieldGuard, JumpMotion, EnergyMeter, DashMotion, ShieldMeter, Hotbar and PotionEffects, and in each actor's patrol object. Enums describe state, direction, items and NPC roles. Constructors establish valid initial state.
 
 ## Collision and gate examples
 
@@ -51,7 +51,7 @@ Composition is visible in Player's owned Inventory, SpearAttack, ShieldGuard, Ju
 
 ## Forest and encounter examples
 
-[ForestRegion](../src/world/ForestRegion.java) reserves trail cells in a 2D array before seeded tree placement, then reuses cached ground textures and the normal root index. The world keeps village coordinates separate from forest objectives. [ForestEncounters](../src/entities/ForestEncounters.java) uses fixed parallel arrays for eight ambient enemies and their cooldowns; one-time shrine guards are ordinary polymorphic Enemy entries outside those arrays. Its update runs only during active gameplay. [ForestTests](../tests/ForestTests.java) exercises the real spawn lifecycle, gate routes, HUD removal, pause/restart and expanded map rendering.
+[ForestRegion](../src/world/ForestRegion.java) reserves trail cells in a 2D array before seeded tree placement, then reuses cached ground textures and the normal root index. The world keeps village coordinates separate from forest objectives. [ForestEncounters](../src/entities/ForestEncounters.java) uses parallel arrays for bounded randomized herd slots and their cooldowns, with one BFS field validating reachable placement. Its update runs only during active gameplay. [ForestTests](../tests/ForestTests.java) exercises the real spawn lifecycle, gate routes, HUD removal, pause/restart and expanded map rendering.
 
 ## Larger forest, arenas and watercourse
 
@@ -61,13 +61,13 @@ Composition is visible in Player's owned Inventory, SpearAttack, ShieldGuard, Ju
 
 ## Boss encounters and authored animation
 
-[ArenaBoss](../src/entities/ArenaBoss.java) extends Enemy, with TankBoss, MageBoss and FighterBoss specializing attack behavior through polymorphism. Its combat states and bounded hazard storage separate simulation from rendering. [BossArt](../src/rendering/BossArt.java) indexes cached frame views by kind, animation, facing and phase. [ForestEncounters](../src/entities/ForestEncounters.java) constructs the three arena bosses separately from its eight ambient respawn slots.
+[ArenaBoss](../src/entities/ArenaBoss.java) extends Enemy, with TankBoss, MageBoss and FighterBoss specializing attack behavior through polymorphism. Its combat states and bounded hazard storage separate simulation from rendering. [BossArt](../src/rendering/BossArt.java) indexes cached frame views by kind, animation, facing and phase. [ForestEncounters](../src/entities/ForestEncounters.java) constructs the three arena bosses separately from the randomized boar herd slots.
 
-Defeats enter the existing FIFO event queue. QuestLog records independent boss objectives in its prerequisite graph, and HOME requires the three villain IDs plus the awakened guardian. The map, journal, navigation hint and health HUD read those real encounter/quest states.
+Defeats enter the existing FIFO event queue. QuestLog records independent boss objectives in its prerequisite graph, and the final forest objective requires all three villain IDs. The map, journal, navigation hint and health HUD read those real encounter/quest states.
 
 ## Day/night simulation and lighting
 
-[DayNightCycle](../src/world/DayNightCycle.java) is a private state machine with enum phase queries, a numbered transition count and an elapsed-time remainder. World owns the clock; the existing active-session update advances it. [Enemy](../src/entities/Enemy.java) shares encapsulated temporary pursuit/damage modifiers through its inheritance hierarchy, including the arena villains and guardian.
+[DayNightCycle](../src/world/DayNightCycle.java) is a private state machine with enum phase queries, a numbered transition count and an elapsed-time remainder. World owns the clock; the existing active-session update advances it. [Enemy](../src/entities/Enemy.java) shares encapsulated temporary pursuit/damage modifiers through its inheritance hierarchy, including the arena villains and wildlife.
 
 [WorldLighting](../src/rendering/WorldLighting.java) composes cached radial textures into one reused viewport mask. The renderer reads time and actor state without advancing them, then draws the HUD/map above the lighting. [DayNightTests](../tests/DayNightTests.java) checks fixed-step boundaries, real combat/spawning, paused clocks, reset and image/cache properties. Details are in [DAY_NIGHT.md](DAY_NIGHT.md).
 
@@ -77,7 +77,23 @@ Defeats enter the existing FIFO event queue. QuestLog records independent boss o
 2. Open World and explain `[row][column]` terrain arrays and the cached collision-aware grid.
 3. Compare the FIFO BFS frontier with the LIFO predecessor stack inside Pathfinder.
 4. Follow one defeated enemy into GamePanel's event queue and Inventory/QuestLog updates.
-5. Compare Slime and Guardian, then point to the abstract Enemy methods and interface-based draw list.
+5. Compare WildBoar, Wolf and Sigbin, then point to the abstract Enemy methods and interface-based draw list.
 6. Run `test.bat` and show the collision, routing and progression evidence in TEST_REPORT.md.
 
 Folders group responsibilities while the project retains one shared default Java package. Build scripts collect the source files recursively. Tests and developer import tools are separate compilation targets.
+
+## Wildlife arrays and state machines
+
+[WildlifeArt](../src/rendering/WildlifeArt.java) indexes cached poses by species, action, direction and phase. [WildlifeSpriteImporter](../tools/importers/WildlifeSpriteImporter.java) uses a primitive-array FIFO flood fill to register supplied sprite bodies. [NightWildlife](../src/entities/NightWildlife.java) encapsulates a total nightly wolf quota and a separate exploration/cooldown rule for Sigbin scares. [WILDLIFE.md](WILDLIFE.md) maps the shared ForestBeast abstraction to each concrete actor.
+
+## Random herds and beacon removal
+
+[ForestEncounters](../src/entities/ForestEncounters.java) distributes twelve one-to-four-member herds using spatial region lists and BFS reachability. Its fixed parallel arrays bound replenishment. The old beacon renderer, floor outlines, map markers and E interactions are removed. QuestLog retains a directed dependency graph: three independent villain defeats unlock the final forest objective. [ForestRevisionTests](../tests/ForestRevisionTests.java) checks multiple seeds, map breadth, group sizes, former-site interactions and live map pixels.
+
+## Potion and hotbar arrays
+
+[Hotbar](../src/dsa/Hotbar.java) owns a private nine-element item array; selection, wrapped wheel movement and swaps are O(1). [Inventory](../src/dsa/Inventory.java) owns the shared HashMap quantities, so rearranging a slot only moves its reference. [Player](../src/entities/Player.java) composes validated resources and uses potion effects through [PotionArt](../src/rendering/PotionArt.java) cached arrays. [POTIONS.md](POTIONS.md) connects the input, rendering and damage examples.
+
+## Visible equipment and item action state
+
+[DrinkMotion](../src/combat/DrinkMotion.java) encapsulates a one-shot sip event and pose timeline. [Player](../src/entities/Player.java) validates and commits inventory/resource changes at that event; guard, damage and equipment changes can interrupt before consumption. [HeldItemArt](../src/rendering/HeldItemArt.java) indexes prebuilt images by item, direction and pose, and caches walking-leg variants. [Hotbar.indexOf](../src/dsa/Hotbar.java) demonstrates a small linear array search for H after slots are swapped. [EquipmentTests](../tests/EquipmentTests.java) verifies actual input, damage, freezing and rendering.

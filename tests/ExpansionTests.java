@@ -69,7 +69,7 @@ public final class ExpansionTests {
             check(population.stream().noneMatch(enemy->!(enemy instanceof ArenaBoss)&&area.contains(enemy.x,enemy.y)),"Ordinary enemy spawn occupies a boss arena");
         }
         check(population.stream().filter(enemy->enemy instanceof ArenaBoss).count()==3,"Three arena bosses were not populated");
-        check(population.stream().noneMatch(enemy->enemy instanceof Guardian),"Guardian unlocked before the shrine seals");
+        check(population.stream().allMatch(enemy->enemy instanceof WildBoar||enemy instanceof ArenaBoss),"Initial forest population includes an obsolete encounter");
     }
     // [BLOCK: HYDRAULIC BFS] ExpansionTests.river - Follow one connected watercourse through bridges and protected wall culverts to its outlet.
     private static void river(){

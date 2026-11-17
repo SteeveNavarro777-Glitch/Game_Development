@@ -1,4 +1,4 @@
-/* FILE PURPOSE: REGRESSION TEST | Five-minute timing, reversible outdoor night strength, paused clocks and readable cached lighting.
+/* FILE PURPOSE: REGRESSION TEST | Three-minute timing, reversible outdoor night strength, paused clocks and readable cached lighting.
  * Course examples: state boundaries, polymorphic combat and read-only rendering; docs/CODE_GUIDE.md.
  */
 import java.awt.AlphaComposite;
@@ -27,41 +27,42 @@ public final class DayNightTests {
     public static void main(String[] args)throws Exception{Assets.load();System.out.println("Day/night checks passed: "+run());}
     // [BLOCK: REGRESSION SUITE] DayNightTests.run - Verify timing, actual damage/movement, spawns, session controls and lighting.
     static int run()throws Exception{checks=0;clock();World world=new World(7);strength(world);bosses(world);spawns(world);session();lighting(world);previews();Fx.clear();return checks;}
-    // [BLOCK: FIVE-MINUTE BOUNDARIES] DayNightTests.clock - Verify numbered phases, exact fixed-step crossings, coarse steps and continuous light transitions.
+    // [BLOCK: THREE-MINUTE BOUNDARIES] DayNightTests.clock - Verify numbered phases, exact fixed-step crossings, coarse steps and continuous light transitions.
     private static void clock(){
         DayNightCycle cycle=new DayNightCycle();
-        check(cycle.phase()==DayNightCycle.Phase.DAY&&cycle.number()==1&&cycle.countdown().equals("05:00"),"Journey does not begin at Day 1");
-        for(int i=0;i<17999;i++)cycle.update(DT);
-        check(!cycle.night()&&cycle.remainingSeconds()==1,"Day ends before five active minutes");
-        cycle.update(DT);check(cycle.night()&&cycle.number()==1&&close(cycle.phaseSeconds(),0)&&cycle.countdown().equals("05:00"),"Night 1 misses the five-minute boundary");
-        for(int i=0;i<18000;i++)cycle.update(DT);
+        check(DayNightCycle.PHASE_SECONDS==180,"Each phase must last exactly three minutes");
+        check(cycle.phase()==DayNightCycle.Phase.DAY&&cycle.number()==1&&cycle.countdown().equals("03:00"),"Journey does not begin at Day 1");
+        for(int i=0;i<10799;i++)cycle.update(DT);
+        check(!cycle.night()&&cycle.remainingSeconds()==1,"Day ends before three active minutes");
+        cycle.update(DT);check(cycle.night()&&cycle.number()==1&&close(cycle.phaseSeconds(),0)&&cycle.countdown().equals("03:00"),"Night 1 misses the three-minute boundary");
+        for(int i=0;i<10800;i++)cycle.update(DT);
         check(!cycle.night()&&cycle.number()==2&&close(cycle.phaseSeconds(),0),"Dawn accumulates fixed-step timing drift");
-        cycle.update(3*300+17.25);check(cycle.night()&&cycle.number()==3&&close(cycle.phaseSeconds(),17.25),"Coarse clock update loses phases or remainder");
+        cycle.update(3*180+17.25);check(cycle.night()&&cycle.number()==3&&close(cycle.phaseSeconds(),17.25),"Coarse clock update loses phases or remainder");
         double before=cycle.phaseSeconds();cycle.update(0);cycle.update(-5);cycle.update(Double.NaN);cycle.update(Double.POSITIVE_INFINITY);
         check(cycle.phaseSeconds()==before,"Invalid elapsed time corrupts the world clock");
-        DayNightCycle light=new DayNightCycle();light.update(288);check(light.darkness()==0,"Dusk begins outside the final transition interval");
+        DayNightCycle light=new DayNightCycle();light.update(168);check(light.darkness()==0,"Dusk begins outside the final transition interval");
         light.update(6);check(close(light.darkness(),.5),"Dusk has no smooth midpoint");
         light.update(5.999);double dusk=light.darkness();light.update(.001);
         check(close(light.darkness(),1)&&Math.abs(light.darkness()-dusk)<.001,"Night lighting jumps at the phase boundary");
-        light.update(294);check(close(light.darkness(),.5),"Dawn has no smooth midpoint");
+        light.update(174);check(close(light.darkness(),.5),"Dawn has no smooth midpoint");
         light.update(6);check(!light.night()&&light.darkness()==0,"Daybreak does not remove the night tint");
-        for(int i=0;i<200;i++)light.update(300);
+        for(int i=0;i<200;i++)light.update(DayNightCycle.PHASE_SECONDS);
         check(!light.night()&&light.number()==102,"Repeated nights lose their cycle number");
     }
     // [BLOCK: PHASE FIXTURE] DayNightTests.phase - Advance to the next requested phase while retaining the real production interval.
-    private static void phase(World world,boolean night){if(world.dayNight.night()!=night)world.dayNight.update(300-world.dayNight.phaseSeconds());}
+    private static void phase(World world,boolean night){if(world.dayNight.night()!=night)world.dayNight.update(DayNightCycle.PHASE_SECONDS-world.dayNight.phaseSeconds());}
     // [BLOCK: CONTACT / PURSUIT] DayNightTests.strength - Compare real day/night contact hits and chase travel, including dawn and village exclusion.
     private static void strength(World world){
         ForestRegion.Arena arena=world.forest.arenas().get(0);double x=(arena.c()+.5)*World.T,y=(arena.r()+.5)*World.T;
-        phase(world,false);Player player=new Player(x,y);Enemy day=new Slime(x+6,y,0);day.update(DT,player,world,null);
+        phase(world,false);Player player=new Player(x,y);Enemy day=new WildBoar(x+6,y,0);day.update(DT,player,world,null);
         check(player.health()==4&&!day.nightEmpowered(),"Daytime ordinary enemy damage changed");Fx.clear();
-        phase(world,true);player=new Player(x,y);Enemy night=new Slime(x+6,y,0);night.update(DT,player,world,null);
+        phase(world,true);player=new Player(x,y);Enemy night=new WildBoar(x+6,y,0);night.update(DT,player,world,null);
         check(player.health()==3&&night.nightEmpowered(),"Outdoor night contact does not gain one damage");Fx.clear();
-        Player indoors=new Player(World.SPAWN_X,World.SPAWN_Y);Enemy indoor=new Slime(indoors.x+6,indoors.y,0);indoor.update(DT,indoors,world,null);
+        Player indoors=new Player(World.SPAWN_X,World.SPAWN_Y);Enemy indoor=new WildBoar(indoors.x+6,indoors.y,0);indoor.update(DT,indoors,world,null);
         check(indoors.health()==4&&!indoor.nightEmpowered(),"Village enemies receive the outdoor-only night bonus");Fx.clear();
         Player target=new Player(x+120,y);int[][] flow=Pathfinder.distances(world,World.col(target.x),World.row(target.y));
-        phase(world,false);Enemy slow=new Slime(x,y,0);slow.update(.25,target,world,flow);double baseline=Math.hypot(slow.x-x,slow.y-y);
-        phase(world,true);Enemy fast=new Slime(x,y,0);fast.update(.25,target,world,flow);
+        phase(world,false);Enemy slow=new WildBoar(x,y,0);slow.update(.25,target,world,flow);double baseline=Math.hypot(slow.x-x,slow.y-y);
+        phase(world,true);Enemy fast=new WildBoar(x,y,0);fast.update(.25,target,world,flow);
         check(baseline>1&&close(Math.hypot(fast.x-x,fast.y-y),baseline*1.25),"Outdoor night pursuit is not twenty-five percent faster");
         fast.damage(1,fast.x-20,fast.y);int health=fast.health(),max=fast.maxHealth();Fx.clear();
         phase(world,false);fast.refreshNightPower(world);
@@ -72,7 +73,7 @@ public final class DayNightTests {
         fast.x=x;fast.y=y;fast.refreshNightPower(world);fast.damage(100,0,0);fast.refreshNightPower(world);
         check(!fast.alive()&&!fast.nightEmpowered()&&fast.health()==0,"A dead enemy retains night power or revives");Fx.clear();
     }
-    // [BLOCK: BOSS NIGHT ATTACKS] DayNightTests.bosses - Exercise all villain hit paths and the guardian pulse without changing warning times or health.
+    // [BLOCK: BOSS NIGHT ATTACKS] DayNightTests.bosses - Exercise all villain hit paths  without changing warning times or health.
     private static void bosses(World world)throws Exception{
         for(int id=1;id<=3;id++){
             phase(world,false);ArenaBoss day=boss(world,id);Player target=new Player(day.x+70+(id==2?100:0),day.y);int max=day.maxHealth();
@@ -94,8 +95,7 @@ public final class DayNightTests {
         check(dash.dashing()&&close(dash.energy(),75),"Night dash fixture did not use the real energy/input path");
         for(int i=0;i<35;i++){dash.update(DT,NONE,world,List.of());evade.update(DT,dash,world,null);Fx.clear();}
         check(dash.health()==5,"Night attack bypasses a real dash evade");
-        Guardian guardian=new Guardian(tank.homeX,tank.homeY);Player victim=new Player(guardian.x+40,guardian.y);set(guardian,"pulseTime",3.99);
-        guardian.update(.02,victim,world,null);check(victim.health()==2&&guardian.nightEmpowered(),"Guardian pulse ignores outdoor night power");Fx.clear();
+
     }
     // [BLOCK: ENCOUNTER FACTORY] DayNightTests.boss - Build a fresh concrete villain in its real clearing.
     private static ArenaBoss boss(World world,int id){ForestRegion.Arena a=world.forest.arenas().get(id-1);return switch(id){case 1->new TankBoss(a);case 2->new MageBoss(a);default->new FighterBoss(a);};}
@@ -103,28 +103,28 @@ public final class DayNightTests {
     private static double warningDuration(ArenaBoss boss)throws Exception{return (double)getFrom(ArenaBoss.class,boss,"warnDuration");}
     // [BLOCK: NIGHT SPAWNS] DayNightTests.spawns - Verify freshly populated and replenished outdoor enemies inherit the current phase once.
     private static void spawns(World world){
-        phase(world,true);ForestEncounters encounters=new ForestEncounters(world);List<Enemy> enemies=new ArrayList<>();encounters.populate(enemies);
-        check(enemies.size()==21&&enemies.stream().allMatch(Enemy::nightEmpowered),"A night spawn has one unpowered frame");
-        Enemy ambient=enemies.stream().filter(e->e.shrineGroup==-1).findFirst().orElseThrow();ambient.damage(100,0,0);enemies.remove(ambient);Fx.clear();
-        Player far=new Player(22.5*World.T,25.5*World.T);encounters.update(25,far,enemies);
-        check(enemies.stream().filter(e->e.shrineGroup==-1&&e.alive()).count()==8&&enemies.stream().allMatch(Enemy::nightEmpowered),"Night ambient replenishment loses the bonus or duplicates slots");
+        phase(world,true);ForestEncounters encounters=new ForestEncounters(world,7);List<Enemy> enemies=new ArrayList<>();encounters.populate(enemies);
+        check(enemies.size()==encounters.capacity()+3&&enemies.stream().allMatch(Enemy::nightEmpowered),"A night spawn has one unpowered frame");
+        Enemy ambient=enemies.stream().filter(e->e instanceof WildBoar).findFirst().orElseThrow();ambient.damage(100,0,0);enemies.remove(ambient);Fx.clear();
+        Player far=ForestRevisionTests.observer(world,encounters.herds());encounters.update(25,far,enemies);
+        check(enemies.stream().filter(e->e instanceof WildBoar&&e.alive()).count()==encounters.capacity()&&enemies.stream().allMatch(Enemy::nightEmpowered),"Night ambient replenishment loses the bonus or duplicates slots");
         phase(world,false);for(Enemy enemy:enemies)enemy.refreshNightPower(world);
         check(enemies.stream().noneMatch(Enemy::nightEmpowered),"Dawn leaves existing or replenished enemies empowered");
     }
     // [BLOCK: SESSION CLOCK] DayNightTests.session - Check real start, pause, map, journal, focus, hit-stop, defeat and restart timing.
     @SuppressWarnings("unchecked")
     private static void session()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);World world=(World)get(panel,"world");panel.update(301);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);World world=(World)get(panel,"world");panel.update(DayNightCycle.PHASE_SECONDS+1);
         check(world.dayNight.phaseSeconds()==0&&!world.dayNight.night(),"Title screen advances the day/night clock");tap(panel,KeyEvent.VK_ENTER);
-        ((List<?>)get(panel,"enemies")).clear();((List<?>)get(panel,"npcs")).clear();world.updateAmbient(299.9);panel.update(.1);
+        ((List<?>)get(panel,"enemies")).clear();((List<?>)get(panel,"npcs")).clear();world.updateAmbient(DayNightCycle.PHASE_SECONDS-.1);panel.update(.1);
         check(world.dayNight.night()&&world.dayNight.number()==1,"Real world update misses Night 1");
-        tap(panel,KeyEvent.VK_M);double before=world.dayNight.phaseSeconds();panel.update(301);check(world.dayNight.phaseSeconds()==before,"Map advances the world clock");tap(panel,KeyEvent.VK_M);
-        tap(panel,KeyEvent.VK_TAB);before=world.dayNight.phaseSeconds();panel.update(301);check(world.dayNight.phaseSeconds()==before,"Journal advances the world clock");tap(panel,KeyEvent.VK_TAB);
-        tap(panel,KeyEvent.VK_ESCAPE);before=world.dayNight.phaseSeconds();panel.update(301);check(world.dayNight.phaseSeconds()==before,"Pause advances the world clock");tap(panel,KeyEvent.VK_ENTER);
+        tap(panel,KeyEvent.VK_M);double before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);check(world.dayNight.phaseSeconds()==before,"Map advances the world clock");tap(panel,KeyEvent.VK_M);
+        tap(panel,KeyEvent.VK_TAB);before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);check(world.dayNight.phaseSeconds()==before,"Journal advances the world clock");tap(panel,KeyEvent.VK_TAB);
+        tap(panel,KeyEvent.VK_ESCAPE);before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);check(world.dayNight.phaseSeconds()==before,"Pause advances the world clock");tap(panel,KeyEvent.VK_ENTER);
         for(java.awt.event.FocusListener listener:panel.getFocusListeners())listener.focusLost(new FocusEvent(panel,FocusEvent.FOCUS_LOST));
-        before=world.dayNight.phaseSeconds();panel.update(301);check(world.dayNight.phaseSeconds()==before,"Lost focus advances the world clock");tap(panel,KeyEvent.VK_ENTER);
+        before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);check(world.dayNight.phaseSeconds()==before,"Lost focus advances the world clock");tap(panel,KeyEvent.VK_ENTER);
         Fx.hitStop=.1;before=world.dayNight.phaseSeconds();panel.update(.02);check(world.dayNight.phaseSeconds()==before,"Hit-stop desynchronizes the world clock");Fx.clear();
-        Player player=(Player)get(panel,"player");player.damage(100,0,0);Fx.clear();panel.update(DT);before=world.dayNight.phaseSeconds();panel.update(301);
+        Player player=(Player)get(panel,"player");player.damage(100,0,0);Fx.clear();panel.update(DT);before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);
         check(world.dayNight.phaseSeconds()==before,"Defeat advances the world clock");tap(panel,KeyEvent.VK_R);
         world=(World)get(panel,"world");check(!world.dayNight.night()&&world.dayNight.number()==1&&world.dayNight.phaseSeconds()==0,"Restart preserves an old night or timer");
         check(((List<Enemy>)get(panel,"enemies")).stream().noneMatch(Enemy::nightEmpowered),"Restart preserves enemy night power");
@@ -155,11 +155,11 @@ public final class DayNightTests {
         Player actor=(Player)get(panel,"player");List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");
         World.Building home=world.buildings.get(0);actor.x=actor.px=home.x+84;actor.y=actor.py=home.y+35;actor.dir=Player.Dir.LEFT;
         camera(panel,home.x-220,home.y-230);BufferedImage day=render(panel);ImageIO.write(day,"png",new File("build/preview-day.png"));
-        world.updateAmbient(300);for(Enemy enemy:enemies)enemy.refreshNightPower(world);
+        world.updateAmbient(DayNightCycle.PHASE_SECONDS);for(Enemy enemy:enemies)enemy.refreshNightPower(world);
         BufferedImage night=render(panel);ImageIO.write(night,"png",new File("build/preview-night.png"));
         check(day.getRGB(140,32)==night.getRGB(140,32),"Night overlay darkens the health HUD");
         BufferedImage gallery=new BufferedImage(GamePanel.W*2,GamePanel.H+28,BufferedImage.TYPE_INT_RGB);Graphics2D g=gallery.createGraphics();
-        try{g.setColor(new Color(0x23342E));g.fillRect(0,0,gallery.getWidth(),gallery.getHeight());g.setColor(new Color(0xF2D899));g.drawString("DAY 1 / FIVE ACTIVE MINUTES",12,18);g.drawString("NIGHT 1 / STRONGER OUTDOOR ENEMIES",GamePanel.W+12,18);g.drawImage(day,0,28,null);g.drawImage(night,GamePanel.W,28,null);}finally{g.dispose();}
+        try{g.setColor(new Color(0x23342E));g.fillRect(0,0,gallery.getWidth(),gallery.getHeight());g.setColor(new Color(0xF2D899));g.drawString("DAY 1 / THREE ACTIVE MINUTES",12,18);g.drawString("NIGHT 1 / STRONGER OUTDOOR ENEMIES",GamePanel.W+12,18);g.drawImage(day,0,28,null);g.drawImage(night,GamePanel.W,28,null);}finally{g.dispose();}
         ImageIO.write(gallery,"png",new File("build/preview-day-night.png"));
         ArenaBoss boss=(ArenaBoss)enemies.stream().filter(e->e instanceof TankBoss).findFirst().orElseThrow();actor.x=actor.px=boss.x+80;actor.y=actor.py=boss.y+45;actor.invincible=1000;
         for(int i=0;i<250&&boss.state()!=ArenaBoss.State.WINDUP;i++){Fx.clear();panel.update(DT);}actor.invincible=0;

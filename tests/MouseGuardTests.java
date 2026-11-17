@@ -60,7 +60,7 @@ public final class MouseGuardTests {
 
             actor=player();actor.dir=Player.Dir.values()[dir];
             double offset=(dir<2?4:8);
-            Enemy contact=new Slime(actor.x+dx*offset,actor.y+dy*offset,0);
+            Enemy contact=new WildBoar(actor.x+dx*offset,actor.y+dy*offset,0);
             for(int tick=0;tick<180;tick++){
                 actor.update(DT,keys.poll(),world,List.of(contact));
                 contact.update(DT,actor,world,null);Fx.clear();
@@ -78,7 +78,7 @@ public final class MouseGuardTests {
         actor.update(DT,keys.poll(),world,List.of());
         check(actor.state==Player.State.ATTACK,"Fresh click after shield failed");
         actor=player();actor.dir=Player.Dir.RIGHT;keys=new KeyHandler();
-        Enemy target=new Slime(actor.x+30,actor.y,0);
+        Enemy target=new WildBoar(actor.x+30,actor.y,0);
         mouse(keys,MouseEvent.BUTTON1,true);actor.update(DT,keys.poll(),world,List.of(target));
         mouse(keys,MouseEvent.BUTTON1,false);mouse(keys,MouseEvent.BUTTON3,true);
         actor.update(DT,keys.poll(),world,List.of(target));

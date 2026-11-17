@@ -8,13 +8,13 @@
 
 **Course purpose:** one playable game that makes DSA and OOP visible in real behavior
 
-**Story:** an original fictional adventure; do not describe invented shrines or enemies as authentic folklore.
+**Story:** an original fictional adventure; do not describe the game's events as authentic cultural accounts.
 
 ## Release scope
 
-The implemented journey is: title -> village -> open a gate -> forest exploration -> clear three shrine guard groups -> restore three shrines -> fight the awakened guardian -> defeat Tank/Mage/Fighter -> return home -> victory.
+The implemented journey is: title -> village -> open a gate -> randomized forest encounters -> defeat Tank/Mage/Fighter in any order -> victory.
 
-Included: energy-limited sprinting, eight-direction lightning dash, continuous health/energy bars, Space jumping, six-move mouse spear combos with physical body animation, directional shield defense, health/hit reactions, herbs, three seals, two enemy types, visible guardian pulse warning, five named beacons, 20 houses across eight designs with solid exteriors, 12 friendly workers/villagers with dialogue and patrols, connected village streets/gardens/bridges, live arrow minimap, full map, journal, optional route trail, pause, defeat/victory, restart, pixel rendering, and diagnostics.
+Included: stamina sprinting, lightning dash, green health, orange energy and blue potion shield bars, Space jumping, six-stage spear combos, directional shield defense, three usable potions, a nine-slot rearrangeable hotbar, twelve random boar herds, rare night wolves, a fightable night-only Sigbin, three villain bosses, a three-minute day/night cycle, 20 houses, friendly NPCs, connected village streets/farms/river crossings, a minimap/full map, journal, optional A* route, pause and restart.
 
 This is a deliberately short, complete classroom game loop. Actual play length and difficulty still require human testing. It is not an open-world RPG. Save files, crafting, multiplayer, equipment trees, large dialogue systems, and additional levels are outside this release.
 
@@ -25,7 +25,7 @@ The student confirmed arrays, linked lists, queues, and stacks for DSA, and inhe
 | Topic | Actual game use | Source | Cost / explanation |
 | --- | --- | --- | --- |
 | Arrays / 2D arrays | Terrain, tile variants, cached walkability, distance/predecessor grids and combat poses [direction][move][phase] | World, Pathfinder, CombatBody | O(1) cell/pose access; O(R*C) storage |
-| Singly linked circular list | Each enemy cycles through patrol waypoints around its shrine | CircularList, Enemy | Custom nodes; O(1) append/current/advance; O(k) space |
+| Singly linked circular list | Each enemy cycles through patrol waypoints around its forest home | CircularList, Enemy | Custom nodes; O(1) append/current/advance; O(k) space |
 | Queue / FIFO | BFS frontier; enemy defeat events deferred until entity updates finish | Pathfinder.distances, GamePanel.processEvents | ArrayDeque addLast/removeFirst, amortized O(1) |
 | Stack / LIFO | Reverse the goal-to-start predecessor chain into a start-to-goal route | Pathfinder.find | ArrayDeque push/pop; O(L) reconstruction |
 | Dynamic array list | Active enemies and reused visible draw list | GamePanel | Amortized O(1) append; O(n) traversal |
@@ -48,8 +48,8 @@ The queue and stack are both backed by ArrayDeque but use different operation co
 | --- | --- |
 | Encapsulation | Inventory keeps its HashMap private and rejects invalid quantities; Player and Enemy keep health private and expose controlled damage/healing; QuestLog owns completion state; EnergyMeter keeps spending, delayed recovery and exhaustion rules private |
 | Abstraction | Abstract Enemy contains shared lifecycle, collision, rendering and navigation; speed/contactDamage are abstract operations |
-| Inheritance | Slime and Guardian extend Enemy and reuse its behavior |
-| Polymorphism | A List<Enemy> invokes update/draw on both concrete types; Guardian overrides update/draw and combat stats; Drawable and Damageable are focused interfaces |
+| Inheritance | ForestBeast extends Enemy; WildBoar, Wolf and Sigbin specialize ForestBeast |
+| Polymorphism | A List<Enemy> invokes update/draw on the concrete wildlife and villain types; Drawable and Damageable are focused interfaces |
 
 Composition is also explicit: Npc composes cached Sprite providers and CircularList patrols; Player owns Inventory, EnergyMeter, DashMotion, JumpMotion, SpearAttack and ShieldGuard; SpearAttack stores six immutable move definitions in an array; Enemy owns CircularList patrol data; GamePanel owns World, Player, QuestLog and enemy objects. Enums represent input actions/items/player/session state; constructors establish initial health and inventory; IOException reports missing/unreadable art.
 
@@ -79,8 +79,11 @@ classDiagram
       #speed()*
       #contactDamage()*
     }
-    Enemy <|-- Slime
-    Enemy <|-- Guardian
+    Enemy <|-- ForestBeast
+    ForestBeast <|-- WildBoar
+    ForestBeast <|-- Wolf
+    ForestBeast <|-- Sigbin
+    Enemy <|-- ArenaBoss
     Drawable <|.. Enemy
     Damageable <|.. Enemy
     Drawable <|.. Player
@@ -120,7 +123,7 @@ Run test.bat to compile with -Xlint:all and perform:
 - Verify a spear attack hits exactly once in all four directions and that healing consumes items only when needed.
 - Every ordered pair of mission landmarks: reachable by BFS; A* length equals the BFS shortest distance; route steps are adjacent/walkable and end at the goal.
 - Invalid/blocked endpoints, empty and circular linked-list behavior, item validation/overflow, prerequisite/duplicate quest guards, key autorepeat/focus clearing, and once-only defeat rewards.
-- An automated session from title to all shrine interactions, guardian defeat and home victory; map/pause behavior; fresh-session state after victory and defeat.
+- An automated session from title through the three villain defeats and automatic victory; map/pause behavior; fresh-session state after victory and defeat.
 - Check NPC patrol collision, occupations, sprite/work animation, dialogue priorities, pause/focus/hit-stop and restart.
 - Check all house approaches and dash collisions; verify arrow position/facing, map graphics-state preservation, and minimap/combo layout.
 - Off-screen renders for title, gameplay, village streets/overview, map, journal, and victory under build/.
@@ -129,10 +132,10 @@ Remaining human acceptance:
 
 1. Finish by playing normally, without teleporting or automated enemy damage.
 2. Check spear hit alignment in all four directions and corner navigation.
-3. Confirm guardian warning is understandable, herbs are sufficient, and difficulty is fair.
+3. Confirm boss and wildlife warnings are understandable, health potions are sufficient, and difficulty is fair.
 4. Switch focus during held movement; resume without stuck keys. Close the window and verify no game process remains.
 5. Test on the presentation laptop at the intended display scale and record frame/update timings.
-6. Replace placeholder guardian art if required by the art rubric; review the active Agyu replacement described in SPRITES.md.
+6. Review the supplied wildlife poses, night-only Sigbin combat and the current Agyu sprites.
 7. Have another student complete the game using only the title screen, controls, map and journal.
 
 ## Outstanding syllabus decisions
@@ -143,10 +146,10 @@ Add those only when required, with a concrete feature and evidence: a dialogue t
 
 ## Defense outline
 
-1. Explain the player goal and show the three-shrine-to-guardian dependency.
-2. Demonstrate movement, an encounter, a shrine reward, the map, and the navigation trail.
+1. Explain the player goal and show how three villain defeats unlock the final forest objective.
+2. Demonstrate movement, an encounter, a villain reward, the map, and the navigation trail.
 3. Show World arrays; CircularList node links and wraparound; FIFO events/BFS; LIFO path reversal.
-4. Trace a call through List<Enemy> into Slime or Guardian, then show private health and controlled inventory methods.
+4. Trace a call through List<Enemy> into WildBoar, Wolf or Sigbin, then show private health and controlled inventory methods.
 5. Show test results and the F1 counters. Describe the spatial index tradeoff and why shared BFS avoids one search per enemy per frame.
 6. State remaining art/balance work and show the final course checklist with implemented versus outstanding topics.
 
@@ -154,8 +157,8 @@ The due date, team responsibilities, complete syllabus, and instructor requireme
 
 ## Expanded world spaces
 
-The three large remote forest clearings now host Tank, Mage and Fighter using the supplied directional sprite sheets. Distinct combat states, telegraphs, boss health bars and one-time quest rewards make them required main-villain encounters. The existing shrine/guardian progression remains active. The eastern mountain, animated waterfall, connected river, solid wall culverts and forest bridges extend exploration around the village. Cached artwork and local root-placement buckets keep rendering and world construction bounded by the active view/local geometry.
+The three large remote forest clearings now host Tank, Mage and Fighter using the supplied directional sprite sheets. Distinct combat states, telegraphs, boss health bars and one-time quest rewards make them required main-villain encounters. The former shrine/HOME beacons are retired; progress follows the three villain fights. The eastern mountain, animated waterfall, connected river, solid wall culverts and forest bridges extend exploration around the village. Cached artwork and local root-placement buckets keep rendering and world construction bounded by the active view/local geometry.
 
-## Five-minute world cycle
+## Three-minute world cycle
 
-A deterministic day/night clock switches phase every 300 active seconds and resets with a new journey. Cached night lighting keeps actors and village lights readable while leaving the HUD bright. Living outdoor enemies, including bosses, receive reversible pursuit/damage bonuses; health and defeat progress persist. The same pause/focus/map/journal rules freeze the clock and gameplay.
+A deterministic day/night clock switches phase every 180 active seconds and resets with a new journey. Cached night lighting keeps actors and village lights readable while leaving the HUD bright. Living outdoor enemies, including bosses, receive reversible pursuit/damage bonuses; health and defeat progress persist. The same pause/focus/map/journal rules freeze the clock and gameplay.

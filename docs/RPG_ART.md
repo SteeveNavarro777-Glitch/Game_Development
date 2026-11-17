@@ -41,7 +41,7 @@ The four traditional-house sprites are packed at 80% of their earlier scale. The
 
 Npc composes a cached sprite provider, dialogue lines and an optional CircularList patrol. Six atlas roles supply a farmer, weaver, smith, fisher, vendor and elder; additional villagers share those clothes while patrolling short authored routes. Routes use A* only when beginning a leg and collide in steps of at most three art pixels. Friendly actors do not enter enemy damage targeting or block the player.
 
-Press E near a villager to speak; a fresh press advances the conversation. A contextual name prompt and temporary speech bubble appear near the speaker. Shrine/home beacon interaction has priority. NPC position, animation and speech timers freeze on pause, map/journal, focus loss and hit-stop, and reset with a new journey.
+Press E near a villager to speak; a fresh press advances the conversation. A contextual name prompt and temporary speech bubble appear near the speaker. E interacts with nearby gates and available villagers. NPC position, animation and speech timers freeze on pause, map/journal, focus loss and hit-stop, and reset with a new journey.
 
 ## Rendering and river
 
@@ -75,7 +75,7 @@ java "-Djava.awt.headless=true" -cp "build/tool-classes;." RpgVillagePreviews
 - [build/preview-rpg-conversation.png](../build/preview-rpg-conversation.png): contextual conversation.
 - [build/preview-rpg-river.gif](../build/preview-rpg-river.gif): actual river and NPC animation loop.
 
-NpcTests adds 8,064 checks covering cached/directional/work art, bounded patrols, all occupations, collision, dialogue cycling and restrictions, render-state preservation, actual E input and held-key suppression, pause/map/focus/hit-stop, beacon priority and fresh restart. See TEST_REPORT.md for the full game result. Generated previews verify rendering; normal human combat/balance testing remains separate.
+NpcTests adds 8,064 checks covering cached/directional/work art, bounded patrols, all occupations, collision, dialogue cycling and restrictions, render-state preservation, actual E input and held-key suppression, pause/map/focus/hit-stop, interaction at the plain village spawn and fresh restart. See TEST_REPORT.md for the full game result. Generated previews verify rendering; normal human combat/balance testing remains separate.
 
 ## Forest extension
 

@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** A small prerequisite graph; three independent shrines unlock the guardian. */
+/** A small prerequisite graph; three independent villain defeats unlock the final forest objective. */
 public final class QuestLog {
-    public static final String[] SHRINES = {"grove", "lake", "ridge"};
     public static final String[] BOSSES = {"tank", "mage", "fighter"};
     // [SECTION: DSA - DIRECTED PREREQUISITE GRAPH] Each quest stores its incoming requirements.
     private static final class Quest {
@@ -31,15 +30,11 @@ public final class QuestLog {
 
     // [BLOCK: FUNCTION] QuestLog.QuestLog - Initialize QuestLog state.
     public QuestLog() {
-        quests.put("grove", new Quest("Restore the Grove shrine"));
-        quests.put("lake", new Quest("Restore the Lake shrine"));
-        quests.put("ridge", new Quest("Restore the Ridge shrine"));
-        quests.put("guardian", new Quest("Defeat the awakened guardian", SHRINES));
         quests.put("tank", new Quest("Defeat Tank in Clearing 1"));
         quests.put("mage", new Quest("Defeat Mage in Clearing 2"));
         quests.put("fighter", new Quest("Defeat Fighter in Clearing 3"));
-        quests.put("home", new Quest("Return to the home beacon", "guardian", "tank", "mage", "fighter"));
-        record("Restore the shrines, face the guardian and defeat the three villains.");
+        quests.put("forest", new Quest("Protect the forest", BOSSES));
+        record("Find and defeat Tank, Mage and Fighter in the three forest clearings.");
     }
     // [BLOCK: DSA: PREREQUISITE GRAPH] QuestLog.ready - Check that every required quest is complete before unlocking a quest.
     public boolean ready(String id) {
@@ -55,10 +50,10 @@ public final class QuestLog {
     }
     // [BLOCK: DSA: HASH SET] QuestLog.done - Test completion membership by quest ID.
     public boolean done(String id) { return complete.contains(id); }
-    // [BLOCK: FUNCTION] QuestLog.seals - Handle seals for QuestLog.
-    public int seals() {
+    // [BLOCK: FUNCTION] QuestLog.bossesDefeated - Count completed villain objectives.
+    public int bossesDefeated() {
         int count = 0;
-        for (String id : SHRINES) if (done(id)) count++;
+        for (String id : BOSSES) if (done(id)) count++;
         return count;
     }
     // [BLOCK: DSA: BOUNDED DEQUE] QuestLog.record - Add the newest journal entry first and discard the oldest beyond eight entries.

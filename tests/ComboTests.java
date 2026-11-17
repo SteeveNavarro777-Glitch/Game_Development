@@ -30,9 +30,11 @@ public final class ComboTests {
     private static int checks;
     // [BLOCK: TEST HELPER] ComboTests.ComboTests - Prevent instances of this test/helper class.
     private ComboTests(){}
-    private static final class Target extends Enemy {
+    private static final class Target extends ForestBeast {
         // [BLOCK: TEST HELPER] ComboTests.Target - Initialize Target state.
         Target(double x,double y){super(x,y,100,-1);}
+        // [BLOCK: TEST SPRITE POLICY] ComboTests.kind - Select the current boar appearance for the stationary combat target.
+        @Override protected WildlifeArt.Kind kind(){return WildlifeArt.Kind.BOAR;}
         // [BLOCK: TEST HELPER] ComboTests.speed - Handle speed for ComboTests.
         @Override protected double speed(){return 0;}
         // [BLOCK: TEST HELPER] ComboTests.contactDamage - Handle contact damage for ComboTests.

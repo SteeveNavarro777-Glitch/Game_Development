@@ -1,17 +1,14 @@
 /* FILE PURPOSE: OOP ABSTRACTION | Shared enemy lifecycle, linked-list patrol and damage contract.
  * Code labels and course examples: docs/CODE_GUIDE.md.
  */
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 
 /** Shared enemy lifecycle and navigation; concrete types supply combat stats. */
 // [SECTION: OOP - ABSTRACTION] Shared lifecycle depends on subclass-provided speed and damage.
 public abstract class Enemy implements Drawable, Damageable {
     double x,y,px,py,kbx,kby,t,flash,deathTime;
-    final int shrineGroup;
+    final int spawnGroup;
     private final int maximum;
     private int hp;
     private boolean defeatClaimed;
@@ -23,11 +20,15 @@ public abstract class Enemy implements Drawable, Damageable {
 
     // [BLOCK: FUNCTION] Enemy.Enemy - Initialize Enemy state.
     protected Enemy(double x,double y,int hp,int group) {
-        if(hp<=0)throw new IllegalArgumentException("Enemy health must be positive");
-        this.x=px=x;this.y=py=y;this.hp=maximum=hp;shrineGroup=group;
+        this(x,y,hp,group,1);
+    }
+    // [BLOCK: DSA CIRCULAR LINKED LIST] Enemy.Enemy - Construct shared health and a configurable four-way roaming loop.
+    protected Enemy(double x,double y,int hp,int group,int patrolRadius) {
+        if(hp<=0||patrolRadius<1)throw new IllegalArgumentException("Enemy health and patrol radius must be positive");
+        this.x=px=x;this.y=py=y;this.hp=maximum=hp;spawnGroup=group;
         int c=World.col(x),r=World.row(y);
-        patrol.add(new Point(c-1,r));patrol.add(new Point(c,r-1));
-        patrol.add(new Point(c+1,r));patrol.add(new Point(c,r+1));
+        patrol.add(new Point(c-patrolRadius,r));patrol.add(new Point(c,r-patrolRadius));
+        patrol.add(new Point(c+patrolRadius,r));patrol.add(new Point(c,r+patrolRadius));
     }
     // [BLOCK: OOP: ABSTRACTION] Enemy.speed - Require each enemy subtype to supply its movement speed.
     protected abstract double speed();
@@ -35,6 +36,10 @@ public abstract class Enemy implements Drawable, Damageable {
     protected abstract int contactDamage();
     // [BLOCK: FUNCTION] Enemy.scale - Handle scale for Enemy.
     protected double scale(){return 1;}
+    // [BLOCK: OOP EXTENSION] Enemy.mayPursue - Let concrete wildlife constrain pursuit to its habitat.
+    protected boolean mayPursue(Player player,World world){return player.alive();}
+    // [BLOCK: OOP EXTENSION] Enemy.positionAllowed - Let concrete wildlife add habitat boundaries to solid collision.
+    protected boolean positionAllowed(World world){return true;}
     // [BLOCK: OOP: ENCAPSULATION] Enemy.health - Expose current health while retaining private storage.
     public final int health(){return hp;}
     // [BLOCK: OOP: ENCAPSULATION] Enemy.maxHealth - Expose the immutable maximum health.
@@ -77,7 +82,7 @@ public abstract class Enemy implements Drawable, Damageable {
         double decay=Math.exp(-8*dt);kbx*=decay;kby*=decay;
         double range=Math.hypot(player.x-x,player.y-y);
         double tx=x,ty=y,pace=0;
-        if(player.alive()&&range<300){
+        if(mayPursue(player,world)&&range<300){
             int c=World.col(x),r=World.row(y);
             if(range<World.T*1.5){tx=player.x;ty=player.y;step=null;}
             else {
@@ -105,7 +110,7 @@ public abstract class Enemy implements Drawable, Damageable {
         }
         double dx=tx-x,dy=ty-y,length=Math.hypot(dx,dy);
         if(length>1){double travel=Math.min(length,pace*pursuitMultiplier()*dt);mx+=dx/length*travel;my+=dy/length*travel;}
-        move(mx,my,world);refreshNightPower(world);
+        moveThroughWorld(mx,my,world);refreshNightPower(world);
         if(player.alive()&&feetBox().intersects(player.feetBox())){
             boolean blocked=player.blocksFrom(x,y);
             player.damage(attackDamage(contactDamage()),x,y);
@@ -118,35 +123,20 @@ public abstract class Enemy implements Drawable, Damageable {
                     repelLength=1;
                 }
                 kbx=repelX/repelLength*110;kby=repelY/repelLength*110;
-                move(repelX/repelLength*2,repelY/repelLength*2,world);
+                moveThroughWorld(repelX/repelLength*2,repelY/repelLength*2,world);
             }
         }
     }
-    // [BLOCK: FUNCTION] Enemy.move - Handle move for Enemy.
-    private void move(double mx,double my,World w){
+    // [BLOCK: FUNCTION] Enemy.moveThroughWorld - Sweep shared movement through solids and subtype habitat rules.
+    protected final void moveThroughWorld(double mx,double my,World w){
         int steps=Math.max(1,(int)Math.ceil(Math.max(Math.abs(mx),Math.abs(my))/3));
         double dx=mx/steps,dy=my/steps;
         for(int i=0;i<steps;i++){
-            if(dx!=0){x+=dx;if(w.blocked(feetBox())){x-=dx;step=null;dx=0;}}
-            if(dy!=0){y+=dy;if(w.blocked(feetBox())){y-=dy;step=null;dy=0;}}
+            if(dx!=0){x+=dx;if(w.blocked(feetBox())||!positionAllowed(w)){x-=dx;step=null;dx=0;}}
+            if(dy!=0){y+=dy;if(w.blocked(feetBox())||!positionAllowed(w)){y-=dy;step=null;dy=0;}}
             if(dx==0&&dy==0)break;
         }
     }
     // [BLOCK: FUNCTION] Enemy.sortY - Handle sort y for Enemy.
     public double sortY(){return y;}
-    // [BLOCK: FUNCTION] Enemy.draw - Render draw using the current graphics state.
-    public void draw(Graphics2D g,int cx,int cy,double alpha){
-        int sx=(int)Math.round(px+(x-px)*alpha)-cx,sy=(int)Math.round(py+(y-py)*alpha)-cy;
-        int size=(int)(20*scale()),height=(int)(16*scale());
-        g.setColor(new Color(0,0,0,65));g.fillOval(sx-size/2,sy-3,size,7);
-        java.awt.Composite old=g.getComposite();
-        if(!alive())g.setComposite(java.awt.AlphaComposite.getInstance(java.awt.AlphaComposite.SRC_OVER,(float)Math.max(0,1-deathTime/0.35)));
-        BufferedImage image=flash>0?Assets.slimeFlash[(int)(t*3)%2]:Assets.slime[(int)(t*3)%2];
-        g.drawImage(image,sx-size/2,sy-height,size,height,null);
-        g.setComposite(old);
-        if(alive()&&(health()<maxHealth()||this instanceof Guardian)){
-            g.setColor(new Color(0x281D29));g.fillRect(sx-size/2,sy-height-7,size,3);
-            g.setColor(new Color(0xF1BA67));g.fillRect(sx-size/2,sy-height-7,size*health()/maxHealth(),2);
-        }
-    }
 }

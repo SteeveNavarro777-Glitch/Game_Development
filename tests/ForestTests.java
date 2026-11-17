@@ -49,13 +49,13 @@ public final class ForestTests {
             }
         }
         int sc=World.col(World.SPAWN_X),sr=World.row(World.SPAWN_Y);
-        for(int i=1;i<World.LANDMARKS.length;i++){
-            int[] site=World.LANDMARKS[i];check(world.forest.contains((site[0]+.5)*World.T,(site[1]+.5)*World.T),"Combat shrine remains indoors");
+        for(int i=1;i<World.TRAIL_SITES.length;i++){
+            int[] site=World.TRAIL_SITES[i];check(world.forest.contains((site[0]+.5)*World.T,(site[1]+.5)*World.T),"Combat shrine remains indoors");
             check(Pathfinder.find(world,sc,sr,site[0],site[1]).isEmpty(),"Closed wooden perimeter leaks into the forest");
         }
         openGates(world);
-        for(int i=1;i<World.LANDMARKS.length;i++){
-            int[] site=World.LANDMARKS[i];List<Point> route=Pathfinder.find(world,sc,sr,site[0],site[1]);
+        for(int i=1;i<World.TRAIL_SITES.length;i++){
+            int[] site=World.TRAIL_SITES[i];List<Point> route=Pathfinder.find(world,sc,sr,site[0],site[1]);
             check(!route.isEmpty(),"A forest combat clearing has no route from the village");
             int pc=sc,pr=sr;
             for(Point cell:route){
@@ -72,21 +72,19 @@ public final class ForestTests {
     }
     // [BLOCK: SPAWN LIFECYCLE] ForestTests.encounters - Exercise outdoor-only placement, delayed offscreen replenishment and bounded mission-safe slots.
     private static void encounters(){
-        World world=new World(7);ForestEncounters population=new ForestEncounters(world);List<Enemy> enemies=new ArrayList<>();population.populate(enemies);
-        check(enemies.size()==21,"Initial forest population changed");
-        for(Enemy enemy:enemies)check(world.forest.contains(enemy.x,enemy.y)&&!world.inVillage(enemy.x,enemy.y)&&!world.blocked(enemy.feetBox())
-                &&world.walkable(World.col(enemy.x),World.row(enemy.y)),"Enemy spawned indoors or inside scenery");
-        check(alive(enemies,-1)==8&&alive(enemies,0)==3&&alive(enemies,1)==3&&alive(enemies,2)==4,"Forest mission/ambient groups are incorrect");
-        Enemy killed=enemies.stream().filter(e->e.shrineGroup==-1).findFirst().orElseThrow();double x=killed.x,y=killed.y;
+        World world=new World(7);ForestEncounters population=new ForestEncounters(world,7);List<Enemy> enemies=new ArrayList<>();population.populate(enemies);int capacity=population.capacity();
+        check(enemies.size()==capacity+3,"Random boars and villains have inconsistent capacity");
+        for(Enemy enemy:enemies)check(world.forest.contains(enemy.x,enemy.y)&&!world.inVillage(enemy.x,enemy.y)&&!world.blocked(enemy.feetBox())&&world.walkable(World.col(enemy.x),World.row(enemy.y)),"Enemy spawned indoors or inside scenery");
+        check(boars(enemies)==capacity,"Random herd membership is incorrect");
+        Enemy killed=enemies.stream().filter(e->e instanceof WildBoar).findFirst().orElseThrow();double x=killed.x,y=killed.y;
         killed.damage(100,0,0);enemies.removeIf(e->!e.alive());Fx.clear();
-        Player home=new Player(World.SPAWN_X,World.SPAWN_Y);population.update(24,home,enemies);check(alive(enemies,-1)==7,"Ambient enemy respawned before its delay");
-        population.update(2,home,enemies);check(alive(enemies,-1)==7,"Village player triggered a forest respawn");
-        Player near=new Player(x,y);population.update(1,near,enemies);check(alive(enemies,-1)==7,"Enemy materialized next to Agyu");
-        Player far=new Player(9.5*World.T,9.5*World.T);population.update(1,far,enemies);check(alive(enemies,-1)==8,"Offscreen forest camp did not replenish");
+        Player home=new Player(World.SPAWN_X,World.SPAWN_Y);population.update(24,home,enemies);check(boars(enemies)==capacity-1,"Boar respawned before its delay");
+        population.update(2,home,enemies);check(boars(enemies)==capacity-1,"Village player triggered a forest respawn");
+        Player near=new Player(x,y);population.update(1,near,enemies);check(boars(enemies)==capacity-1,"Enemy appeared next to Agyu");
+        Player far=ForestRevisionTests.observer(world,population.herds());population.update(1,far,enemies);check(boars(enemies)==capacity,"Offscreen herd slot did not replenish");
         for(Enemy enemy:enemies)enemy.damage(100,0,0);enemies.clear();Fx.clear();population.update(ForestEncounters.RESPAWN_SECONDS,far,enemies);
-        check(enemies.size()==8&&alive(enemies,-1)==8,"Mission guards respawned or ambient slots exceeded their bound");
-        for(int i=0;i<50;i++)population.update(60,far,enemies);
-        check(enemies.size()==8,"Repeated spawn updates accumulated living enemies");
+        check(enemies.size()==capacity&&boars(enemies)==capacity,"Villains respawned or herd slots exceeded their bound");
+        for(int i=0;i<50;i++)population.update(60,far,enemies);check(enemies.size()==capacity,"Repeated spawn updates accumulate living enemies");
     }
     // [BLOCK: SESSION INPUT] ForestTests.session - Verify pause/map timer freezing, fresh-session reset and the removed attack card.
     @SuppressWarnings("unchecked")
@@ -94,7 +92,7 @@ public final class ForestTests {
         GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
         List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");Player actor=(Player)get(panel,"player");
         ForestEncounters population=(ForestEncounters)get(panel,"forestEncounters");
-        Enemy ambient=enemies.stream().filter(e->e.shrineGroup==-1).findFirst().orElseThrow();ambient.damage(100,0,0);Fx.clear();panel.update(.1);
+        Enemy ambient=enemies.stream().filter(e->e instanceof WildBoar).findFirst().orElseThrow();ambient.damage(100,0,0);Fx.clear();panel.update(.1);
         double[] before=((double[])get(population,"cooldowns")).clone();
         tap(panel,KeyEvent.VK_M);panel.update(10);check(Arrays.equals(before,(double[])get(population,"cooldowns")),"Map advanced forest respawn timers");tap(panel,KeyEvent.VK_M);
         tap(panel,KeyEvent.VK_ESCAPE);before=((double[])get(population,"cooldowns")).clone();panel.update(10);
@@ -105,14 +103,13 @@ public final class ForestTests {
         boolean emptyAttackArea=true;for(int y=112;y<160;y++)for(int x=294;x<470;x++)if((hud.getRGB(x,y)>>>24)!=0)emptyAttackArea=false;
         check(emptyAttackArea,"Removed combo card still covers the attacking scene");
         actor.damage(100,0,0);Fx.clear();panel.update(.1);tap(panel,KeyEvent.VK_R);
-        enemies=(List<Enemy>)get(panel,"enemies");check(enemies.size()==21&&enemies.stream().allMatch(Enemy::alive),"Restart retained old encounter slots");
+        enemies=(List<Enemy>)get(panel,"enemies");check(enemies.size()==((ForestEncounters)get(panel,"forestEncounters")).capacity()+3&&enemies.stream().allMatch(Enemy::alive),"Restart retained old encounter slots");
         population=(ForestEncounters)get(panel,"forestEncounters");for(double timer:(double[])get(population,"cooldowns"))check(timer==0,"Restart retained a forest respawn cooldown");
         tap(panel,KeyEvent.VK_N);check(!((List<?>)get(panel,"path")).isEmpty(),"Closed gates hide the outbound objective trail");
-        actor=(Player)get(panel,"player");int[] guardian=World.LANDMARKS[4];
+        actor=(Player)get(panel,"player");int[] guardian=World.TRAIL_SITES[4];
         actor.x=actor.px=(guardian[0]+.5)*World.T;actor.y=actor.py=(guardian[1]+.5)*World.T;
-        QuestLog quests=(QuestLog)get(panel,"quests");for(String shrine:QuestLog.SHRINES)quests.finish(shrine);quests.finish("guardian");for(String boss:new String[]{"tank","mage","fighter"})quests.finish(boss);
         enemies.clear();set(panel,"pathTimer",0);panel.update(1.0/60);
-        check(!((List<?>)get(panel,"path")).isEmpty(),"Closed gates hide the return-HOME trail from the forest");
+        check(!((List<?>)get(panel,"path")).isEmpty(),"The forest route to a remaining villain is missing");
         World world=(World)get(panel,"world");BufferedImage cache=(BufferedImage)get(new VillageMap(world),"terrain");
         int mapX=(int)Math.round((guardian[0]+.5)/world.cols*256),mapY=(int)Math.round((guardian[1]+.5)/world.rows*192);
         check((cache.getRGB(mapX,mapY)&0xFFFFFF)==0xAD925F,"Minimap terrain does not include the southeast forest clearing");
@@ -138,7 +135,7 @@ public final class ForestTests {
         check(ImageIO.write(frame,"png",new File("build/preview-forest-combat.png")),"Forest combat camera export failed");
     }
     // [BLOCK: TEST QUERY] ForestTests.alive - Count only living members of one spawn group.
-    private static long alive(List<Enemy> enemies,int group){return enemies.stream().filter(e->e.alive()&&e.shrineGroup==group).count();}
+    private static long boars(List<Enemy> enemies){return enemies.stream().filter(e->e.alive()&&e instanceof WildBoar).count();}
     // [BLOCK: INPUT FIXTURE] ForestTests.tap - Send one fresh keyboard edge through the actual panel input path.
     private static void tap(GamePanel panel,int code){panel.keys.keyPressed(new KeyEvent(panel,KeyEvent.KEY_PRESSED,0,0,code,KeyEvent.CHAR_UNDEFINED));panel.update(1.0/60);panel.keys.clear();}
     // [BLOCK: TEST REFLECTION] ForestTests.get - Inspect private session/cache state without changing the implementation API.

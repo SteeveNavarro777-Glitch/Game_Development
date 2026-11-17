@@ -1,4 +1,4 @@
-/* FILE PURPOSE: PLAYER | Encapsulated health and composed movement/combat components.
+/* FILE PURPOSE: PLAYER | Selected equipment, sip-time resources and composed movement/combat state.
  * Code labels and course examples: docs/CODE_GUIDE.md.
  */
 import java.awt.*;
@@ -8,7 +8,7 @@ import java.util.List;
 
 /** Agyu. Units are art pixels. Smoothness comes from: acceleration, render interpolation, dust, hit-stop, shake. */
 public final class Player implements Drawable, Damageable {
-    public enum State { IDLE, WALK, RUN, DASH, ATTACK, GUARD, HURT, DEAD }
+    public enum State { IDLE, WALK, RUN, DASH, ATTACK, GUARD, DRINK, HURT, DEAD }
     public enum Dir { DOWN, UP, LEFT, RIGHT }
 
     static final double WALK_SPEED = 92, RUN_SPEED = 150;       // art pixels per second
@@ -30,6 +30,12 @@ public final class Player implements Drawable, Damageable {
     private final JumpMotion jump = new JumpMotion();
     private final EnergyMeter energy = new EnergyMeter();
     private final DashMotion dash = new DashMotion();
+    private final ShieldMeter protection = new ShieldMeter();
+    private final Hotbar hotbar = new Hotbar();
+    private final PotionEffects potionEffects = new PotionEffects();
+    private final DrinkMotion drink = new DrinkMotion();
+    private double potionCooldown,itemMessageTime;
+    private String itemMessage="";
     private double attackBuffer,comboGrace;
     private int nextCombo;
     private Dir bufferedDir = Dir.DOWN;
@@ -37,7 +43,9 @@ public final class Player implements Drawable, Damageable {
     // [BLOCK: FUNCTION] Player.Player - Initialize Player state.
     Player(double x, double y) {
         this.x = px = x; this.y = py = y;
-        inventory.add(Inventory.Item.HERB, 3);
+        inventory.add(Inventory.Item.SPEAR, 1);inventory.add(Inventory.Item.SHIELD, 1);
+        inventory.add(Inventory.Item.HEALTH_POTION, 3);
+        inventory.add(Inventory.Item.ENERGY_POTION, 3);inventory.add(Inventory.Item.SHIELD_POTION, 2);
     }
     // [BLOCK: OOP: ENCAPSULATION] Player.health - Read current private health through the damage contract.
     public int health() { return hp; }
@@ -55,12 +63,71 @@ public final class Player implements Drawable, Damageable {
     double dashCooldown() { return dash.cooldown(); }
     // [BLOCK: FUNCTION] Player.inventory - Handle inventory for Player.
     Inventory inventory() { return inventory; }
-    // [BLOCK: OOP: ENCAPSULATION / COMPOSITION] Player.useHerb - Heal missing health only after consuming an inventory herb.
-    boolean useHerb() {
-        if (!alive() || hp == maxHp || !inventory.consume(Inventory.Item.HERB)) return false;
-        hp = Math.min(maxHp, hp + 2);
-        Fx.burst(x, y - 16*GameScale.AGYU, 0xA4E3AE, 10, 35, 0.4, -20, 2);
-        return true;
+    // [BLOCK: RESOURCE READ] Player.protection - Read blue potion damage absorption separately from directional guarding.
+    int protection(){return protection.value();}
+    // [BLOCK: RESOURCE READ] Player.maxProtection - Read the fixed blue potion shield capacity.
+    int maxProtection(){return ShieldMeter.MAX;}
+    // [BLOCK: COMPOSED ARRAY] Player.hotbar - Expose validated slot operations without exposing its backing array.
+    Hotbar hotbar(){return hotbar;}
+    // [BLOCK: ITEM FEEDBACK] Player.itemMessage - Read the last short potion-use result for the hotbar.
+    String itemMessage(){return itemMessage;}
+    // [BLOCK: ITEM FEEDBACK] Player.itemMessageTime - Read how long temporary item feedback remains visible.
+    double itemMessageTime(){return itemMessageTime;}
+    // [BLOCK: ITEM FEEDBACK] Player.message - Keep failed or successful item actions visible briefly.
+    private void message(String text){itemMessage=text;itemMessageTime=1.5;}
+    // [BLOCK: ITEM RENDER STATE] Player.drinking - Expose an active drinking action to the HUD and renderer.
+    boolean drinking(){return state==State.DRINK&&drink.active();}
+    // [BLOCK: ITEM PROGRESS] Player.drinkProgress - Read the active action's normalized progress for the selected slot.
+    double drinkProgress(){return drink.progress();}
+    // [BLOCK: ITEM POSE] Player.drinkPose - Read the authored pose selected by the drinking timeline.
+    int drinkPose(){return drink.pose();}
+    // [BLOCK: VISIBLE EQUIPMENT] Player.heldItem - Show the current bottle during a sip and only owned equipment otherwise.
+    Inventory.Item heldItem(){Inventory.Item item=drinking()?drink.item():hotbar.selectedItem();return drinking()||inventory.count(item)>0?item:null;}
+    // [BLOCK: RESOURCE VALIDATION] Player.potionUseful - Test whether a resource still needs recovery at start and at the sip commit.
+    private boolean potionUseful(Inventory.Item item){return switch(item){case HEALTH_POTION->hp<maxHp;case ENERGY_POTION->energy.value()<EnergyMeter.MAX-1e-9;case SHIELD_POTION->protection.value()<ShieldMeter.MAX;default->false;};}
+    // [BLOCK: ITEM ACTION / ENCAPSULATION] Player.usePotion - Start a validated raise-sip-lower action; consumption happens only at the sip.
+    boolean usePotion(Inventory.Item item) {
+        if(item==null||!item.potion()||!alive())return false;
+        if(state==State.DASH||state==State.ATTACK||state==State.GUARD||state==State.HURT||state==State.DRINK||airborne()){
+            message("Cannot drink during this action");return false;
+        }
+        if(potionCooldown>1e-9){message("Potion is not ready yet");return false;}
+        if(inventory.count(item)==0){message("No "+item.label.toLowerCase(java.util.Locale.ROOT)+"s left");return false;}
+        if(!potionUseful(item)){message("Resource already full");return false;}
+        int slot=hotbar.indexOf(item);if(slot>=0)hotbar.select(slot);
+        resetCombo();vx=vy=0;drink.begin(item);setState(State.DRINK);potionCooldown=DrinkMotion.DURATION;
+        message("Drinking "+item.label.toLowerCase(java.util.Locale.ROOT));return true;
+    }
+    // [BLOCK: ONE-SHOT ITEM COMMIT] Player.sipPotion - Spend one useful potion at the mouth-contact frame and apply its matching resource/effect.
+    private void sipPotion(){
+        Inventory.Item item=drink.item();
+        if(!alive()||item==null)return;
+        if(!potionUseful(item)){message("Resource already full");return;}
+        if(!inventory.consume(item)){message("No potion left");return;}
+        switch(item){case HEALTH_POTION:hp=Math.min(maxHp,hp+2);break;case ENERGY_POTION:energy.restore(60);break;
+            case SHIELD_POTION:protection.restore();break;default:throw new IllegalStateException("Potion required");}
+        potionEffects.play(item);message(item.label+" used");
+    }
+    // [BLOCK: ITEM INTERRUPTION] Player.cancelDrink - Release the bottle animation without consuming an uncommitted potion.
+    private void cancelDrink(){drink.cancel();if(state==State.DRINK)setState(State.IDLE);}
+
+    // [BLOCK: ARRAY SELECTION / EQUIPMENT] Player.itemsInput - Apply hotbar commands and route the primary action to the selected owned item.
+    private KeyHandler.Input itemsInput(KeyHandler.Input input){
+        Inventory.Item previousItem=hotbar.selectedItem();
+        if(input.slot>=0)hotbar.select(input.slot);
+        hotbar.cycle(input.scroll);
+        if(input.swapFrom>=0)hotbar.swap(input.swapFrom,input.swapTo);
+        Inventory.Item item=hotbar.selectedItem();boolean owned=inventory.count(item)>0;
+        if(item!=previousItem)itemMessageTime=0;
+        if(state==State.ATTACK&&item!=Inventory.Item.SPEAR){resetCombo();setState(State.IDLE);}
+        boolean guarding=inventory.count(Inventory.Item.SHIELD)>0&&(input.guard||
+                item==Inventory.Item.SHIELD&&owned&&(input.primary||input.pressed(KeyHandler.ATTACK)));
+        if(drink.active()&&(item!=drink.item()||guarding||input.pressed(KeyHandler.DASH)||input.pressed(KeyHandler.JUMP)))cancelDrink();
+        if(!guarding){
+            if(input.pressed(KeyHandler.HEAL))usePotion(Inventory.Item.HEALTH_POTION);
+            else if(item!=null&&item.potion()&&(input.pressed(KeyHandler.ATTACK)||input.pressed(KeyHandler.USE_ITEM)))usePotion(item);
+        }
+        return input.combat(hotbar.selectedItem()==Inventory.Item.SPEAR&&inventory.count(Inventory.Item.SPEAR)>0,guarding);
     }
 
     // [BLOCK: FUNCTION] Player.savePrev - Handle save prev for Player.
@@ -78,6 +145,8 @@ public final class Player implements Drawable, Damageable {
 
     // [BLOCK: PLAYER STATE MACHINE] Player.update - Resolve input priority, movement, jumps, shield, energy and spear combos.
     void update(double dt, KeyHandler.Input keys, World world, List<Enemy> enemies) {
+        potionEffects.update(dt);potionCooldown=Math.max(0,potionCooldown-dt);itemMessageTime=Math.max(0,itemMessageTime-dt);
+        if(alive())keys=itemsInput(keys);
         animTime += dt;
         double previousTime = stateTime;
         stateTime += dt;
@@ -102,6 +171,11 @@ public final class Player implements Drawable, Damageable {
         if (state == State.DASH) {
             updateDash(dt, world);
             return; // Inputs during the burst do not leave a queued jump or attack.
+        }
+        if(state==State.DRINK){
+            dir=facingFor(keys);moveFromInput(dt,keys,world,WALK_SPEED*.35);
+            if(drink.advance(dt))sipPotion();
+            if(drink.finished()){drink.cancel();setState(State.IDLE);}return;
         }
         if (keys.pressed(KeyHandler.DASH) && !keys.guard && !wasAirborne && !jump.airborne()
                 && dash.ready() && energy.spend(DashMotion.COST)) {
@@ -182,7 +256,8 @@ public final class Player implements Drawable, Damageable {
             move(mx, my, world);
             if (Math.hypot(x - trailX, y - trailY) >= 11 || i == steps - 1) {
                 BufferedImage[] frames = Assets.run[dir.ordinal()];
-                BufferedImage body = frames[(int) (animTime * 30) % frames.length];
+                BufferedImage body = heldItem()==Inventory.Item.SPEAR?frames[(int)(animTime*30)%frames.length]:
+                        HeldItemArt.ghost(heldItem(),dir,HeldItemArt.walkPose(animTime,true));
                 DashEffects.emit(trailX, trailY, x, y, body); trailX = x; trailY = y;
             }
             if (Math.abs(x - beforeX - mx) > 1e-6 || Math.abs(y - beforeY - my) > 1e-6) {
@@ -274,7 +349,9 @@ public final class Player implements Drawable, Damageable {
         if (dmg <= 0 || state == State.DEAD || state == State.DASH) return;
         if (blocksFrom(fromX, fromY)) { shield.block(this); return; }
         if (invincible > 0) return;
-        resetCombo();
+        resetCombo();cancelDrink();
+        int previousProtection=protection.value();dmg=protection.absorb(dmg);
+        if(previousProtection!=protection.value())potionEffects.play(Inventory.Item.SHIELD_POTION);
         hp -= dmg; invincible = 1.0;
         Fx.shake(3, 0.25); Fx.hitStop(0.07);
         if (hp <= 0) { hp = 0; state = State.DEAD; stateTime = 0; return; }
@@ -297,6 +374,7 @@ public final class Player implements Drawable, Damageable {
         g.fillOval(sx - 11, sy - 4, 22, 8);
         // The shadow and collision stay on the ground; all held gear rises with Agyu.
         sy -= (int) Math.round(jump.renderHeight(alpha));
+        if(alive())potionEffects.draw(g,sx,sy,protection.value()>0);
         int facing = dir.ordinal();
         boolean side = dir == Dir.LEFT || dir == Dir.RIGHT;
         BufferedImage image;
@@ -344,9 +422,16 @@ public final class Player implements Drawable, Damageable {
         if (attacking && spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
         int leanX = attacking ? SpearAttack.bodyOffsetX(dir, stateTime, spear.stage()) : 0;
         int leanY = attacking ? SpearAttack.bodyOffsetY(dir, stateTime, spear.stage()) : 0;
-        g.drawImage(image, sx - image.getWidth() / 2 + leanX, sy - image.getHeight() + 1 - bob + leanY, null);
+        Inventory.Item held=heldItem();
+        boolean selectedBody=state!=State.DEAD&&state!=State.ATTACK&&held!=Inventory.Item.SPEAR;
+        if(selectedBody){
+            int pose=drinking()?drink.pose():state==State.GUARD?3:state==State.WALK||state==State.RUN||state==State.DASH?
+                    HeldItemArt.walkPose(animTime,state!=State.WALK):held==null?7:0;
+            if(drinking())HeldItemArt.drawDrinking(g,sx,sy,held,dir,pose,animTime,Math.hypot(vx,vy)>3);
+            else HeldItemArt.draw(g,sx,sy-bob,state==State.GUARD?Inventory.Item.SHIELD:held,dir,pose);
+        }else g.drawImage(image, sx - image.getWidth() / 2 + leanX, sy - image.getHeight() + 1 - bob + leanY, null);
         if (attacking && !spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
-        if (state == State.GUARD) shield.drawImpact(g, sx, sy, dir);
+        if (state == State.GUARD) shield.drawImpact(g,sx,sy,dir,held==Inventory.Item.SPEAR);
         g.setComposite(original);
         }finally{g.dispose();}
     }

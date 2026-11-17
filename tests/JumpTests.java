@@ -208,12 +208,11 @@ public final class JumpTests {
         panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); tap(panel, KeyEvent.VK_ENTER);
         actor = (Player) field(panel, "player");
         QuestLog log = (QuestLog) field(panel, "quests");
-        for (String shrine : QuestLog.SHRINES) log.finish(shrine);
-        log.finish("guardian"); for(String boss:QuestLog.BOSSES)log.finish(boss); tap(panel, KeyEvent.VK_SPACE); tap(panel, KeyEvent.VK_E);
-        check(field(panel, "mode") == GamePanel.Mode.PLAYING && !log.done("home"), "Airborne home interaction froze a victory pose");
+        for(String boss:QuestLog.BOSSES)log.finish(boss); tap(panel, KeyEvent.VK_SPACE);
+        check(field(panel, "mode") == GamePanel.Mode.PLAYING && !log.done("forest"), "Automatic boss victory froze an airborne pose");
         for (int i = 0; i < 40; i++) panel.update(DT);
         tap(panel, KeyEvent.VK_E);
-        check(field(panel, "mode") == GamePanel.Mode.VICTORY && !actor.airborne(), "Grounded home interaction failed after landing");
+        check(field(panel, "mode") == GamePanel.Mode.VICTORY && !actor.airborne(), "Automatic boss victory did not wait for landing");
     }
     // [BLOCK: TEST HELPER] JumpTests.preview - Handle preview for JumpTests.
     private static void preview() throws Exception {

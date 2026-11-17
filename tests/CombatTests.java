@@ -48,9 +48,9 @@ public final class CombatTests {
             actor=new Player(World.SPAWN_X,World.SPAWN_Y);
             actor.dir=Player.Dir.values()[direction];
             double dx=FORWARD[direction][0],dy=FORWARD[direction][1];
-            Enemy ahead=new Slime(actor.x+dx*32,actor.y+dy*32,0);
-            Enemy behind=new Slime(actor.x-dx*32,actor.y-dy*32,0);
-            Enemy distant=new Slime(actor.x+dx*100,actor.y+dy*100,0);
+            Enemy ahead=new WildBoar(actor.x+dx*32,actor.y+dy*32,0);
+            Enemy behind=new WildBoar(actor.x-dx*32,actor.y-dy*32,0);
+            Enemy distant=new WildBoar(actor.x+dx*100,actor.y+dy*100,0);
             input=new KeyHandler();press(input,KeyEvent.VK_J);
             actor.update(1.0/60,input.poll(),world,List.of(ahead,behind,distant));
             for(int tick=0;tick<4;tick++)actor.update(1.0/60,input.poll(),world,List.of(ahead,behind,distant));
@@ -113,7 +113,7 @@ public final class CombatTests {
 
         actor=new Player(World.SPAWN_X,World.SPAWN_Y);
         actor.dir=Player.Dir.DOWN;input=new KeyHandler();press(input,KeyEvent.VK_J);
-        Enemy victim=new Slime(actor.x,actor.y+32,0);
+        Enemy victim=new WildBoar(actor.x,actor.y+32,0);
         actor.update(1.0/60,input.poll(),world,List.of(victim));input.clear();
         actor.update(0.03,input.poll(),world,List.of(victim));
         actor.damage(1,actor.x,actor.y-10);

@@ -6,57 +6,61 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [GamePanel.GamePanel](../src/app/GamePanel.java#L56) | FUNCTION | Initialize GamePanel state. |
-| [GamePanel.mousePressed](../src/app/GamePanel.java#L63) | FUNCTION | Handle mouse pressed for GamePanel. |
-| [GamePanel.focusLost](../src/app/GamePanel.java#L67) | FUNCTION | Handle focus lost for GamePanel. |
-| [GamePanel.reset](../src/app/GamePanel.java#L75) | SESSION: RESTART | Create a fresh world, actors, inventory, quests and timing state. |
-| [GamePanel.start](../src/app/GamePanel.java#L90) | FUNCTION | Handle start for GamePanel. |
-| [GamePanel.stop](../src/app/GamePanel.java#L95) | FUNCTION | Handle stop for GamePanel. |
-| [GamePanel.run](../src/app/GamePanel.java#L100) | TIMING: FIXED STEP | Advance simulation at 60 Hz and interpolate rendering. |
-| [GamePanel.targetX](../src/app/GamePanel.java#L121) | FUNCTION | Handle target x for GamePanel. |
-| [GamePanel.targetY](../src/app/GamePanel.java#L123) | FUNCTION | Handle target y for GamePanel. |
-| [GamePanel.freezeInterpolation](../src/app/GamePanel.java#L125) | FUNCTION | Handle freeze interpolation for GamePanel. |
-| [GamePanel.update](../src/app/GamePanel.java#L130) | SIMULATION / DSA EVENT QUEUE | Apply input, update actors, enqueue defeats, then process rewards safely. |
-| [GamePanel.updateNavigation](../src/app/GamePanel.java#L180) | DSA: BFS / A* CACHES | Refresh enemy flow distances and the optional player trail when needed. |
-| [GamePanel.processEvents](../src/app/GamePanel.java#L212) | DSA: FIFO QUEUE | Remove defeat events in insertion order after actor updates, then award progression. |
-| [GamePanel.guardsRemain](../src/app/GamePanel.java#L229) | FUNCTION | Handle guards remain for GamePanel. |
-| [GamePanel.interact](../src/app/GamePanel.java#L234) | GAMEPLAY: INTERACTION | Restore eligible shrines, finish at HOME or talk to the nearest available NPC. |
-| [GamePanel.objectiveSite](../src/app/GamePanel.java#L265) | FUNCTION | Handle objective site for GamePanel. |
-| [GamePanel.paintComponent](../src/app/GamePanel.java#L284) | OOP: POLYMORPHISM / SORTING | Sort Drawable objects by feet depth and dispatch each concrete draw implementation. |
-| [GamePanel.visible](../src/app/GamePanel.java#L339) | FUNCTION | Handle visible for GamePanel. |
-| [GamePanel.siteName](../src/app/GamePanel.java#L343) | FUNCTION | Handle site name for GamePanel. |
-| [GamePanel.siteColor](../src/app/GamePanel.java#L345) | FUNCTION | Handle site color for GamePanel. |
-| [GamePanel.drawBeacons](../src/app/GamePanel.java#L351) | FUNCTION | Render draw beacons using the current graphics state. |
-| [GamePanel.card](../src/app/GamePanel.java#L366) | FUNCTION | Handle card for GamePanel. |
-| [GamePanel.text](../src/app/GamePanel.java#L371) | FUNCTION | Handle text for GamePanel. |
-| [GamePanel.center](../src/app/GamePanel.java#L373) | FUNCTION | Handle center for GamePanel. |
-| [GamePanel.vitalBar](../src/app/GamePanel.java#L377) | FUNCTION | Handle vital bar for GamePanel. |
-| [GamePanel.drawHud](../src/app/GamePanel.java#L387) | FUNCTION | Render draw hud using the current graphics state. |
-| [GamePanel.drawTimeOfDay](../src/app/GamePanel.java#L405) | WORLD CLOCK HUD | Show a compact numbered phase and next-change countdown below the resource bars. |
-| [GamePanel.drawBossHealth](../src/app/GamePanel.java#L412) | BOSS HUD | Show one continuous health bar only during a nearby arena fight. |
-| [GamePanel.drawMap](../src/app/GamePanel.java#L426) | FUNCTION | Render draw map using the current graphics state. |
-| [GamePanel.drawJournal](../src/app/GamePanel.java#L433) | FUNCTION | Render draw journal using the current graphics state. |
-| [GamePanel.drawDiagnostics](../src/app/GamePanel.java#L457) | FUNCTION | Render draw diagnostics using the current graphics state. |
-| [GamePanel.drawTitle](../src/app/GamePanel.java#L465) | FUNCTION | Render draw title using the current graphics state. |
-| [GamePanel.drawModal](../src/app/GamePanel.java#L480) | FUNCTION | Render draw modal using the current graphics state. |
+| [GamePanel.GamePanel](../src/app/GamePanel.java#L57) | FUNCTION | Initialize GamePanel state. |
+| [GamePanel.mousePressed](../src/app/GamePanel.java#L63) | UI INPUT ROUTING | Select hotbar boxes without leaking UI clicks into combat. |
+| [GamePanel.mouseReleased](../src/app/GamePanel.java#L71) | HOTBAR DRAG | Swap dropped slots through deferred input, then release held combat buttons. |
+| [GamePanel.focusLost](../src/app/GamePanel.java#L82) | FUNCTION | Handle focus lost for GamePanel. |
+| [GamePanel.pointerSlot](../src/app/GamePanel.java#L90) | SCALED UI HIT TEST | Convert native window coordinates into the shared art-resolution hotbar layout. |
+| [GamePanel.reset](../src/app/GamePanel.java#L95) | SESSION: RESTART | Create a fresh world, actors, inventory, quests and timing state. |
+| [GamePanel.start](../src/app/GamePanel.java#L110) | FUNCTION | Handle start for GamePanel. |
+| [GamePanel.stop](../src/app/GamePanel.java#L115) | FUNCTION | Handle stop for GamePanel. |
+| [GamePanel.run](../src/app/GamePanel.java#L120) | TIMING: FIXED STEP | Advance simulation at 60 Hz and interpolate rendering. |
+| [GamePanel.targetX](../src/app/GamePanel.java#L141) | FUNCTION | Handle target x for GamePanel. |
+| [GamePanel.targetY](../src/app/GamePanel.java#L143) | FUNCTION | Handle target y for GamePanel. |
+| [GamePanel.freezeInterpolation](../src/app/GamePanel.java#L145) | FUNCTION | Handle freeze interpolation for GamePanel. |
+| [GamePanel.update](../src/app/GamePanel.java#L150) | SIMULATION / DSA EVENT QUEUE | Apply input, update actors, enqueue defeats, then process rewards safely. |
+| [GamePanel.updateNavigation](../src/app/GamePanel.java#L199) | DSA: BFS / A* CACHES | Refresh enemy flow distances and the optional player trail when needed. |
+| [GamePanel.processEvents](../src/app/GamePanel.java#L231) | DSA: FIFO QUEUE | Remove defeat events in insertion order after actor updates, then award progression. |
+| [GamePanel.interact](../src/app/GamePanel.java#L249) | GAMEPLAY INTERACTION | Open a nearby gate or talk to the nearest available villager. |
+| [GamePanel.objectiveSite](../src/app/GamePanel.java#L259) | BOSS OBJECTIVE SELECTION | Route the optional trail to the nearest undefeated villain. |
+| [GamePanel.paintComponent](../src/app/GamePanel.java#L268) | OOP: POLYMORPHISM / SORTING | Sort Drawable objects by feet depth and dispatch each concrete draw implementation. |
+| [GamePanel.visible](../src/app/GamePanel.java#L324) | FUNCTION | Handle visible for GamePanel. |
+| [GamePanel.card](../src/app/GamePanel.java#L328) | FUNCTION | Handle card for GamePanel. |
+| [GamePanel.text](../src/app/GamePanel.java#L333) | FUNCTION | Handle text for GamePanel. |
+| [GamePanel.center](../src/app/GamePanel.java#L335) | FUNCTION | Handle center for GamePanel. |
+| [GamePanel.vitalBar](../src/app/GamePanel.java#L339) | FUNCTION | Handle vital bar for GamePanel. |
+| [GamePanel.drawHud](../src/app/GamePanel.java#L347) | FUNCTION | Render draw hud using the current graphics state. |
+| [GamePanel.drawTimeOfDay](../src/app/GamePanel.java#L364) | WORLD CLOCK HUD | Show a compact numbered phase and next-change countdown below the resource bars. |
+| [GamePanel.drawBossHealth](../src/app/GamePanel.java#L371) | BOSS HUD | Show one continuous health bar only during a nearby arena fight. |
+| [GamePanel.drawMap](../src/app/GamePanel.java#L384) | FUNCTION | Render draw map using the current graphics state. |
+| [GamePanel.drawJournal](../src/app/GamePanel.java#L391) | FUNCTION | Render draw journal using the current graphics state. |
+| [GamePanel.drawDiagnostics](../src/app/GamePanel.java#L407) | FUNCTION | Render draw diagnostics using the current graphics state. |
+| [GamePanel.drawTitle](../src/app/GamePanel.java#L415) | FUNCTION | Render draw title using the current graphics state. |
+| [GamePanel.drawModal](../src/app/GamePanel.java#L431) | FUNCTION | Render draw modal using the current graphics state. |
 
 ## src/app/KeyHandler.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [KeyHandler.Input](../src/app/KeyHandler.java#L23) | FUNCTION | Initialize Input state. |
-| [KeyHandler.pressed](../src/app/KeyHandler.java#L28) | FUNCTION | Handle pressed for KeyHandler. |
-| [KeyHandler.keyPressed](../src/app/KeyHandler.java#L31) | DSA: HASH SET / INPUT EDGES | Add a held key once and suppress automatic-repeat action edges. |
-| [KeyHandler.keyReleased](../src/app/KeyHandler.java#L51) | DSA: HASH SET | Remove the released key from held membership. |
-| [KeyHandler.mousePressed](../src/app/KeyHandler.java#L53) | FUNCTION | Handle mouse pressed for KeyHandler. |
-| [KeyHandler.mouseReleased](../src/app/KeyHandler.java#L60) | FUNCTION | Handle mouse released for KeyHandler. |
-| [KeyHandler.mouseClicked](../src/app/KeyHandler.java#L65) | FUNCTION | Handle mouse clicked for KeyHandler. |
-| [KeyHandler.mouseEntered](../src/app/KeyHandler.java#L67) | FUNCTION | Handle mouse entered for KeyHandler. |
-| [KeyHandler.mouseExited](../src/app/KeyHandler.java#L69) | FUNCTION | Handle mouse exited for KeyHandler. |
-| [KeyHandler.held](../src/app/KeyHandler.java#L71) | FUNCTION | Handle held for KeyHandler. |
-| [KeyHandler.poll](../src/app/KeyHandler.java#L73) | INPUT: SNAPSHOT | Return held controls and consume one-shot action edges atomically. |
-| [KeyHandler.defer](../src/app/KeyHandler.java#L81) | FUNCTION | Handle defer for KeyHandler. |
-| [KeyHandler.clear](../src/app/KeyHandler.java#L83) | FUNCTION | Handle clear for KeyHandler. |
+| [KeyHandler.Input](../src/app/KeyHandler.java#L21) | INPUT COMPATIBILITY | Create movement/combat input without any hotbar commands. |
+| [KeyHandler.Input](../src/app/KeyHandler.java#L25) | IMMUTABLE SNAPSHOT | Freeze held controls, action edges and one frame of item selection. |
+| [KeyHandler.pressed](../src/app/KeyHandler.java#L31) | INPUT EDGE | Test a one-shot action without consuming it twice. |
+| [KeyHandler.combat](../src/app/KeyHandler.java#L33) | EQUIPMENT INPUT | Route the selected slot into spear input or held shield defense. |
+| [KeyHandler.keyPressed](../src/app/KeyHandler.java#L40) | DSA: HASH SET / INPUT EDGES | Suppress repeat actions and select slots with 1 through 9. |
+| [KeyHandler.keyReleased](../src/app/KeyHandler.java#L62) | HELD INPUT | Release a key from held membership. |
+| [KeyHandler.mousePressed](../src/app/KeyHandler.java#L64) | MOUSE INPUT | Keep one primary edge and a held right-click shield input. |
+| [KeyHandler.mouseReleased](../src/app/KeyHandler.java#L69) | MOUSE INPUT | Release mouse state independently of the pointer position. |
+| [KeyHandler.selectSlot](../src/app/KeyHandler.java#L74) | HOTBAR INPUT | Queue an exact selection and discard older wheel movement. |
+| [KeyHandler.swapSlots](../src/app/KeyHandler.java#L76) | HOTBAR INPUT | Queue a completed drag without copying any item counts. |
+| [KeyHandler.mouseWheelMoved](../src/app/KeyHandler.java#L78) | WHEEL INPUT | Accumulate bounded wheel movement until the next simulation step. |
+| [KeyHandler.clampScroll](../src/app/KeyHandler.java#L80) | INPUT BOUND | Bound wheel accumulation to a safe signed integer range. |
+| [KeyHandler.mouseClicked](../src/app/KeyHandler.java#L82) | LISTENER CONTRACT | Leave click handling to fresh press edges. |
+| [KeyHandler.mouseEntered](../src/app/KeyHandler.java#L84) | LISTENER CONTRACT | Keep controls unchanged when the cursor enters the game. |
+| [KeyHandler.mouseExited](../src/app/KeyHandler.java#L86) | LISTENER CONTRACT | Keep held controls until release or focus loss. |
+| [KeyHandler.held](../src/app/KeyHandler.java#L88) | HASH SET MEMBERSHIP | Accept WASD or arrow-key movement aliases. |
+| [KeyHandler.poll](../src/app/KeyHandler.java#L90) | INPUT SNAPSHOT | Atomically consume action edges and hotbar commands while preserving held controls. |
+| [KeyHandler.defer](../src/app/KeyHandler.java#L97) | DEFERRED INPUT | Retain consumable, combat and selection edges through hit-stop. |
+| [KeyHandler.clear](../src/app/KeyHandler.java#L103) | FOCUS / RESET | Drop all held inputs, drag commands and pending action edges. |
 
 ## src/app/Main.java
 
@@ -93,6 +97,19 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [DashMotion.advance](../src/combat/DashMotion.java#L27) | FUNCTION | Handle advance for DashMotion. |
 | [DashMotion.cancel](../src/combat/DashMotion.java#L33) | FUNCTION | Handle cancel for DashMotion. |
 
+## src/combat/DrinkMotion.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [DrinkMotion.begin](../src/combat/DrinkMotion.java#L11) | ACTION START | Start one validated potion action from the holding pose. |
+| [DrinkMotion.active](../src/combat/DrinkMotion.java#L13) | ACTION STATE | Report whether an item animation owns the hands. |
+| [DrinkMotion.item](../src/combat/DrinkMotion.java#L15) | ACTION ITEM | Read the bottle being animated independently of current inventory quantity. |
+| [DrinkMotion.advance](../src/combat/DrinkMotion.java#L17) | ONE-SHOT COMMIT | Return a sip event once even when a coarse step crosses the whole action. |
+| [DrinkMotion.finished](../src/combat/DrinkMotion.java#L19) | ACTION COMPLETION | Report when lowering the bottle has completed. |
+| [DrinkMotion.progress](../src/combat/DrinkMotion.java#L21) | UI PROGRESS | Read normalized action progress without advancing time. |
+| [DrinkMotion.pose](../src/combat/DrinkMotion.java#L23) | AUTHORED POSE | Select the authored hold, lift, lip, tilt and lower frames. |
+| [DrinkMotion.cancel](../src/combat/DrinkMotion.java#L25) | ACTION CANCELLATION | Release the hands without undoing an already committed sip. |
+
 ## src/combat/EnergyMeter.java
 
 | Method / constructor | Label | Purpose |
@@ -101,8 +118,9 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [EnergyMeter.exhausted](../src/combat/EnergyMeter.java#L13) | FUNCTION | Handle exhausted for EnergyMeter. |
 | [EnergyMeter.canSprint](../src/combat/EnergyMeter.java#L15) | FUNCTION | Handle can sprint for EnergyMeter. |
 | [EnergyMeter.spend](../src/combat/EnergyMeter.java#L17) | OOP: ENCAPSULATION | Spend energy only when the requested amount is valid and available. |
-| [EnergyMeter.sprint](../src/combat/EnergyMeter.java#L26) | RESOURCE: SPRINT | Spend energy for the time actually spent moving. |
-| [EnergyMeter.update](../src/combat/EnergyMeter.java#L31) | OOP: ENCAPSULATION | Apply delayed recovery and release exhaustion at the resume threshold. |
+| [EnergyMeter.restore](../src/combat/EnergyMeter.java#L26) | RESOURCE RESTORE | Clamp potion recovery and release exhaustion when enough energy returns. |
+| [EnergyMeter.sprint](../src/combat/EnergyMeter.java#L32) | RESOURCE: SPRINT | Spend energy for the time actually spent moving. |
+| [EnergyMeter.update](../src/combat/EnergyMeter.java#L37) | OOP: ENCAPSULATION | Apply delayed recovery and release exhaustion at the resume threshold. |
 
 ## src/combat/JumpMotion.java
 
@@ -119,46 +137,55 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [ShieldGuard.update](../src/combat/ShieldGuard.java#L15) | FUNCTION | Advance update state with elapsed time. |
-| [ShieldGuard.load](../src/combat/ShieldGuard.java#L17) | FUNCTION | Load or validate load data. |
-| [ShieldGuard.faces](../src/combat/ShieldGuard.java#L29) | FUNCTION | Handle faces for ShieldGuard. |
-| [ShieldGuard.block](../src/combat/ShieldGuard.java#L42) | FUNCTION | Handle block for ShieldGuard. |
-| [ShieldGuard.impact](../src/combat/ShieldGuard.java#L51) | FUNCTION | Handle impact for ShieldGuard. |
-| [ShieldGuard.drawImpact](../src/combat/ShieldGuard.java#L53) | FUNCTION | Render draw impact using the current graphics state. |
+| [ShieldGuard.update](../src/combat/ShieldGuard.java#L16) | FUNCTION | Advance update state with elapsed time. |
+| [ShieldGuard.load](../src/combat/ShieldGuard.java#L18) | FUNCTION | Load or validate load data. |
+| [ShieldGuard.faces](../src/combat/ShieldGuard.java#L30) | FUNCTION | Handle faces for ShieldGuard. |
+| [ShieldGuard.block](../src/combat/ShieldGuard.java#L43) | FUNCTION | Handle block for ShieldGuard. |
+| [ShieldGuard.impact](../src/combat/ShieldGuard.java#L52) | FUNCTION | Handle impact for ShieldGuard. |
+| [ShieldGuard.drawImpact](../src/combat/ShieldGuard.java#L54) | FUNCTION | Render draw impact using the current graphics state. |
+
+## src/combat/ShieldMeter.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [ShieldMeter.value](../src/combat/ShieldMeter.java#L9) | RESOURCE READ | Read remaining potion protection. |
+| [ShieldMeter.restore](../src/combat/ShieldMeter.java#L11) | RESOURCE RESTORE | Fill protection to its fixed capacity. |
+| [ShieldMeter.absorb](../src/combat/ShieldMeter.java#L13) | DAMAGE ABSORPTION | Spend protection first and return only damage that reaches health. |
 
 ## src/combat/SpearAttack.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [SpearAttack.tipX](../src/combat/SpearAttack.java#L39) | FUNCTION | Handle tip x for SpearAttack. |
-| [SpearAttack.tipY](../src/combat/SpearAttack.java#L41) | FUNCTION | Handle tip y for SpearAttack. |
-| [SpearAttack.begin](../src/combat/SpearAttack.java#L44) | DSA: HASH SET / COMBAT | Select the combo stage and clear targets already hit by the previous stage. |
-| [SpearAttack.cancel](../src/combat/SpearAttack.java#L46) | FUNCTION | Handle cancel for SpearAttack. |
-| [SpearAttack.stage](../src/combat/SpearAttack.java#L48) | FUNCTION | Handle stage for SpearAttack. |
-| [SpearAttack.move](../src/combat/SpearAttack.java#L50) | FUNCTION | Handle move for SpearAttack. |
-| [SpearAttack.name](../src/combat/SpearAttack.java#L55) | FUNCTION | Handle name for SpearAttack. |
-| [SpearAttack.duration](../src/combat/SpearAttack.java#L57) | FUNCTION | Handle duration for SpearAttack. |
-| [SpearAttack.activeStart](../src/combat/SpearAttack.java#L59) | FUNCTION | Handle active start for SpearAttack. |
-| [SpearAttack.activeEnd](../src/combat/SpearAttack.java#L61) | FUNCTION | Handle active end for SpearAttack. |
-| [SpearAttack.chainAt](../src/combat/SpearAttack.java#L63) | FUNCTION | Handle chain at for SpearAttack. |
-| [SpearAttack.color](../src/combat/SpearAttack.java#L65) | FUNCTION | Handle color for SpearAttack. |
-| [SpearAttack.duration](../src/combat/SpearAttack.java#L67) | FUNCTION | Handle duration for SpearAttack. |
-| [SpearAttack.lungeSpeed](../src/combat/SpearAttack.java#L69) | FUNCTION | Handle lunge speed for SpearAttack. |
-| [SpearAttack.blue](../src/combat/SpearAttack.java#L78) | FUNCTION | Handle blue for SpearAttack. |
-| [SpearAttack.loadWeapon](../src/combat/SpearAttack.java#L84) | ASSET PREPARATION | Cache the supplied spearhead and matching shaft before gameplay. |
-| [SpearAttack.clamp](../src/combat/SpearAttack.java#L108) | FUNCTION | Handle clamp for SpearAttack. |
-| [SpearAttack.smooth](../src/combat/SpearAttack.java#L110) | FUNCTION | Handle smooth for SpearAttack. |
-| [SpearAttack.forward](../src/combat/SpearAttack.java#L112) | FUNCTION | Handle forward for SpearAttack. |
-| [SpearAttack.pulse](../src/combat/SpearAttack.java#L116) | FUNCTION | Handle pulse for SpearAttack. |
-| [SpearAttack.bodyDirection](../src/combat/SpearAttack.java#L120) | FUNCTION | Handle body direction for SpearAttack. |
-| [SpearAttack.bodyOffsetX](../src/combat/SpearAttack.java#L129) | FUNCTION | Handle body offset x for SpearAttack. |
-| [SpearAttack.bodyOffsetY](../src/combat/SpearAttack.java#L134) | FUNCTION | Handle body offset y for SpearAttack. |
-| [SpearAttack.pose](../src/combat/SpearAttack.java#L142) | COMBAT: SHARED GEOMETRY | Solve the body hand pivot and blade path used by both damage and rendering. |
-| [SpearAttack.update](../src/combat/SpearAttack.java#L194) | COMBAT: SWEPT COLLISION / HASH SET | Sample the actual spear path and damage each enemy once per stage. |
-| [SpearAttack.behind](../src/combat/SpearAttack.java#L225) | FUNCTION | Handle behind for SpearAttack. |
-| [SpearAttack.behindBody](../src/combat/SpearAttack.java#L230) | FUNCTION | Handle behind body for SpearAttack. |
-| [SpearAttack.trail](../src/combat/SpearAttack.java#L232) | FUNCTION | Handle trail for SpearAttack. |
-| [SpearAttack.draw](../src/combat/SpearAttack.java#L261) | FUNCTION | Render draw using the current graphics state. |
+| [SpearAttack.icon](../src/combat/SpearAttack.java#L22) | CACHED EQUIPMENT ART | Reuse the prepared spear image for the hotbar icon cache. |
+| [SpearAttack.tipX](../src/combat/SpearAttack.java#L41) | FUNCTION | Handle tip x for SpearAttack. |
+| [SpearAttack.tipY](../src/combat/SpearAttack.java#L43) | FUNCTION | Handle tip y for SpearAttack. |
+| [SpearAttack.begin](../src/combat/SpearAttack.java#L46) | DSA: HASH SET / COMBAT | Select the combo stage and clear targets already hit by the previous stage. |
+| [SpearAttack.cancel](../src/combat/SpearAttack.java#L48) | FUNCTION | Handle cancel for SpearAttack. |
+| [SpearAttack.stage](../src/combat/SpearAttack.java#L50) | FUNCTION | Handle stage for SpearAttack. |
+| [SpearAttack.move](../src/combat/SpearAttack.java#L52) | FUNCTION | Handle move for SpearAttack. |
+| [SpearAttack.name](../src/combat/SpearAttack.java#L57) | FUNCTION | Handle name for SpearAttack. |
+| [SpearAttack.duration](../src/combat/SpearAttack.java#L59) | FUNCTION | Handle duration for SpearAttack. |
+| [SpearAttack.activeStart](../src/combat/SpearAttack.java#L61) | FUNCTION | Handle active start for SpearAttack. |
+| [SpearAttack.activeEnd](../src/combat/SpearAttack.java#L63) | FUNCTION | Handle active end for SpearAttack. |
+| [SpearAttack.chainAt](../src/combat/SpearAttack.java#L65) | FUNCTION | Handle chain at for SpearAttack. |
+| [SpearAttack.color](../src/combat/SpearAttack.java#L67) | FUNCTION | Handle color for SpearAttack. |
+| [SpearAttack.duration](../src/combat/SpearAttack.java#L69) | FUNCTION | Handle duration for SpearAttack. |
+| [SpearAttack.lungeSpeed](../src/combat/SpearAttack.java#L71) | FUNCTION | Handle lunge speed for SpearAttack. |
+| [SpearAttack.blue](../src/combat/SpearAttack.java#L80) | FUNCTION | Handle blue for SpearAttack. |
+| [SpearAttack.loadWeapon](../src/combat/SpearAttack.java#L86) | ASSET PREPARATION | Cache the supplied spearhead and matching shaft before gameplay. |
+| [SpearAttack.clamp](../src/combat/SpearAttack.java#L110) | FUNCTION | Handle clamp for SpearAttack. |
+| [SpearAttack.smooth](../src/combat/SpearAttack.java#L112) | FUNCTION | Handle smooth for SpearAttack. |
+| [SpearAttack.forward](../src/combat/SpearAttack.java#L114) | FUNCTION | Handle forward for SpearAttack. |
+| [SpearAttack.pulse](../src/combat/SpearAttack.java#L118) | FUNCTION | Handle pulse for SpearAttack. |
+| [SpearAttack.bodyDirection](../src/combat/SpearAttack.java#L122) | FUNCTION | Handle body direction for SpearAttack. |
+| [SpearAttack.bodyOffsetX](../src/combat/SpearAttack.java#L131) | FUNCTION | Handle body offset x for SpearAttack. |
+| [SpearAttack.bodyOffsetY](../src/combat/SpearAttack.java#L136) | FUNCTION | Handle body offset y for SpearAttack. |
+| [SpearAttack.pose](../src/combat/SpearAttack.java#L144) | COMBAT: SHARED GEOMETRY | Solve the body hand pivot and blade path used by both damage and rendering. |
+| [SpearAttack.update](../src/combat/SpearAttack.java#L196) | COMBAT: SWEPT COLLISION / HASH SET | Sample the actual spear path and damage each enemy once per stage. |
+| [SpearAttack.behind](../src/combat/SpearAttack.java#L227) | FUNCTION | Handle behind for SpearAttack. |
+| [SpearAttack.behindBody](../src/combat/SpearAttack.java#L232) | FUNCTION | Handle behind body for SpearAttack. |
+| [SpearAttack.trail](../src/combat/SpearAttack.java#L234) | FUNCTION | Handle trail for SpearAttack. |
+| [SpearAttack.draw](../src/combat/SpearAttack.java#L263) | FUNCTION | Render draw using the current graphics state. |
 
 ## src/contracts/Damageable.java
 
@@ -186,13 +213,28 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [CircularList.advance](../src/dsa/CircularList.java#L41) | DSA: LINKED LIST | Follow next, wrapping naturally through the circular link; O(1). |
 | [CircularList.size](../src/dsa/CircularList.java#L47) | DSA: LINKED LIST | Return the maintained node count; O(1). |
 
+## src/dsa/Hotbar.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [Hotbar.item](../src/dsa/Hotbar.java#L12) | ARRAY ACCESS | Read a validated slot without exposing the backing array. |
+| [Hotbar.selectedIndex](../src/dsa/Hotbar.java#L14) | OOP: ENCAPSULATION | Read the currently selected slot number. |
+| [Hotbar.selectedItem](../src/dsa/Hotbar.java#L16) | ARRAY ACCESS | Read the selected equipment or consumable reference. |
+| [Hotbar.select](../src/dsa/Hotbar.java#L18) | ARRAY SELECTION | Select one of the nine indexed slots. |
+| [Hotbar.indexOf](../src/dsa/Hotbar.java#L20) | ARRAY SEARCH | Find an item's current slot after rearrangement for the direct healing shortcut. |
+| [Hotbar.cycle](../src/dsa/Hotbar.java#L22) | MODULAR INDEXING | Wrap mouse-wheel selection in either direction without overflow. |
+| [Hotbar.swap](../src/dsa/Hotbar.java#L24) | ARRAY SWAP | Exchange two references while preserving the selected item and inventory quantities. |
+| [Hotbar.check](../src/dsa/Hotbar.java#L29) | VALIDATION | Reject an index outside the fixed hotbar array. |
+
 ## src/dsa/Inventory.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Inventory.count](../src/dsa/Inventory.java#L14) | DSA: HASH MAP | Read an item quantity with a zero default. |
-| [Inventory.add](../src/dsa/Inventory.java#L16) | OOP: ENCAPSULATION / HASH MAP | Validate a positive amount and update quantity without integer overflow. |
-| [Inventory.consume](../src/dsa/Inventory.java#L21) | OOP: ENCAPSULATION / HASH MAP | Spend one available item and remove empty entries. |
+| [Inventory.Item](../src/dsa/Inventory.java#L16) | ITEM DATA | Keep each equipment or potion name beside its use hint. |
+| [Inventory.potion](../src/dsa/Inventory.java#L18) | ITEM TYPE | Identify consumable resources without exposing inventory mutation. |
+| [Inventory.count](../src/dsa/Inventory.java#L23) | DSA: HASH MAP | Read an item quantity with a zero default. |
+| [Inventory.add](../src/dsa/Inventory.java#L25) | OOP: ENCAPSULATION / HASH MAP | Validate a positive amount and prevent integer overflow. |
+| [Inventory.consume](../src/dsa/Inventory.java#L30) | OOP: ENCAPSULATION / HASH MAP | Spend one available item and remove empty entries. |
 
 ## src/dsa/Pathfinder.java
 
@@ -207,14 +249,14 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [QuestLog.Quest](../src/dsa/QuestLog.java#L21) | FUNCTION | Initialize Quest state. |
-| [QuestLog.QuestLog](../src/dsa/QuestLog.java#L33) | FUNCTION | Initialize QuestLog state. |
-| [QuestLog.ready](../src/dsa/QuestLog.java#L45) | DSA: PREREQUISITE GRAPH | Check that every required quest is complete before unlocking a quest. |
-| [QuestLog.finish](../src/dsa/QuestLog.java#L50) | OOP: ENCAPSULATION / HASH SET | Complete a ready quest once and record it in the journal. |
-| [QuestLog.done](../src/dsa/QuestLog.java#L57) | DSA: HASH SET | Test completion membership by quest ID. |
-| [QuestLog.seals](../src/dsa/QuestLog.java#L59) | FUNCTION | Handle seals for QuestLog. |
-| [QuestLog.record](../src/dsa/QuestLog.java#L65) | DSA: BOUNDED DEQUE | Add the newest journal entry first and discard the oldest beyond eight entries. |
-| [QuestLog.history](../src/dsa/QuestLog.java#L70) | OOP: ENCAPSULATION | Return a copy of journal entries without exposing its deque. |
+| [QuestLog.Quest](../src/dsa/QuestLog.java#L20) | FUNCTION | Initialize Quest state. |
+| [QuestLog.QuestLog](../src/dsa/QuestLog.java#L32) | FUNCTION | Initialize QuestLog state. |
+| [QuestLog.ready](../src/dsa/QuestLog.java#L40) | DSA: PREREQUISITE GRAPH | Check that every required quest is complete before unlocking a quest. |
+| [QuestLog.finish](../src/dsa/QuestLog.java#L45) | OOP: ENCAPSULATION / HASH SET | Complete a ready quest once and record it in the journal. |
+| [QuestLog.done](../src/dsa/QuestLog.java#L52) | DSA: HASH SET | Test completion membership by quest ID. |
+| [QuestLog.bossesDefeated](../src/dsa/QuestLog.java#L54) | FUNCTION | Count completed villain objectives. |
+| [QuestLog.record](../src/dsa/QuestLog.java#L60) | DSA: BOUNDED DEQUE | Add the newest journal entry first and discard the oldest beyond eight entries. |
+| [QuestLog.history](../src/dsa/QuestLog.java#L65) | OOP: ENCAPSULATION | Return a copy of journal entries without exposing its deque. |
 
 ## src/entities/ArenaBoss.java
 
@@ -242,7 +284,7 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [ArenaBoss.retreats](../src/entities/ArenaBoss.java#L77) | OOP DEFAULT | Select whether this archetype backs away while recovering its spacing. |
 | [ArenaBoss.knockbackFactor](../src/entities/ArenaBoss.java#L79) | OOP DEFAULT | Keep spear impacts visible without throwing a boss outside its arena. |
 | [ArenaBoss.feetBox](../src/entities/ArenaBoss.java#L81) | COLLISION SHAPE | Keep boss feet compatible with the arena's collision-safe routes. |
-| [ArenaBoss.hurtBox](../src/entities/ArenaBoss.java#L83) | AUTHORED BODY HITBOX | Match the substantial authored torso instead of the old slime body. |
+| [ArenaBoss.hurtBox](../src/entities/ArenaBoss.java#L83) | AUTHORED BODY HITBOX | Match the substantial authored boss torso. |
 | [ArenaBoss.removable](../src/entities/ArenaBoss.java#L85) | DEATH LIFECYCLE | Let every authored death frame finish before removal. |
 | [ArenaBoss.damage](../src/entities/ArenaBoss.java#L87) | CONTROLLED DAMAGE | Reuse validated Enemy health and one-time reward handling with restrained knockback. |
 | [ArenaBoss.update](../src/entities/ArenaBoss.java#L93) | TIMED STATE MACHINE | Subdivide coarse simulation, leash the encounter and preserve explicit warning/strike/recovery phases. |
@@ -272,26 +314,28 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Enemy.Enemy](../src/entities/Enemy.java#L25) | FUNCTION | Initialize Enemy state. |
-| [Enemy.speed](../src/entities/Enemy.java#L33) | OOP: ABSTRACTION | Require each enemy subtype to supply its movement speed. |
-| [Enemy.contactDamage](../src/entities/Enemy.java#L35) | OOP: ABSTRACTION | Require each enemy subtype to supply its contact damage. |
-| [Enemy.scale](../src/entities/Enemy.java#L37) | FUNCTION | Handle scale for Enemy. |
-| [Enemy.health](../src/entities/Enemy.java#L39) | OOP: ENCAPSULATION | Expose current health while retaining private storage. |
-| [Enemy.maxHealth](../src/entities/Enemy.java#L41) | OOP: ENCAPSULATION | Expose the immutable maximum health. |
-| [Enemy.refreshNightPower](../src/entities/Enemy.java#L43) | NIGHT POWER | Apply the current outdoor night state without altering health, maximum health or rewards. |
-| [Enemy.nightEmpowered](../src/entities/Enemy.java#L45) | ENCAPSULATION | Read whether this living actor currently receives the outdoor night bonus. |
-| [Enemy.pursuitMultiplier](../src/entities/Enemy.java#L47) | PURSUIT MODIFIER | Raise ordinary movement and boss pursuit by twenty-five percent at night. |
-| [Enemy.attackDamage](../src/entities/Enemy.java#L49) | OUTGOING DAMAGE | Add one damage to real attacks at night while preserving zero-damage contact. |
-| [Enemy.savePrev](../src/entities/Enemy.java#L51) | FUNCTION | Handle save prev for Enemy. |
-| [Enemy.removable](../src/entities/Enemy.java#L53) | FUNCTION | Handle removable for Enemy. |
-| [Enemy.claimDefeat](../src/entities/Enemy.java#L55) | OOP: ENCAPSULATION | Claim one defeat reward only after health reaches zero. |
-| [Enemy.feetBox](../src/entities/Enemy.java#L60) | FUNCTION | Handle feet box for Enemy. |
-| [Enemy.hurtBox](../src/entities/Enemy.java#L62) | FUNCTION | Handle hurt box for Enemy. |
-| [Enemy.damage](../src/entities/Enemy.java#L64) | OOP: ENCAPSULATION | Clamp private health and apply knockback plus damage effects. |
-| [Enemy.update](../src/entities/Enemy.java#L73) | OOP: POLYMORPHISM / LINKED LIST | Use subclass stats while chasing the flow field or cycling patrol nodes. |
-| [Enemy.move](../src/entities/Enemy.java#L126) | FUNCTION | Handle move for Enemy. |
-| [Enemy.sortY](../src/entities/Enemy.java#L136) | FUNCTION | Handle sort y for Enemy. |
-| [Enemy.draw](../src/entities/Enemy.java#L138) | FUNCTION | Render draw using the current graphics state. |
+| [Enemy.Enemy](../src/entities/Enemy.java#L22) | FUNCTION | Initialize Enemy state. |
+| [Enemy.Enemy](../src/entities/Enemy.java#L26) | DSA CIRCULAR LINKED LIST | Construct shared health and a configurable four-way roaming loop. |
+| [Enemy.speed](../src/entities/Enemy.java#L34) | OOP: ABSTRACTION | Require each enemy subtype to supply its movement speed. |
+| [Enemy.contactDamage](../src/entities/Enemy.java#L36) | OOP: ABSTRACTION | Require each enemy subtype to supply its contact damage. |
+| [Enemy.scale](../src/entities/Enemy.java#L38) | FUNCTION | Handle scale for Enemy. |
+| [Enemy.mayPursue](../src/entities/Enemy.java#L40) | OOP EXTENSION | Let concrete wildlife constrain pursuit to its habitat. |
+| [Enemy.positionAllowed](../src/entities/Enemy.java#L42) | OOP EXTENSION | Let concrete wildlife add habitat boundaries to solid collision. |
+| [Enemy.health](../src/entities/Enemy.java#L44) | OOP: ENCAPSULATION | Expose current health while retaining private storage. |
+| [Enemy.maxHealth](../src/entities/Enemy.java#L46) | OOP: ENCAPSULATION | Expose the immutable maximum health. |
+| [Enemy.refreshNightPower](../src/entities/Enemy.java#L48) | NIGHT POWER | Apply the current outdoor night state without altering health, maximum health or rewards. |
+| [Enemy.nightEmpowered](../src/entities/Enemy.java#L50) | ENCAPSULATION | Read whether this living actor currently receives the outdoor night bonus. |
+| [Enemy.pursuitMultiplier](../src/entities/Enemy.java#L52) | PURSUIT MODIFIER | Raise ordinary movement and boss pursuit by twenty-five percent at night. |
+| [Enemy.attackDamage](../src/entities/Enemy.java#L54) | OUTGOING DAMAGE | Add one damage to real attacks at night while preserving zero-damage contact. |
+| [Enemy.savePrev](../src/entities/Enemy.java#L56) | FUNCTION | Handle save prev for Enemy. |
+| [Enemy.removable](../src/entities/Enemy.java#L58) | FUNCTION | Handle removable for Enemy. |
+| [Enemy.claimDefeat](../src/entities/Enemy.java#L60) | OOP: ENCAPSULATION | Claim one defeat reward only after health reaches zero. |
+| [Enemy.feetBox](../src/entities/Enemy.java#L65) | FUNCTION | Handle feet box for Enemy. |
+| [Enemy.hurtBox](../src/entities/Enemy.java#L67) | FUNCTION | Handle hurt box for Enemy. |
+| [Enemy.damage](../src/entities/Enemy.java#L69) | OOP: ENCAPSULATION | Clamp private health and apply knockback plus damage effects. |
+| [Enemy.update](../src/entities/Enemy.java#L78) | OOP: POLYMORPHISM / LINKED LIST | Use subclass stats while chasing the flow field or cycling patrol nodes. |
+| [Enemy.moveThroughWorld](../src/entities/Enemy.java#L131) | FUNCTION | Sweep shared movement through solids and subtype habitat rules. |
+| [Enemy.sortY](../src/entities/Enemy.java#L141) | FUNCTION | Handle sort y for Enemy. |
 
 ## src/entities/FighterBoss.java
 
@@ -305,26 +349,47 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [FighterBoss.strike](../src/entities/FighterBoss.java#L22) | ACTIVE COMBO | Resolve separate sword windows or sweep a fast dash against real terrain. |
 | [FighterBoss.warning](../src/entities/FighterBoss.java#L33) | COMMITTED ATTACK TELEGRAPH | Show the slash footprint or the longer locked flame-charge lane. |
 
+## src/entities/ForestBeast.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [ForestBeast.ForestBeast](../src/entities/ForestBeast.java#L22) | SPECIALIZED CONSTRUCTION | Construct shared wildlife health, home position and a two-tile circular patrol. |
+| [ForestBeast.kind](../src/entities/ForestBeast.java#L24) | OOP ABSTRACTION | Require each wildlife subtype to select its supplied artwork. |
+| [ForestBeast.warningDuration](../src/entities/ForestBeast.java#L26) | ATTACK TIMING | Supply a readable default charge warning. |
+| [ForestBeast.strikeDuration](../src/entities/ForestBeast.java#L28) | ATTACK TIMING | Supply the default committed charge window. |
+| [ForestBeast.attackSpeed](../src/entities/ForestBeast.java#L30) | ATTACK VECTOR | Keep the locked strike distance independent of night pursuit power. |
+| [ForestBeast.recoveryDuration](../src/entities/ForestBeast.java#L32) | ATTACK TIMING | Supply the default punishable recovery window. |
+| [ForestBeast.attackRange](../src/entities/ForestBeast.java#L34) | ATTACK RANGE | Supply the default charge-selection distance. |
+| [ForestBeast.bodyLift](../src/entities/ForestBeast.java#L36) | BODY MOTION | Raise the wolf's visible leap while leaving collision feet on the ground. |
+| [ForestBeast.opacity](../src/entities/ForestBeast.java#L38) | RENDER OPACITY | Fade only the completed corpse; transient wildlife may add a departure fade. |
+| [ForestBeast.charges](../src/entities/ForestBeast.java#L40) | OOP EXTENSION | Allow wildlife subtypes to specialize their strike policy. |
+| [ForestBeast.mayPursue](../src/entities/ForestBeast.java#L42) | FOREST LEASH | Chase outdoor targets near the home clearing and return to the patrol after disengaging. |
+| [ForestBeast.positionAllowed](../src/entities/ForestBeast.java#L47) | HABITAT COLLISION | Keep the complete footprint outside the palisade even through an open gate. |
+| [ForestBeast.hurtBox](../src/entities/ForestBeast.java#L51) | AUTHORED HURT BOX | Match the low wildlife torso while keeping the shared narrow navigation footprint. |
+| [ForestBeast.state](../src/entities/ForestBeast.java#L53) | ENCAPSULATION | Expose the attack phase for focused behavior checks. |
+| [ForestBeast.facing](../src/entities/ForestBeast.java#L55) | ENCAPSULATION | Expose the cached animation direction. |
+| [ForestBeast.removable](../src/entities/ForestBeast.java#L57) | COMPLETE DEATH ANIMATION | Keep the corpse through all five supplied death poses before removing it. |
+| [ForestBeast.damage](../src/entities/ForestBeast.java#L59) | INTERRUPTIBLE COMBAT | Interrupt a living creature's charge when Agyu lands a spear hit. |
+| [ForestBeast.face](../src/entities/ForestBeast.java#L64) | DIRECTION SELECTION | Select front/back/side art from actual motion or a committed attack vector. |
+| [ForestBeast.clearLine](../src/entities/ForestBeast.java#L69) | SOLID-TERRAIN OCCLUSION | Refuse charge windups through roots, walls, water or mountain terrain. |
+| [ForestBeast.update](../src/entities/ForestBeast.java#L76) | OOP POLYMORPHISM / STATE MACHINE | Share patrol/BFS movement, then lock a visible warning, swept charge and recovery. |
+| [ForestBeast.drawGround](../src/entities/ForestBeast.java#L115) | GROUND WARNING | Draw the committed charge lane below actors without an attack instruction panel. |
+| [ForestBeast.body](../src/entities/ForestBeast.java#L125) | ANIMATION ARRAY LOOKUP | Select authored poses; vertical charges retain front/back anatomy and deaths never loop. |
+| [ForestBeast.draw](../src/entities/ForestBeast.java#L138) | DEPTH-SORTED RENDERING | Draw grounded wildlife at character scale using shared cached frames. |
+
 ## src/entities/ForestEncounters.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [ForestEncounters.ForestEncounters](../src/entities/ForestEncounters.java#L16) | COMPOSITION | Bind the encounter population to one world/session. |
-| [ForestEncounters.populate](../src/entities/ForestEncounters.java#L18) | SPAWN POPULATION | Place shrine guards and eight ambient enemies entirely outside the walls. |
-| [ForestEncounters.update](../src/entities/ForestEncounters.java#L36) | BOUNDED SPAWN TIMER | Replenish defeated ambient slots only offscreen while Agyu explores the forest. |
-| [ForestEncounters.position](../src/entities/ForestEncounters.java#L50) | CACHED SPAWN LOCATION | Separate two enemies inside each of four authored camp clearings. |
-| [ForestEncounters.spawn](../src/entities/ForestEncounters.java#L52) | VALIDATED SPAWN | Reject embedded or indoor spawns before constructing the concrete enemy. |
-
-## src/entities/Guardian.java
-
-| Method / constructor | Label | Purpose |
-| --- | --- | --- |
-| [Guardian.Guardian](../src/entities/Guardian.java#L12) | FUNCTION | Initialize Guardian state. |
-| [Guardian.speed](../src/entities/Guardian.java#L14) | OOP: OVERRIDING | Supply the guardian movement speed. |
-| [Guardian.contactDamage](../src/entities/Guardian.java#L16) | OOP: OVERRIDING | Supply the guardian contact damage. |
-| [Guardian.scale](../src/entities/Guardian.java#L18) | OOP: OVERRIDING | Supply the guardian body/hurt-box scale. |
-| [Guardian.update](../src/entities/Guardian.java#L20) | OOP: OVERRIDING | Extend shared enemy behavior with the guardian pulse attack. |
-| [Guardian.draw](../src/entities/Guardian.java#L33) | OOP: OVERRIDING | Add the pulse warning and boss appearance to shared enemy drawing. |
+| [ForestEncounters.ForestEncounters](../src/entities/ForestEncounters.java#L28) | RANDOM JOURNEY | Give each new journey its own wildlife distribution without changing the terrain. |
+| [ForestEncounters.ForestEncounters](../src/entities/ForestEncounters.java#L30) | SEEDED DISTRIBUTION / BFS | Stratify twelve random herd centers over the map and validate their reachable feet positions. |
+| [ForestEncounters.capacity](../src/entities/ForestEncounters.java#L58) | ENCAPSULATED CAPACITY | Read the bounded total selected by the current journey's one-to-four-member herd sizes. |
+| [ForestEncounters.herds](../src/entities/ForestEncounters.java#L60) | IMMUTABLE HERD RECORDS | Expose immutable center/count records without exposing writable home arrays. |
+| [ForestEncounters.free](../src/entities/ForestEncounters.java#L62) | REACHABLE SPAWN FILTER | Reject village land, solids, disconnected pockets and the three boss arenas. |
+| [ForestEncounters.nearby](../src/entities/ForestEncounters.java#L72) | RANDOM HERD MEMBERS | Shuffle free tiles within two cells of the same center so a herd stays together without overlapping feet. |
+| [ForestEncounters.populate](../src/entities/ForestEncounters.java#L77) | POLYMORPHIC POPULATION | Add the randomized boars and three concrete villains once for this session. |
+| [ForestEncounters.update](../src/entities/ForestEncounters.java#L88) | BOUNDED RESPAWN | Replenish empty herd slots after a delay, on randomized nearby free ground outside Agyu's view. |
+| [ForestEncounters.spawn](../src/entities/ForestEncounters.java#L107) | VALIDATED CONCRETE SPAWN | Construct a boar with the herd identity and current outdoor night strength. |
 
 ## src/entities/MageBoss.java
 
@@ -339,6 +404,21 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [MageBoss.planAttack](../src/entities/MageBoss.java#L22) | ATTACK SELECTION | Alternate locked fan shots and three delayed rune targets. |
 | [MageBoss.strike](../src/entities/MageBoss.java#L26) | ACTIVE CAST | Spawn bounded spell objects once after the staff windup. |
 | [MageBoss.warning](../src/entities/MageBoss.java#L34) | CAST TELEGRAPH | Show the locked fan direction or forthcoming rune target while the spell loads. |
+
+## src/entities/NightWildlife.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [NightWildlife.NightWildlife](../src/entities/NightWildlife.java#L20) | COMPOSITION | Bind one wildlife director to the current world/session. |
+| [NightWildlife.wolfLimit](../src/entities/NightWildlife.java#L22) | ENCAPSULATED QUOTA | Expose the current night's total two-or-three spawn allowance. |
+| [NightWildlife.wolvesSpawned](../src/entities/NightWildlife.java#L24) | ENCAPSULATED QUOTA | Read successful spawns without allowing kills to replenish the counter. |
+| [NightWildlife.update](../src/entities/NightWildlife.java#L26) | ACTIVE-TIME DIRECTOR | Spawn rare predators from the world clock and gate Sigbin scares by forest travel, cooldown and safe placement. |
+| [NightWildlife.deepForest](../src/entities/NightWildlife.java#L51) | HABITAT QUERY | Keep scares at least five tiles beyond the village boundary. |
+| [NightWildlife.nearArena](../src/entities/NightWildlife.java#L57) | BOSS ENCOUNTER EXCLUSION | Avoid adding an ambush to an authored villain encounter. |
+| [NightWildlife.dense](../src/entities/NightWildlife.java#L65) | DENSE WOODLAND QUERY | Require multiple nearby tree crowns before a Sigbin encounter. |
+| [NightWildlife.free](../src/entities/NightWildlife.java#L67) | COLLISION-SAFE SPAWN | Validate the shared navigation node, actual feet, habitat and separation from existing enemies. |
+| [NightWildlife.wolfPosition](../src/entities/NightWildlife.java#L73) | BOUNDED SPAWN SEARCH | Find an offscreen forest location near exploration, with existing camp clearings as a fallback. |
+| [NightWildlife.ambushPosition](../src/entities/NightWildlife.java#L84) | BOUNDED AMBUSH SEARCH | Choose free woodland on the edge of the camera instead of placing a creature on Agyu. |
 
 ## src/entities/Npc.java
 
@@ -388,44 +468,71 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Player.Player](../src/entities/Player.java#L38) | FUNCTION | Initialize Player state. |
-| [Player.health](../src/entities/Player.java#L43) | OOP: ENCAPSULATION | Read current private health through the damage contract. |
-| [Player.maxHealth](../src/entities/Player.java#L45) | OOP: ENCAPSULATION | Read the maximum health allowed for Agyu. |
-| [Player.energy](../src/entities/Player.java#L47) | OOP: COMPOSITION | Read current energy from the owned EnergyMeter. |
-| [Player.maxEnergy](../src/entities/Player.java#L49) | RESOURCE LIMIT | Read the shared energy capacity. |
-| [Player.energyExhausted](../src/entities/Player.java#L51) | FUNCTION | Handle energy exhausted for Player. |
-| [Player.dashing](../src/entities/Player.java#L53) | FUNCTION | Handle dashing for Player. |
-| [Player.dashCooldown](../src/entities/Player.java#L55) | FUNCTION | Handle dash cooldown for Player. |
-| [Player.inventory](../src/entities/Player.java#L57) | FUNCTION | Handle inventory for Player. |
-| [Player.useHerb](../src/entities/Player.java#L59) | OOP: ENCAPSULATION / COMPOSITION | Heal missing health only after consuming an inventory herb. |
-| [Player.savePrev](../src/entities/Player.java#L67) | FUNCTION | Handle save prev for Player. |
-| [Player.airborne](../src/entities/Player.java#L69) | FUNCTION | Handle airborne for Player. |
-| [Player.jumpHeight](../src/entities/Player.java#L71) | FUNCTION | Handle jump height for Player. |
-| [Player.comboStep](../src/entities/Player.java#L73) | FUNCTION | Handle combo step for Player. |
-| [Player.comboName](../src/entities/Player.java#L75) | FUNCTION | Handle combo name for Player. |
-| [Player.feetBox](../src/entities/Player.java#L77) | FUNCTION | Handle feet box for Player. |
-| [Player.update](../src/entities/Player.java#L80) | PLAYER STATE MACHINE | Resolve input priority, movement, jumps, shield, energy and spear combos. |
-| [Player.updateDash](../src/entities/Player.java#L174) | FUNCTION | Advance update dash state with elapsed time. |
-| [Player.moveFromInput](../src/entities/Player.java#L200) | FUNCTION | Handle move from input for Player. |
-| [Player.facingFor](../src/entities/Player.java#L212) | FUNCTION | Handle facing for for Player. |
-| [Player.resetCombo](../src/entities/Player.java#L221) | FUNCTION | Handle reset combo for Player. |
-| [Player.beginAttack](../src/entities/Player.java#L226) | COMBAT: COMPOSITION | Start the selected spear move and reset matching combo timers. |
-| [Player.approach](../src/entities/Player.java#L238) | FUNCTION | Handle approach for Player. |
-| [Player.setState](../src/entities/Player.java#L243) | FUNCTION | Handle set state for Player. |
-| [Player.move](../src/entities/Player.java#L246) | FUNCTION | Handle move for Player. |
-| [Player.vec](../src/entities/Player.java#L257) | FUNCTION | Handle vec for Player. |
-| [Player.blocksFrom](../src/entities/Player.java#L268) | FUNCTION | Handle blocks from for Player. |
-| [Player.damage](../src/entities/Player.java#L273) | OOP: ENCAPSULATION | Resolve dash/guard protection, update private health and apply hurt/death state. |
-| [Player.sortY](../src/entities/Player.java#L287) | FUNCTION | Handle sort y for Player. |
-| [Player.draw](../src/entities/Player.java#L290) | FUNCTION | Render draw using the current graphics state. |
+| [Player.Player](../src/entities/Player.java#L44) | FUNCTION | Initialize Player state. |
+| [Player.health](../src/entities/Player.java#L51) | OOP: ENCAPSULATION | Read current private health through the damage contract. |
+| [Player.maxHealth](../src/entities/Player.java#L53) | OOP: ENCAPSULATION | Read the maximum health allowed for Agyu. |
+| [Player.energy](../src/entities/Player.java#L55) | OOP: COMPOSITION | Read current energy from the owned EnergyMeter. |
+| [Player.maxEnergy](../src/entities/Player.java#L57) | RESOURCE LIMIT | Read the shared energy capacity. |
+| [Player.energyExhausted](../src/entities/Player.java#L59) | FUNCTION | Handle energy exhausted for Player. |
+| [Player.dashing](../src/entities/Player.java#L61) | FUNCTION | Handle dashing for Player. |
+| [Player.dashCooldown](../src/entities/Player.java#L63) | FUNCTION | Handle dash cooldown for Player. |
+| [Player.inventory](../src/entities/Player.java#L65) | FUNCTION | Handle inventory for Player. |
+| [Player.protection](../src/entities/Player.java#L67) | RESOURCE READ | Read blue potion damage absorption separately from directional guarding. |
+| [Player.maxProtection](../src/entities/Player.java#L69) | RESOURCE READ | Read the fixed blue potion shield capacity. |
+| [Player.hotbar](../src/entities/Player.java#L71) | COMPOSED ARRAY | Expose validated slot operations without exposing its backing array. |
+| [Player.itemMessage](../src/entities/Player.java#L73) | ITEM FEEDBACK | Read the last short potion-use result for the hotbar. |
+| [Player.itemMessageTime](../src/entities/Player.java#L75) | ITEM FEEDBACK | Read how long temporary item feedback remains visible. |
+| [Player.message](../src/entities/Player.java#L77) | ITEM FEEDBACK | Keep failed or successful item actions visible briefly. |
+| [Player.drinking](../src/entities/Player.java#L79) | ITEM RENDER STATE | Expose an active drinking action to the HUD and renderer. |
+| [Player.drinkProgress](../src/entities/Player.java#L81) | ITEM PROGRESS | Read the active action's normalized progress for the selected slot. |
+| [Player.drinkPose](../src/entities/Player.java#L83) | ITEM POSE | Read the authored pose selected by the drinking timeline. |
+| [Player.heldItem](../src/entities/Player.java#L85) | VISIBLE EQUIPMENT | Show the current bottle during a sip and only owned equipment otherwise. |
+| [Player.potionUseful](../src/entities/Player.java#L87) | RESOURCE VALIDATION | Test whether a resource still needs recovery at start and at the sip commit. |
+| [Player.usePotion](../src/entities/Player.java#L89) | ITEM ACTION / ENCAPSULATION | Start a validated raise-sip-lower action; consumption happens only at the sip. |
+| [Player.sipPotion](../src/entities/Player.java#L102) | ONE-SHOT ITEM COMMIT | Spend one useful potion at the mouth-contact frame and apply its matching resource/effect. |
+| [Player.cancelDrink](../src/entities/Player.java#L112) | ITEM INTERRUPTION | Release the bottle animation without consuming an uncommitted potion. |
+| [Player.itemsInput](../src/entities/Player.java#L115) | ARRAY SELECTION / EQUIPMENT | Apply hotbar commands and route the primary action to the selected owned item. |
+| [Player.savePrev](../src/entities/Player.java#L134) | FUNCTION | Handle save prev for Player. |
+| [Player.airborne](../src/entities/Player.java#L136) | FUNCTION | Handle airborne for Player. |
+| [Player.jumpHeight](../src/entities/Player.java#L138) | FUNCTION | Handle jump height for Player. |
+| [Player.comboStep](../src/entities/Player.java#L140) | FUNCTION | Handle combo step for Player. |
+| [Player.comboName](../src/entities/Player.java#L142) | FUNCTION | Handle combo name for Player. |
+| [Player.feetBox](../src/entities/Player.java#L144) | FUNCTION | Handle feet box for Player. |
+| [Player.update](../src/entities/Player.java#L147) | PLAYER STATE MACHINE | Resolve input priority, movement, jumps, shield, energy and spear combos. |
+| [Player.updateDash](../src/entities/Player.java#L248) | FUNCTION | Advance update dash state with elapsed time. |
+| [Player.moveFromInput](../src/entities/Player.java#L275) | FUNCTION | Handle move from input for Player. |
+| [Player.facingFor](../src/entities/Player.java#L287) | FUNCTION | Handle facing for for Player. |
+| [Player.resetCombo](../src/entities/Player.java#L296) | FUNCTION | Handle reset combo for Player. |
+| [Player.beginAttack](../src/entities/Player.java#L301) | COMBAT: COMPOSITION | Start the selected spear move and reset matching combo timers. |
+| [Player.approach](../src/entities/Player.java#L313) | FUNCTION | Handle approach for Player. |
+| [Player.setState](../src/entities/Player.java#L318) | FUNCTION | Handle set state for Player. |
+| [Player.move](../src/entities/Player.java#L321) | FUNCTION | Handle move for Player. |
+| [Player.vec](../src/entities/Player.java#L332) | FUNCTION | Handle vec for Player. |
+| [Player.blocksFrom](../src/entities/Player.java#L343) | FUNCTION | Handle blocks from for Player. |
+| [Player.damage](../src/entities/Player.java#L348) | OOP: ENCAPSULATION | Resolve dash/guard protection, update private health and apply hurt/death state. |
+| [Player.sortY](../src/entities/Player.java#L364) | FUNCTION | Handle sort y for Player. |
+| [Player.draw](../src/entities/Player.java#L367) | FUNCTION | Render draw using the current graphics state. |
 
-## src/entities/Slime.java
+## src/entities/Sigbin.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Slime.Slime](../src/entities/Slime.java#L8) | FUNCTION | Initialize Slime state. |
-| [Slime.speed](../src/entities/Slime.java#L10) | OOP: OVERRIDING | Supply the ordinary enemy movement speed. |
-| [Slime.contactDamage](../src/entities/Slime.java#L12) | OOP: OVERRIDING | Supply the ordinary enemy contact damage. |
+| [Sigbin.Sigbin](../src/entities/Sigbin.java#L17) | AMBUSH CONSTRUCTION | Create one night predator outside the boar herd groups. |
+| [Sigbin.kind](../src/entities/Sigbin.java#L19) | OOP OVERRIDING | Select the supplied Sigbin animation set. |
+| [Sigbin.speed](../src/entities/Sigbin.java#L21) | OOP OVERRIDING | Supply the creature's hunting pace before the outdoor night modifier. |
+| [Sigbin.attackSpeed](../src/entities/Sigbin.java#L23) | AMBUSH STRIKE POLICY | Turn the supplied rush poses into a bounded claw lunge. |
+| [Sigbin.warningDuration](../src/entities/Sigbin.java#L25) | AMBUSH STRIKE POLICY | Give Agyu a readable reaction window before the claw lunge. |
+| [Sigbin.contactDamage](../src/entities/Sigbin.java#L27) | NIGHT ENEMY DAMAGE | Supply claw damage through the normal night, guard and dash contracts. |
+| [Sigbin.scareActive](../src/entities/Sigbin.java#L29) | ENCAPSULATION | Expose the short visual scare window without advancing it during rendering. |
+| [Sigbin.hasScared](../src/entities/Sigbin.java#L31) | ENCAPSULATION | Read the one-shot scare flag for encounter verification. |
+| [Sigbin.damage](../src/entities/Sigbin.java#L33) | INTERRUPTIBLE AMBUSH | Let a spear hit cancel the overlay and stagger a surviving creature without ending the fight. |
+| [Sigbin.startle](../src/entities/Sigbin.java#L37) | ONE-SHOT SCARE | Trigger one brief camera jolt, creature overlay and soft audio sting without hurting or freezing Agyu. |
+| [Sigbin.update](../src/entities/Sigbin.java#L39) | NIGHT AMBUSH / REAL COMBAT | Reveal at night, preserve a reaction window, then use the shared chase and telegraphed claw strike. |
+| [Sigbin.removable](../src/entities/Sigbin.java#L57) | FINITE ENCOUNTER | Remove a dawn/disengagement departure without a reward or keep a defeated enemy through all death poses. |
+| [Sigbin.opacity](../src/entities/Sigbin.java#L59) | CONTEXTUAL OPACITY | Hide most of the stalking body, then reveal it fully before a smooth departure. |
+| [Sigbin.body](../src/entities/Sigbin.java#L61) | SUPPLIED ANIMATION LOOKUP | Use the supplied attack/locomotion poses for real hunting, strikes and death. |
+| [Sigbin.draw](../src/entities/Sigbin.java#L67) | STALKING EYES | Depth-sort the creature normally and leave only a faint red-eyed glimpse while it is hiding. |
+| [Sigbin.drawOverlay](../src/entities/Sigbin.java#L75) | READ-ONLY SCARE OVERLAY | Briefly bring the supplied front-facing creature forward while leaving the HUD and player controls available. |
 
 ## src/entities/TankBoss.java
 
@@ -440,20 +547,42 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [TankBoss.strike](../src/entities/TankBoss.java#L24) | ACTIVE ATTACK | Resolve a single heavy impact after the warning window. |
 | [TankBoss.warning](../src/entities/TankBoss.java#L31) | ATTACK TELEGRAPH | Display the exact cone or radial ground footprint before impact. |
 
+## src/entities/WildBoar.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WildBoar.WildBoar](../src/entities/WildBoar.java#L7) | OOP INHERITANCE | Bind three health points and the current random herd identity. |
+| [WildBoar.kind](../src/entities/WildBoar.java#L9) | OOP OVERRIDING | Select the user's boar artwork. |
+| [WildBoar.speed](../src/entities/WildBoar.java#L11) | OOP OVERRIDING | Supply ordinary pursuit speed before the outdoor night modifier. |
+| [WildBoar.contactDamage](../src/entities/WildBoar.java#L13) | OOP OVERRIDING | Supply one point of daytime tusk damage. |
+
+## src/entities/Wolf.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [Wolf.Wolf](../src/entities/Wolf.java#L8) | NIGHT WILDLIFE CONSTRUCTION | Supply a tougher rare predator outside shrine progression groups. |
+| [Wolf.kind](../src/entities/Wolf.java#L10) | OOP OVERRIDING | Select the user's white wolf animation cache. |
+| [Wolf.speed](../src/entities/Wolf.java#L12) | OOP OVERRIDING | Supply faster pursuit before the normal outdoor night multiplier. |
+| [Wolf.contactDamage](../src/entities/Wolf.java#L14) | OOP OVERRIDING | Supply bite damage through the shared night/guard contracts. |
+| [Wolf.hurtBox](../src/entities/Wolf.java#L16) | AUTHORED HURT BOX | Match the taller, longer supplied wolf torso without widening its navigation feet. |
+| [Wolf.warningDuration](../src/entities/Wolf.java#L18) | OOP ATTACK POLICY | Give the rare predator a readable crouch before pouncing. |
+| [Wolf.strikeDuration](../src/entities/Wolf.java#L20) | OOP ATTACK POLICY | Play the complete four-frame pounce before recovery. |
+| [Wolf.attackSpeed](../src/entities/Wolf.java#L22) | OOP ATTACK POLICY | Bound leap travel while retaining swept solid collision. |
+| [Wolf.recoveryDuration](../src/entities/Wolf.java#L24) | OOP ATTACK POLICY | Leave a longer opening after the pounce. |
+| [Wolf.attackRange](../src/entities/Wolf.java#L26) | OOP ATTACK POLICY | Start a leap from a little farther away than a boar's charge. |
+| [Wolf.update](../src/entities/Wolf.java#L28) | DAWN LIFECYCLE | Stop attacking immediately at dawn and fade away without a defeat reward. |
+| [Wolf.opacity](../src/entities/Wolf.java#L33) | DEPARTURE RENDERING | Fade the living predator's dawn departure independently of its authored death sequence. |
+| [Wolf.removable](../src/entities/Wolf.java#L35) | BOUNDED LIFETIME | Remove a departing wolf after the fade or a defeated wolf after all death poses. |
+
 ## src/rendering/Assets.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Assets.load](../src/rendering/Assets.java#L24) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
-| [Assets.frames](../src/rendering/Assets.java#L47) | FUNCTION | Handle frames for Assets. |
-| [Assets.directional](../src/rendering/Assets.java#L54) | DSA: 2D ARRAY / MIRRORING | Assemble DOWN, UP, LEFT and RIGHT animation arrays. |
-| [Assets.load](../src/rendering/Assets.java#L61) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
-| [Assets.flip](../src/rendering/Assets.java#L77) | ASSET PREPARATION | Mirror exact RGBA pixels without changing semi-transparent edge colors. |
-| [Assets.art](../src/rendering/Assets.java#L88) | ASSET PREPARATION | Allocate one transparent image at art resolution. |
-| [Assets.put](../src/rendering/Assets.java#L90) | ASSET PREPARATION | Write an in-bounds opaque pixel to a generated enemy image. |
-| [Assets.buildEnemyArt](../src/rendering/Assets.java#L95) | CURRENT ENEMY ART | Generate the two slime frames and their damage-flash variants. |
-| [Assets.outline](../src/rendering/Assets.java#L113) | ASSET PREPARATION | Outline the generated enemy silhouette without changing its solid pixels. |
-| [Assets.tintWhite](../src/rendering/Assets.java#L124) | ASSET PREPARATION | Cache a white damage-flash silhouette for an enemy frame. |
+| [Assets.load](../src/rendering/Assets.java#L23) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
+| [Assets.frames](../src/rendering/Assets.java#L48) | FUNCTION | Handle frames for Assets. |
+| [Assets.directional](../src/rendering/Assets.java#L55) | DSA: 2D ARRAY / MIRRORING | Assemble DOWN, UP, LEFT and RIGHT animation arrays. |
+| [Assets.load](../src/rendering/Assets.java#L62) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
+| [Assets.flip](../src/rendering/Assets.java#L78) | ASSET PREPARATION | Mirror exact RGBA pixels without changing semi-transparent edge colors. |
 
 ## src/rendering/BossArt.java
 
@@ -499,6 +628,14 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [DashEffects.draw](../src/rendering/DashEffects.java#L68) | FUNCTION | Render draw using the current graphics state. |
 | [DashEffects.line](../src/rendering/DashEffects.java#L88) | FUNCTION | Handle line for DashEffects. |
 
+## src/rendering/ForestAudio.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [ForestAudio.ForestAudio](../src/rendering/ForestAudio.java#L17) | AUDIO UTILITY | Prevent instances of the single bounded sound provider. |
+| [ForestAudio.sting](../src/rendering/ForestAudio.java#L19) | CACHED PCM ARRAY | Prepare a brief low-volume descending growl with a smooth attack and release. |
+| [ForestAudio.scare](../src/rendering/ForestAudio.java#L29) | BOUNDED AUDIO PLAYBACK | Play at most one sting off the game loop, release its device and tolerate missing audio hardware. |
+
 ## src/rendering/Fx.java
 
 | Method / constructor | Label | Purpose |
@@ -521,6 +658,32 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [GameScale.agyuGraphics](../src/rendering/GameScale.java#L14) | FUNCTION | Handle agyu graphics for GameScale. |
 | [GameScale.agyuFrame](../src/rendering/GameScale.java#L21) | FUNCTION | Handle agyu frame for GameScale. |
 
+## src/rendering/HeldItemArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [HeldItemArt.HeldItemArt](../src/rendering/HeldItemArt.java#L21) | STATIC CACHE | Prevent instances of the shared animation cache. |
+| [HeldItemArt.load](../src/rendering/HeldItemArt.java#L23) | CACHE STARTUP / ARRAY COMPOSITION | Register source bodies and prepare every held-item combination, including mirrored left poses. |
+| [HeldItemArt.compose](../src/rendering/HeldItemArt.java#L60) | STARTUP COMPOSITOR | Layer a cached selected item at the authored fist, preserving original finger pixels. |
+| [HeldItemArt.spearAngle](../src/rendering/HeldItemArt.java#L84) | EQUIPMENT DIRECTION | Point a selected spear forward in the current facing direction. |
+| [HeldItemArt.bottleAngle](../src/rendering/HeldItemArt.java#L86) | SIP DIRECTION | Bring the bottle opening toward the visible lips as the wrist lifts and tilts. |
+| [HeldItemArt.index](../src/rendering/HeldItemArt.java#L91) | ARRAY ACCESS | Include the empty-hand entry after the concrete item types. |
+| [HeldItemArt.frame](../src/rendering/HeldItemArt.java#L93) | CACHED FRAME | Read a prepared item/body pose without allocating during paint. |
+| [HeldItemArt.ghost](../src/rendering/HeldItemArt.java#L95) | CACHED AFTERIMAGE | Reuse selected equipment in dash afterimages rather than showing an unequipped spear. |
+| [HeldItemArt.draw](../src/rendering/HeldItemArt.java#L97) | CACHED DRAW | Draw a selected-item composite about its shared foot anchor. |
+| [HeldItemArt.drawDrinking](../src/rendering/HeldItemArt.java#L99) | WALKING DRINK CACHE | Combine authored sipping and walking steps through cached full sprites. |
+| [HeldItemArt.walkPose](../src/rendering/HeldItemArt.java#L104) | LOCOMOTION POSE | Alternate authored steps and centered passing poses at walking or sprint cadence. |
+
+## src/rendering/HotbarHud.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [HotbarHud.HotbarHud](../src/rendering/HotbarHud.java#L16) | STATIC HUD | Prevent instances of the shared item dock renderer. |
+| [HotbarHud.left](../src/rendering/HotbarHud.java#L18) | SHARED LAYOUT | Center all nine slots as a single dock. |
+| [HotbarHud.top](../src/rendering/HotbarHud.java#L20) | SAFE AREA | Leave a clear bottom margin at every window size. |
+| [HotbarHud.slotAt](../src/rendering/HotbarHud.java#L22) | SHARED HIT GEOMETRY | Match only the visible slot interior and reject gaps, text and margins. |
+| [HotbarHud.draw](../src/rendering/HotbarHud.java#L27) | EQUIPMENT HUD | Place keys and counts in their own corners and show only one compact context label. |
+
 ## src/rendering/MountainArt.java
 
 | Method / constructor | Label | Purpose |
@@ -541,6 +704,26 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [MountainArt.polygon](../src/rendering/MountainArt.java#L189) | PIXEL GEOMETRY | Build one integer-pixel silhouette from paired coordinate arrays. |
 | [MountainArt.fill](../src/rendering/MountainArt.java#L191) | PIXEL GEOMETRY | Fill a flat facet before applying seeded chips and ledge detail. |
 | [MountainArt.color](../src/rendering/MountainArt.java#L193) | PIXEL PALETTE | Select an opaque cached-art palette color. |
+
+## src/rendering/PotionArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [PotionArt.PotionArt](../src/rendering/PotionArt.java#L16) | STATIC ART | Prevent instances of the shared item cache. |
+| [PotionArt.load](../src/rendering/PotionArt.java#L18) | CACHE STARTUP | Decode supplied runtime art and cache the current spear and wooden shield icons once. |
+| [PotionArt.read](../src/rendering/PotionArt.java#L39) | VALIDATED ASSET IO | Require the packed item dimensions expected by the runtime cache. |
+| [PotionArt.icon](../src/rendering/PotionArt.java#L45) | ARRAY LOOKUP | Read one cached equipment or potion icon by item type. |
+| [PotionArt.frame](../src/rendering/PotionArt.java#L47) | ARRAY LOOKUP | Read an indexed supplied animation frame without allocating an image. |
+| [PotionArt.kind](../src/rendering/PotionArt.java#L49) | ITEM INDEX | Map the three consumables into compact effect array rows. |
+
+## src/rendering/PotionEffects.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [PotionEffects.play](../src/rendering/PotionEffects.java#L13) | ANIMATION START | Restart just the consumed or impacted potion effect. |
+| [PotionEffects.update](../src/rendering/PotionEffects.java#L15) | ACTIVE SIMULATION | Advance bounded animation phases and expire one-shot effects. |
+| [PotionEffects.remaining](../src/rendering/PotionEffects.java#L17) | ANIMATION READ | Read a timer for deterministic pause and expiry checks. |
+| [PotionEffects.draw](../src/rendering/PotionEffects.java#L19) | CACHED FRAME RENDER | Draw supplied recovery effects and loop a subdued shield aura while protection remains. |
 
 ## src/rendering/RpgArt.java
 
@@ -582,6 +765,16 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [VillageArt.load](../src/rendering/VillageArt.java#L16) | FUNCTION | Load or validate load data. |
 | [VillageArt.tile](../src/rendering/VillageArt.java#L27) | FUNCTION | Handle tile for VillageArt. |
 
+## src/rendering/WildlifeArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WildlifeArt.WildlifeArt](../src/rendering/WildlifeArt.java#L22) | CACHE UTILITY | Prevent instances of the shared resource provider. |
+| [WildlifeArt.count](../src/rendering/WildlifeArt.java#L24) | AUTHORED COUNTS | Preserve all four movement/attack/leap poses and five death poses. |
+| [WildlifeArt.load](../src/rendering/WildlifeArt.java#L26) | ASSET STARTUP | Prepare original, mirrored and flash variants once and publish complete animation caches. |
+| [WildlifeArt.scarePortrait](../src/rendering/WildlifeArt.java#L59) | CACHED CLOSE-UP | Return the detailed supplied front pose prepared specifically for the brief scare overlay. |
+| [WildlifeArt.frame](../src/rendering/WildlifeArt.java#L61) | CACHED FRAME LOOKUP | Select an existing transparent pose without allocating or advancing simulation. |
+
 ## src/rendering/WorldLighting.java
 
 | Method / constructor | Label | Purpose |
@@ -600,7 +793,7 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [DayNightCycle.phase](../src/world/DayNightCycle.java#L20) | ENUM STATE | Derive the alternating phase from the transition count. |
 | [DayNightCycle.night](../src/world/DayNightCycle.java#L22) | ENCAPSULATION | Identify the gameplay night phase independently of the visual transition. |
 | [DayNightCycle.number](../src/world/DayNightCycle.java#L24) | NUMBERED CYCLE | Return Day 1/Night 1, Day 2/Night 2 and subsequent cycle numbers. |
-| [DayNightCycle.phaseSeconds](../src/world/DayNightCycle.java#L26) | ENCAPSULATION | Read active seconds elapsed in the current five-minute phase. |
+| [DayNightCycle.phaseSeconds](../src/world/DayNightCycle.java#L26) | ENCAPSULATION | Read active seconds elapsed in the current three-minute phase. |
 | [DayNightCycle.remainingSeconds](../src/world/DayNightCycle.java#L28) | COUNTDOWN | Round the remaining phase duration for a stable whole-second HUD. |
 | [DayNightCycle.label](../src/world/DayNightCycle.java#L30) | CLOCK LABEL | Provide the numbered phase without exposing writable clock state. |
 | [DayNightCycle.countdown](../src/world/DayNightCycle.java#L32) | CLOCK LABEL | Format the remaining interval as minutes and seconds. |
@@ -694,12 +887,11 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [VillageMap.VillageMap](../src/world/VillageMap.java#L28) | FUNCTION | Initialize VillageMap state. |
-| [VillageMap.cacheX](../src/world/VillageMap.java#L69) | FUNCTION | Handle cache x for VillageMap. |
-| [VillageMap.cacheY](../src/world/VillageMap.java#L71) | FUNCTION | Handle cache y for VillageMap. |
-| [VillageMap.draw](../src/world/VillageMap.java#L73) | FUNCTION | Render draw using the current graphics state. |
-| [VillageMap.label](../src/world/VillageMap.java#L134) | MAP WAYFINDING | Keep remote clearing and mountain labels inside the full-map viewport. |
-| [VillageMap.siteColor](../src/world/VillageMap.java#L140) | FUNCTION | Handle site color for VillageMap. |
+| [VillageMap.VillageMap](../src/world/VillageMap.java#L27) | FUNCTION | Initialize VillageMap state. |
+| [VillageMap.cacheX](../src/world/VillageMap.java#L68) | FUNCTION | Handle cache x for VillageMap. |
+| [VillageMap.cacheY](../src/world/VillageMap.java#L70) | FUNCTION | Handle cache y for VillageMap. |
+| [VillageMap.draw](../src/world/VillageMap.java#L72) | FUNCTION | Render draw using the current graphics state. |
+| [VillageMap.label](../src/world/VillageMap.java#L119) | MAP WAYFINDING | Keep remote clearing and mountain labels inside the full-map viewport. |
 
 ## src/world/World.java
 
@@ -742,19 +934,19 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [World.blockedBruteForce](../src/world/World.java#L338) | VERIFICATION: REFERENCE SEARCH | Check every obstacle for comparison with the spatial index. |
 | [World.collectLandscape](../src/world/World.java#L349) | LANDSCAPE CULLING | Append visible timber defenses and the cached mountain/waterfall to depth sorting. |
 | [World.drawGround](../src/world/World.java#L353) | FUNCTION | Render draw ground using the current graphics state. |
-| [World.Prop](../src/world/World.java#L393) | FUNCTION | Initialize Prop state. |
-| [World.collider](../src/world/World.java#L397) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
-| [World.sortY](../src/world/World.java#L399) | FUNCTION | Handle sort y for World. |
-| [World.draw](../src/world/World.java#L401) | FUNCTION | Render draw using the current graphics state. |
-| [World.Building](../src/world/World.java#L420) | FUNCTION | Initialize Building state. |
-| [World.collider](../src/world/World.java#L426) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
-| [World.sortY](../src/world/World.java#L428) | FUNCTION | Handle sort y for World. |
-| [World.draw](../src/world/World.java#L430) | FUNCTION | Render draw using the current graphics state. |
-| [World.Tree](../src/world/World.java#L443) | ASSET-ALIGNED COLLISION | Cache the sprite/style and place a broad solid root footprint on its actual bark. |
-| [World.collider](../src/world/World.java#L449) | STATIC OBSTACLE | Return the cached tree-root collider used by all actors. |
-| [World.sortY](../src/world/World.java#L451) | DEPTH SORTING | Sort at the actual roots rather than stray grass below the sprite. |
-| [World.draw](../src/world/World.java#L453) | CACHED RENDER | Draw an unoccluded tree for scene exports and generic Drawable callers. |
-| [World.draw](../src/world/World.java#L455) | PLAYER VISIBILITY | Fade only the canopy when it hides Agyu; the root/trunk base remains opaque and solid. |
+| [World.Prop](../src/world/World.java#L385) | FUNCTION | Initialize Prop state. |
+| [World.collider](../src/world/World.java#L389) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
+| [World.sortY](../src/world/World.java#L391) | FUNCTION | Handle sort y for World. |
+| [World.draw](../src/world/World.java#L393) | FUNCTION | Render draw using the current graphics state. |
+| [World.Building](../src/world/World.java#L412) | FUNCTION | Initialize Building state. |
+| [World.collider](../src/world/World.java#L418) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
+| [World.sortY](../src/world/World.java#L420) | FUNCTION | Handle sort y for World. |
+| [World.draw](../src/world/World.java#L422) | FUNCTION | Render draw using the current graphics state. |
+| [World.Tree](../src/world/World.java#L435) | ASSET-ALIGNED COLLISION | Cache the sprite/style and place a broad solid root footprint on its actual bark. |
+| [World.collider](../src/world/World.java#L441) | STATIC OBSTACLE | Return the cached tree-root collider used by all actors. |
+| [World.sortY](../src/world/World.java#L443) | DEPTH SORTING | Sort at the actual roots rather than stray grass below the sprite. |
+| [World.draw](../src/world/World.java#L445) | CACHED RENDER | Draw an unoccluded tree for scene exports and generic Drawable callers. |
+| [World.draw](../src/world/World.java#L447) | PLAYER VISIBILITY | Fade only the canopy when it hides Agyu; the root/trunk base remains opaque and solid. |
 
 ## tests/ArenaBossTests.java
 
@@ -783,6 +975,26 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [ArenaBossTests.get](../tests/ArenaBossTests.java#L216) | TEST REFLECTION | Inspect private session state without changing the runtime API. |
 | [ArenaBossTests.set](../tests/ArenaBossTests.java#L218) | CAMERA FIXTURE | Position the real interpolation camera for deterministic visual review. |
 | [ArenaBossTests.check](../tests/ArenaBossTests.java#L220) | ASSERTION | Count a meaningful regression property and explain any failure. |
+
+## tests/BoarTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [BoarTests.BoarTests](../tests/BoarTests.java#L25) | TEST UTILITY | Prevent instances of the focused regression suite. |
+| [BoarTests.main](../tests/BoarTests.java#L27) | TEST ENTRY | Load real assets and run the focused forest-wildlife checks. |
+| [BoarTests.run](../tests/BoarTests.java#L29) | REGRESSION SUITE | Verify sprite arrays, roaming, combat, death, population replacement and a real forest camera. |
+| [BoarTests.art](../tests/BoarTests.java#L31) | ASSET CONTRACT | Verify all supplied source poses, directional caches, opaque feet registration and untouched rendering inputs. |
+| [BoarTests.population](../tests/BoarTests.java#L55) | POLYMORPHIC POPULATION | Confirm every ordinary initial and replenished enemy is an outdoor boar while all villains remain. |
+| [BoarTests.roaming](../tests/BoarTests.java#L65) | LINKED-LIST ROAMING | Simulate a full minute of free forest patrol and verify movement, root clearance and habitat boundaries. |
+| [BoarTests.charges](../tests/BoarTests.java#L76) | COMMITTED CHARGE | Check a readable windup, one charge hit, all four facing choices and spear interruption. |
+| [BoarTests.defenses](../tests/BoarTests.java#L91) | PLAYER COUNTERPLAY | Use real guard and dash input and verify that a grounded charge can be jumped. |
+| [BoarTests.collision](../tests/BoarTests.java#L107) | SWEPT COLLISION | Reject coarse charged travel through a real forest tree and forced travel into the village. |
+| [BoarTests.death](../tests/BoarTests.java#L123) | DEATH LIFECYCLE | Check one-time rewards and a non-looping five-frame corpse before cleanup. |
+| [BoarTests.boarAt](../tests/BoarTests.java#L130) | FREE CLEARING FIXTURE | Use the actual reserved arena floor for deterministic combat geometry. |
+| [BoarTests.waitFor](../tests/BoarTests.java#L132) | STATE WAIT FIXTURE | Advance real simulation only until the requested warning/charge state, failing on a stalled encounter. |
+| [BoarTests.set](../tests/BoarTests.java#L134) | FOCUSED FIXTURE | Set one private phase/vector only for the coarse collision regression. |
+| [BoarTests.preview](../tests/BoarTests.java#L136) | RENDER EVIDENCE | Export a real forest camera with ground warnings, depth sorting, Agyu and the authored boars. |
+| [BoarTests.check](../tests/BoarTests.java#L156) | ASSERTION | Count a behavior contract and report the exact failure. |
 
 ## tests/CombatBodyTests.java
 
@@ -828,34 +1040,35 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | --- | --- | --- |
 | [ComboTests.ComboTests](../tests/ComboTests.java#L32) | TEST HELPER | Prevent instances of this test/helper class. |
 | [ComboTests.Target](../tests/ComboTests.java#L35) | TEST HELPER | Initialize Target state. |
-| [ComboTests.speed](../tests/ComboTests.java#L37) | TEST HELPER | Handle speed for ComboTests. |
-| [ComboTests.contactDamage](../tests/ComboTests.java#L39) | TEST HELPER | Handle contact damage for ComboTests. |
-| [ComboTests.update](../tests/ComboTests.java#L41) | TEST HELPER | Advance update state with elapsed time. |
-| [ComboTests.main](../tests/ComboTests.java#L47) | TEST HELPER | Entry point for this regression suite. |
-| [ComboTests.run](../tests/ComboTests.java#L55) | TEST HELPER | Handle run for ComboTests. |
-| [ComboTests.chainChecks](../tests/ComboTests.java#L68) | TEST HELPER | Handle chain checks for ComboTests. |
-| [ComboTests.cancelChecks](../tests/ComboTests.java#L121) | TEST HELPER | Handle cancel checks for ComboTests. |
-| [ComboTests.damageChecks](../tests/ComboTests.java#L149) | TEST HELPER | Handle damage checks for ComboTests. |
-| [ComboTests.renderChecks](../tests/ComboTests.java#L178) | TEST HELPER | Handle render checks for ComboTests. |
-| [ComboTests.effectsChecks](../tests/ComboTests.java#L207) | TEST HELPER | Handle effects checks for ComboTests. |
-| [ComboTests.previews](../tests/ComboTests.java#L235) | TEST HELPER | Handle previews for ComboTests. |
-| [ComboTests.clip](../tests/ComboTests.java#L302) | TEST HELPER | Handle clip for ComboTests. |
-| [ComboTests.thirdStage](../tests/ComboTests.java#L336) | TEST HELPER | Handle third stage for ComboTests. |
-| [ComboTests.waitFor](../tests/ComboTests.java#L342) | TEST HELPER | Handle wait for for ComboTests. |
-| [ComboTests.waitUntilIdle](../tests/ComboTests.java#L350) | TEST HELPER | Handle wait until idle for ComboTests. |
-| [ComboTests.attack](../tests/ComboTests.java#L355) | TEST HELPER | Handle attack for ComboTests. |
-| [ComboTests.settle](../tests/ComboTests.java#L360) | TEST HELPER | Handle settle for ComboTests. |
-| [ComboTests.step](../tests/ComboTests.java#L362) | TEST HELPER | Handle step for ComboTests. |
-| [ComboTests.player](../tests/ComboTests.java#L364) | TEST HELPER | Handle player for ComboTests. |
-| [ComboTests.posePlayer](../tests/ComboTests.java#L366) | TEST HELPER | Handle pose player for ComboTests. |
-| [ComboTests.spear](../tests/ComboTests.java#L370) | TEST HELPER | Handle spear for ComboTests. |
-| [ComboTests.render](../tests/ComboTests.java#L374) | TEST HELPER | Handle render for ComboTests. |
-| [ComboTests.same](../tests/ComboTests.java#L379) | TEST HELPER | Handle same for ComboTests. |
-| [ComboTests.fingerprint](../tests/ComboTests.java#L385) | TEST HELPER | Handle fingerprint for ComboTests. |
-| [ComboTests.press](../tests/ComboTests.java#L391) | TEST HELPER | Handle press for ComboTests. |
-| [ComboTests.release](../tests/ComboTests.java#L393) | TEST HELPER | Handle release for ComboTests. |
-| [ComboTests.mouse](../tests/ComboTests.java#L395) | TEST HELPER | Handle mouse for ComboTests. |
-| [ComboTests.check](../tests/ComboTests.java#L400) | TEST HELPER | Handle check for ComboTests. |
+| [ComboTests.kind](../tests/ComboTests.java#L37) | TEST SPRITE POLICY | Select the current boar appearance for the stationary combat target. |
+| [ComboTests.speed](../tests/ComboTests.java#L39) | TEST HELPER | Handle speed for ComboTests. |
+| [ComboTests.contactDamage](../tests/ComboTests.java#L41) | TEST HELPER | Handle contact damage for ComboTests. |
+| [ComboTests.update](../tests/ComboTests.java#L43) | TEST HELPER | Advance update state with elapsed time. |
+| [ComboTests.main](../tests/ComboTests.java#L49) | TEST HELPER | Entry point for this regression suite. |
+| [ComboTests.run](../tests/ComboTests.java#L57) | TEST HELPER | Handle run for ComboTests. |
+| [ComboTests.chainChecks](../tests/ComboTests.java#L70) | TEST HELPER | Handle chain checks for ComboTests. |
+| [ComboTests.cancelChecks](../tests/ComboTests.java#L123) | TEST HELPER | Handle cancel checks for ComboTests. |
+| [ComboTests.damageChecks](../tests/ComboTests.java#L151) | TEST HELPER | Handle damage checks for ComboTests. |
+| [ComboTests.renderChecks](../tests/ComboTests.java#L180) | TEST HELPER | Handle render checks for ComboTests. |
+| [ComboTests.effectsChecks](../tests/ComboTests.java#L209) | TEST HELPER | Handle effects checks for ComboTests. |
+| [ComboTests.previews](../tests/ComboTests.java#L237) | TEST HELPER | Handle previews for ComboTests. |
+| [ComboTests.clip](../tests/ComboTests.java#L304) | TEST HELPER | Handle clip for ComboTests. |
+| [ComboTests.thirdStage](../tests/ComboTests.java#L338) | TEST HELPER | Handle third stage for ComboTests. |
+| [ComboTests.waitFor](../tests/ComboTests.java#L344) | TEST HELPER | Handle wait for for ComboTests. |
+| [ComboTests.waitUntilIdle](../tests/ComboTests.java#L352) | TEST HELPER | Handle wait until idle for ComboTests. |
+| [ComboTests.attack](../tests/ComboTests.java#L357) | TEST HELPER | Handle attack for ComboTests. |
+| [ComboTests.settle](../tests/ComboTests.java#L362) | TEST HELPER | Handle settle for ComboTests. |
+| [ComboTests.step](../tests/ComboTests.java#L364) | TEST HELPER | Handle step for ComboTests. |
+| [ComboTests.player](../tests/ComboTests.java#L366) | TEST HELPER | Handle player for ComboTests. |
+| [ComboTests.posePlayer](../tests/ComboTests.java#L368) | TEST HELPER | Handle pose player for ComboTests. |
+| [ComboTests.spear](../tests/ComboTests.java#L372) | TEST HELPER | Handle spear for ComboTests. |
+| [ComboTests.render](../tests/ComboTests.java#L376) | TEST HELPER | Handle render for ComboTests. |
+| [ComboTests.same](../tests/ComboTests.java#L381) | TEST HELPER | Handle same for ComboTests. |
+| [ComboTests.fingerprint](../tests/ComboTests.java#L387) | TEST HELPER | Handle fingerprint for ComboTests. |
+| [ComboTests.press](../tests/ComboTests.java#L393) | TEST HELPER | Handle press for ComboTests. |
+| [ComboTests.release](../tests/ComboTests.java#L395) | TEST HELPER | Handle release for ComboTests. |
+| [ComboTests.mouse](../tests/ComboTests.java#L397) | TEST HELPER | Handle mouse for ComboTests. |
+| [ComboTests.check](../tests/ComboTests.java#L402) | TEST HELPER | Handle check for ComboTests. |
 
 ## tests/DayNightTests.java
 
@@ -864,10 +1077,10 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [DayNightTests.DayNightTests](../tests/DayNightTests.java#L25) | TEST UTILITY | Prevent construction of this focused suite. |
 | [DayNightTests.main](../tests/DayNightTests.java#L27) | TEST ENTRY | Load the real assets and run the focused cycle checks. |
 | [DayNightTests.run](../tests/DayNightTests.java#L29) | REGRESSION SUITE | Verify timing, actual damage/movement, spawns, session controls and lighting. |
-| [DayNightTests.clock](../tests/DayNightTests.java#L31) | FIVE-MINUTE BOUNDARIES | Verify numbered phases, exact fixed-step crossings, coarse steps and continuous light transitions. |
-| [DayNightTests.phase](../tests/DayNightTests.java#L52) | PHASE FIXTURE | Advance to the next requested phase while retaining the real production interval. |
-| [DayNightTests.strength](../tests/DayNightTests.java#L54) | CONTACT / PURSUIT | Compare real day/night contact hits and chase travel, including dawn and village exclusion. |
-| [DayNightTests.bosses](../tests/DayNightTests.java#L76) | BOSS NIGHT ATTACKS | Exercise all villain hit paths and the guardian pulse without changing warning times or health. |
+| [DayNightTests.clock](../tests/DayNightTests.java#L31) | THREE-MINUTE BOUNDARIES | Verify numbered phases, exact fixed-step crossings, coarse steps and continuous light transitions. |
+| [DayNightTests.phase](../tests/DayNightTests.java#L53) | PHASE FIXTURE | Advance to the next requested phase while retaining the real production interval. |
+| [DayNightTests.strength](../tests/DayNightTests.java#L55) | CONTACT / PURSUIT | Compare real day/night contact hits and chase travel, including dawn and village exclusion. |
+| [DayNightTests.bosses](../tests/DayNightTests.java#L77) | BOSS NIGHT ATTACKS | Exercise all villain hit paths  without changing warning times or health. |
 | [DayNightTests.boss](../tests/DayNightTests.java#L101) | ENCOUNTER FACTORY | Build a fresh concrete villain in its real clearing. |
 | [DayNightTests.warningDuration](../tests/DayNightTests.java#L103) | WARNING QUERY | Inspect an existing private timing value without modifying attack policy. |
 | [DayNightTests.spawns](../tests/DayNightTests.java#L105) | NIGHT SPAWNS | Verify freshly populated and replenished outdoor enemies inherit the current phase once. |
@@ -915,6 +1128,28 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [EnergyDashTests.mouse](../tests/EnergyDashTests.java#L348) | TEST HELPER | Handle mouse for EnergyDashTests. |
 | [EnergyDashTests.check](../tests/EnergyDashTests.java#L354) | TEST HELPER | Handle check for EnergyDashTests. |
 
+## tests/EquipmentTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [EquipmentTests.EquipmentTests](../tests/EquipmentTests.java#L22) | STATIC TEST | Prevent instances of the regression suite. |
+| [EquipmentTests.main](../tests/EquipmentTests.java#L24) | TEST ENTRY | Run equipment and drinking checks independently. |
+| [EquipmentTests.run](../tests/EquipmentTests.java#L26) | EQUIPMENT SUITE | Verify registered art, sip semantics, input interruptions and actual render previews. |
+| [EquipmentTests.art](../tests/EquipmentTests.java#L28) | CACHED ART / FORWARD GUARD | Check provenance, unclipped composites, mirrored guard tips and pose variation. |
+| [EquipmentTests.drinks](../tests/EquipmentTests.java#L48) | SIP COMMIT RULES | Start, raise, sip and lower once without premature resource changes or double spending. |
+| [EquipmentTests.interruptions](../tests/EquipmentTests.java#L62) | INTERRUPTION / INPUT PRIORITY | Cancel an uncommitted bottle on guard, hit, slot change, jump or dash. |
+| [EquipmentTests.selection](../tests/EquipmentTests.java#L76) | SELECTED EQUIPMENT | Keep actual held items aligned with slots, depleted supplies, guard and movement. |
+| [EquipmentTests.panel](../tests/EquipmentTests.java#L91) | ACTUAL SESSION PAUSE | Freeze drinking progress during modal screens and preserve selected equipment after restart. |
+| [EquipmentTests.previews](../tests/EquipmentTests.java#L116) | ACTUAL PLAYER VISUALS | Export all held items and six real drinking phases in every direction. |
+| [EquipmentTests.cell](../tests/EquipmentTests.java#L130) | REGISTERED PREVIEW CELL | Render the actual Player with the normal scale and item compositor in a labeled comparison cell. |
+| [EquipmentTests.imageHash](../tests/EquipmentTests.java#L134) | RENDER DIFFERENCE | Compare complete RGBA images without relying on subjective pose labels. |
+| [EquipmentTests.actor](../tests/EquipmentTests.java#L136) | PLAYER FIXTURE | Create a fresh Agyu at the reachable village spawn. |
+| [EquipmentTests.tick](../tests/EquipmentTests.java#L138) | SIMULATION FIXTURE | Advance actual player logic and settle interpolation for visual evidence. |
+| [EquipmentTests.tap](../tests/EquipmentTests.java#L140) | INPUT FIXTURE | Deliver a real keyboard press and release to the session. |
+| [EquipmentTests.get](../tests/EquipmentTests.java#L142) | SESSION TEST ACCESS | Inspect private state without adding production mutation APIs. |
+| [EquipmentTests.set](../tests/EquipmentTests.java#L144) | CAMERA FIXTURE | Register the actual game camera immediately for the boss layout preview. |
+| [EquipmentTests.check](../tests/EquipmentTests.java#L146) | ASSERTION | Count a behavioral property and explain its failure. |
+
 ## tests/ExpansionTests.java
 
 | Method / constructor | Label | Purpose |
@@ -934,6 +1169,26 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [ExpansionTests.set](../tests/ExpansionTests.java#L170) | CAMERA FIXTURE | Position the real interpolated camera for review renders. |
 | [ExpansionTests.check](../tests/ExpansionTests.java#L172) | ASSERTION | Count one meaningful property and explain any failure. |
 
+## tests/ForestRevisionTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [ForestRevisionTests.ForestRevisionTests](../tests/ForestRevisionTests.java#L20) | TEST UTILITY | Prevent instances of this focused suite. |
+| [ForestRevisionTests.main](../tests/ForestRevisionTests.java#L22) | TEST ENTRY | Load the real assets and run the forest revision checks. |
+| [ForestRevisionTests.run](../tests/ForestRevisionTests.java#L24) | REGRESSION SUITE | Verify distribution over multiple seeds, removed live map markers, and plain spawn/clearing interactions. |
+| [ForestRevisionTests.distribution](../tests/ForestRevisionTests.java#L26) | RANDOM HERD CONTRACT | Check seeded repeatability, different journeys, one-to-four-member herds and broad map coverage. |
+| [ForestRevisionTests.observer](../tests/ForestRevisionTests.java#L49) | OFFSCREEN OBSERVER FIXTURE | Find real free forest ground well away from every herd for respawn checks. |
+| [ForestRevisionTests.markers](../tests/ForestRevisionTests.java#L59) | LIVE MAP MARKER REMOVAL | Compare old beacon positions with the cached map terrain while retaining the actual player/boss markers elsewhere. |
+| [ForestRevisionTests.interactions](../tests/ForestRevisionTests.java#L68) | RETIRED INTERACTION REMOVAL | Visit every former beacon and press real E input; only normal village interactions remain. |
+| [ForestRevisionTests.nightOnly](../tests/ForestRevisionTests.java#L79) | NIGHT-ONLY AMBUSH | Walk through dense woodland all day and confirm the director cannot spawn a Sigbin. |
+| [ForestRevisionTests.distributionPreview](../tests/ForestRevisionTests.java#L85) | WORLD DISTRIBUTION EVIDENCE | Render the real seeded forest and annotate herd sizes only in this exported review image. |
+| [ForestRevisionTests.camera](../tests/ForestRevisionTests.java#L103) | CAMERA FIXTURE | Set the actual camera for a plain spawn/clearing review screenshot. |
+| [ForestRevisionTests.image](../tests/ForestRevisionTests.java#L105) | ACTUAL RENDER EXPORT | Paint the normal game surface for visual verification. |
+| [ForestRevisionTests.tap](../tests/ForestRevisionTests.java#L107) | REAL KEYBOARD FIXTURE | Deliver one E/start edge through the session input path. |
+| [ForestRevisionTests.get](../tests/ForestRevisionTests.java#L109) | SESSION INSPECTION | Inspect existing private state without production test hooks. |
+| [ForestRevisionTests.set](../tests/ForestRevisionTests.java#L111) | CAMERA INSPECTION | Set one existing camera field for the render fixture. |
+| [ForestRevisionTests.check](../tests/ForestRevisionTests.java#L113) | ASSERTION | Count a real behavior contract and identify the failure. |
+
 ## tests/ForestTests.java
 
 | Method / constructor | Label | Purpose |
@@ -944,13 +1199,13 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [ForestTests.openGates](../tests/ForestTests.java#L28) | GATE FIXTURE | Open all four actual gates using normal safe World interaction. |
 | [ForestTests.landscape](../tests/ForestTests.java#L37) | WORLD / ROUTING | Test forest density, stable seeded geometry, clear trails and protected entrances. |
 | [ForestTests.encounters](../tests/ForestTests.java#L74) | SPAWN LIFECYCLE | Exercise outdoor-only placement, delayed offscreen replenishment and bounded mission-safe slots. |
-| [ForestTests.session](../tests/ForestTests.java#L92) | SESSION INPUT | Verify pause/map timer freezing, fresh-session reset and the removed attack card. |
-| [ForestTests.previews](../tests/ForestTests.java#L122) | RENDER EVIDENCE | Export the expanded world and an actual forest combat camera without the combo panel. |
-| [ForestTests.alive](../tests/ForestTests.java#L141) | TEST QUERY | Count only living members of one spawn group. |
-| [ForestTests.tap](../tests/ForestTests.java#L143) | INPUT FIXTURE | Send one fresh keyboard edge through the actual panel input path. |
-| [ForestTests.get](../tests/ForestTests.java#L145) | TEST REFLECTION | Inspect private session/cache state without changing the implementation API. |
-| [ForestTests.set](../tests/ForestTests.java#L147) | RENDER FIXTURE | Position the real interpolated camera for deterministic scene exports. |
-| [ForestTests.check](../tests/ForestTests.java#L149) | ASSERTION | Count one regression assertion and report its concrete failure. |
+| [ForestTests.session](../tests/ForestTests.java#L90) | SESSION INPUT | Verify pause/map timer freezing, fresh-session reset and the removed attack card. |
+| [ForestTests.previews](../tests/ForestTests.java#L119) | RENDER EVIDENCE | Export the expanded world and an actual forest combat camera without the combo panel. |
+| [ForestTests.alive](../tests/ForestTests.java#L138) | TEST QUERY | Count only living members of one spawn group. |
+| [ForestTests.tap](../tests/ForestTests.java#L140) | INPUT FIXTURE | Send one fresh keyboard edge through the actual panel input path. |
+| [ForestTests.get](../tests/ForestTests.java#L142) | TEST REFLECTION | Inspect private session/cache state without changing the implementation API. |
+| [ForestTests.set](../tests/ForestTests.java#L144) | RENDER FIXTURE | Position the real interpolated camera for deterministic scene exports. |
+| [ForestTests.check](../tests/ForestTests.java#L146) | ASSERTION | Count one regression assertion and report its concrete failure. |
 
 ## tests/GameTests.java
 
@@ -958,20 +1213,20 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | --- | --- | --- |
 | [GameTests.GameTests](../tests/GameTests.java#L21) | TEST HELPER | Prevent instances of this test/helper class. |
 | [GameTests.main](../tests/GameTests.java#L23) | TEST HELPER | Entry point for this regression suite. |
-| [GameTests.testNavigationEdges](../tests/GameTests.java#L106) | TEST HELPER | Handle test navigation edges for GameTests. |
-| [GameTests.testCombat](../tests/GameTests.java#L120) | TEST HELPER | Handle test combat for GameTests. |
-| [GameTests.testSprites](../tests/GameTests.java#L138) | TEST HELPER | Handle test sprites for GameTests. |
-| [GameTests.testSession](../tests/GameTests.java#L188) | TEST HELPER | Handle test session for GameTests. |
-| [GameTests.testPanelMouse](../tests/GameTests.java#L246) | TEST HELPER | Handle test panel mouse for GameTests. |
-| [GameTests.testPanelCombos](../tests/GameTests.java#L271) | TEST HELPER | Handle test panel combos for GameTests. |
-| [GameTests.mousePanel](../tests/GameTests.java#L291) | TEST HELPER | Handle mouse panel for GameTests. |
-| [GameTests.field](../tests/GameTests.java#L297) | TEST HELPER | Handle field for GameTests. |
-| [GameTests.render](../tests/GameTests.java#L301) | TEST HELPER | Handle render for GameTests. |
-| [GameTests.tap](../tests/GameTests.java#L307) | TEST HELPER | Handle tap for GameTests. |
-| [GameTests.press](../tests/GameTests.java#L311) | TEST HELPER | Handle press for GameTests. |
-| [GameTests.release](../tests/GameTests.java#L313) | TEST HELPER | Handle release for GameTests. |
-| [GameTests.expect](../tests/GameTests.java#L315) | TEST HELPER | Handle expect for GameTests. |
-| [GameTests.check](../tests/GameTests.java#L320) | TEST HELPER | Handle check for GameTests. |
+| [GameTests.testNavigationEdges](../tests/GameTests.java#L108) | TEST HELPER | Handle test navigation edges for GameTests. |
+| [GameTests.testCombat](../tests/GameTests.java#L122) | TEST HELPER | Handle test combat for GameTests. |
+| [GameTests.testSprites](../tests/GameTests.java#L143) | TEST HELPER | Handle test sprites for GameTests. |
+| [GameTests.testSession](../tests/GameTests.java#L193) | TEST HELPER | Handle test session for GameTests. |
+| [GameTests.testPanelMouse](../tests/GameTests.java#L236) | TEST HELPER | Handle test panel mouse for GameTests. |
+| [GameTests.testPanelCombos](../tests/GameTests.java#L261) | TEST HELPER | Handle test panel combos for GameTests. |
+| [GameTests.mousePanel](../tests/GameTests.java#L281) | TEST HELPER | Handle mouse panel for GameTests. |
+| [GameTests.field](../tests/GameTests.java#L287) | TEST HELPER | Handle field for GameTests. |
+| [GameTests.render](../tests/GameTests.java#L291) | TEST HELPER | Handle render for GameTests. |
+| [GameTests.tap](../tests/GameTests.java#L297) | TEST HELPER | Handle tap for GameTests. |
+| [GameTests.press](../tests/GameTests.java#L301) | TEST HELPER | Handle press for GameTests. |
+| [GameTests.release](../tests/GameTests.java#L303) | TEST HELPER | Handle release for GameTests. |
+| [GameTests.expect](../tests/GameTests.java#L305) | TEST HELPER | Handle expect for GameTests. |
+| [GameTests.check](../tests/GameTests.java#L310) | TEST HELPER | Handle check for GameTests. |
 
 ## tests/GuardVisualTests.java
 
@@ -991,17 +1246,17 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [JumpTests.arcChecks](../tests/JumpTests.java#L57) | TEST HELPER | Handle arc checks for JumpTests. |
 | [JumpTests.playerChecks](../tests/JumpTests.java#L76) | TEST HELPER | Handle player checks for JumpTests. |
 | [JumpTests.panelChecks](../tests/JumpTests.java#L169) | TEST HELPER | Handle panel checks for JumpTests. |
-| [JumpTests.preview](../tests/JumpTests.java#L219) | TEST HELPER | Handle preview for JumpTests. |
-| [JumpTests.renderPlayer](../tests/JumpTests.java#L244) | TEST HELPER | Handle render player for JumpTests. |
-| [JumpTests.same](../tests/JumpTests.java#L251) | TEST HELPER | Handle same for JumpTests. |
-| [JumpTests.player](../tests/JumpTests.java#L257) | TEST HELPER | Handle player for JumpTests. |
-| [JumpTests.step](../tests/JumpTests.java#L259) | TEST HELPER | Handle step for JumpTests. |
-| [JumpTests.field](../tests/JumpTests.java#L263) | TEST HELPER | Handle field for JumpTests. |
-| [JumpTests.tap](../tests/JumpTests.java#L267) | TEST HELPER | Handle tap for JumpTests. |
-| [JumpTests.press](../tests/JumpTests.java#L269) | TEST HELPER | Handle press for JumpTests. |
-| [JumpTests.release](../tests/JumpTests.java#L273) | TEST HELPER | Handle release for JumpTests. |
-| [JumpTests.mouse](../tests/JumpTests.java#L277) | TEST HELPER | Handle mouse for JumpTests. |
-| [JumpTests.check](../tests/JumpTests.java#L283) | TEST HELPER | Handle check for JumpTests. |
+| [JumpTests.preview](../tests/JumpTests.java#L218) | TEST HELPER | Handle preview for JumpTests. |
+| [JumpTests.renderPlayer](../tests/JumpTests.java#L243) | TEST HELPER | Handle render player for JumpTests. |
+| [JumpTests.same](../tests/JumpTests.java#L250) | TEST HELPER | Handle same for JumpTests. |
+| [JumpTests.player](../tests/JumpTests.java#L256) | TEST HELPER | Handle player for JumpTests. |
+| [JumpTests.step](../tests/JumpTests.java#L258) | TEST HELPER | Handle step for JumpTests. |
+| [JumpTests.field](../tests/JumpTests.java#L262) | TEST HELPER | Handle field for JumpTests. |
+| [JumpTests.tap](../tests/JumpTests.java#L266) | TEST HELPER | Handle tap for JumpTests. |
+| [JumpTests.press](../tests/JumpTests.java#L268) | TEST HELPER | Handle press for JumpTests. |
+| [JumpTests.release](../tests/JumpTests.java#L272) | TEST HELPER | Handle release for JumpTests. |
+| [JumpTests.mouse](../tests/JumpTests.java#L276) | TEST HELPER | Handle mouse for JumpTests. |
+| [JumpTests.check](../tests/JumpTests.java#L282) | TEST HELPER | Handle check for JumpTests. |
 
 ## tests/MouseGuardTests.java
 
@@ -1036,6 +1291,33 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [NpcTests.tap](../tests/NpcTests.java#L148) | TEST HELPER | Handle tap for NpcTests. |
 | [NpcTests.press](../tests/NpcTests.java#L150) | TEST HELPER | Handle press for NpcTests. |
 | [NpcTests.check](../tests/NpcTests.java#L152) | TEST HELPER | Handle check for NpcTests. |
+
+## tests/PotionHotbarTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [PotionHotbarTests.PotionHotbarTests](../tests/PotionHotbarTests.java#L21) | STATIC TEST | Prevent instances of the regression suite. |
+| [PotionHotbarTests.main](../tests/PotionHotbarTests.java#L23) | TEST ENTRY | Run the potion and hotbar checks independently. |
+| [PotionHotbarTests.run](../tests/PotionHotbarTests.java#L25) | REGRESSION SUITE | Exercise supplied artwork, resource invariants, actual input and HUD layout. |
+| [PotionHotbarTests.art](../tests/PotionHotbarTests.java#L29) | ART PROVENANCE / CACHE | Verify original hashes, all supplied effect frames and small runtime RGBA icons. |
+| [PotionHotbarTests.resources](../tests/PotionHotbarTests.java#L51) | RESOURCE INVARIANTS | Test useful-only spending, recovery clamps, protection precedence and death safety. |
+| [PotionHotbarTests.slots](../tests/PotionHotbarTests.java#L90) | ARRAY / REARRANGEMENT | Verify wraparound, selection-preserving swaps and empty-slot hit testing. |
+| [PotionHotbarTests.actorInput](../tests/PotionHotbarTests.java#L104) | REAL ITEM INPUT | Route key, wheel and mouse edges through Agyu's actual update state machine. |
+| [PotionHotbarTests.panelInput](../tests/PotionHotbarTests.java#L129) | ACTUAL PANEL INPUT | Exercise scaled box clicks, fast drags, potion clicks, hit-stop, overlays and focus loss. |
+| [PotionHotbarTests.hud](../tests/PotionHotbarTests.java#L160) | REAL HUD / PREVIEW | Assert text-free green/orange/blue bar interiors and export an actual-game screenshot. |
+| [PotionHotbarTests.finishDrink](../tests/PotionHotbarTests.java#L177) | DRINK TIMELINE FIXTURE | Advance real simulation through the sip and bottle-lowering frames. |
+| [PotionHotbarTests.actor](../tests/PotionHotbarTests.java#L179) | TEST FIXTURE | Create Agyu at the actual safe village spawn. |
+| [PotionHotbarTests.settle](../tests/PotionHotbarTests.java#L181) | SIMULATION FIXTURE | Advance cooldowns without movement or enemy interference. |
+| [PotionHotbarTests.step](../tests/PotionHotbarTests.java#L183) | SIMULATION FIXTURE | Advance one real player-input frame. |
+| [PotionHotbarTests.press](../tests/PotionHotbarTests.java#L185) | INPUT FIXTURE | Send a fresh keyboard press through the synchronized handler. |
+| [PotionHotbarTests.release](../tests/PotionHotbarTests.java#L187) | INPUT FIXTURE | Send a matching keyboard release. |
+| [PotionHotbarTests.tap](../tests/PotionHotbarTests.java#L189) | INPUT FIXTURE | Send a panel key edge and advance one simulation frame. |
+| [PotionHotbarTests.mouse](../tests/PotionHotbarTests.java#L191) | INPUT FIXTURE | Send a world mouse edge to the shared input handler. |
+| [PotionHotbarTests.point](../tests/PotionHotbarTests.java#L193) | SCALED POINTER FIXTURE | Hit a rendered slot after converting its center into native window coordinates. |
+| [PotionHotbarTests.worldMouse](../tests/PotionHotbarTests.java#L197) | POINTER FIXTURE | Send a primary click outside the hotbar. |
+| [PotionHotbarTests.dispatch](../tests/PotionHotbarTests.java#L199) | REAL LISTENER FIXTURE | Exercise the actual GamePanel listeners instead of bypassing UI routing. |
+| [PotionHotbarTests.get](../tests/PotionHotbarTests.java#L201) | TEST ACCESS | Read private session state for integration assertions without runtime setters. |
+| [PotionHotbarTests.check](../tests/PotionHotbarTests.java#L203) | ASSERTION | Count a behavioral check and explain any failure. |
 
 ## tests/TreeBoundaryTests.java
 
@@ -1096,6 +1378,28 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [VillageTests.press](../tests/VillageTests.java#L186) | TEST HELPER | Handle press for VillageTests. |
 | [VillageTests.check](../tests/VillageTests.java#L188) | TEST HELPER | Handle check for VillageTests. |
 
+## tests/WildlifeTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WildlifeTests.WildlifeTests](../tests/WildlifeTests.java#L27) | TEST UTILITY | Prevent construction of this focused test suite. |
+| [WildlifeTests.main](../tests/WildlifeTests.java#L29) | TEST ENTRY | Load real sprites and run the wildlife checks. |
+| [WildlifeTests.run](../tests/WildlifeTests.java#L31) | REGRESSION SUITE | Exercise source identity, real night quotas, pounces, scares, cooldowns and paused sessions. |
+| [WildlifeTests.sourceAssets](../tests/WildlifeTests.java#L33) | SUPPLIED ASSET IDENTITY | Validate every original source hash and all action/direction lookups from the packed runtime atlases. |
+| [WildlifeTests.quotas](../tests/WildlifeTests.java#L47) | PER-NIGHT TOTAL QUOTA | Kill spawned wolves, continue the night and prove the total cannot exceed two or three before resetting next night. |
+| [WildlifeTests.wolfCombat](../tests/WildlifeTests.java#L69) | REAL WOLF COMBAT | Verify a night pounce, authored body lift, one empowered hit and frontal shield protection. |
+| [WildlifeTests.sigbin](../tests/WildlifeTests.java#L80) | NIGHT ENEMY / REAL FIGHT | Verify a night reveal, persistent hunting, real claw damage, spear interruption and a defeat through player attack input. |
+| [WildlifeTests.ambushDirector](../tests/WildlifeTests.java#L104) | EXPLORATION-GATED AMBUSH | Require actual movement in dense exterior woodland, then enforce one active creature and a lengthy cooldown. |
+| [WildlifeTests.session](../tests/WildlifeTests.java#L120) | PAUSED SESSION / RESET | Confirm pause freezes the real director and a fresh journey clears its night budget. |
+| [WildlifeTests.previews](../tests/WildlifeTests.java#L130) | RENDER EVIDENCE | Export the actual night forest and a representative Sigbin reveal using normal GamePanel rendering. |
+| [WildlifeTests.image](../tests/WildlifeTests.java#L141) | PREVIEW EXPORT | Paint the actual game surface to one review PNG. |
+| [WildlifeTests.camp](../tests/WildlifeTests.java#L143) | CLEAR FOREST FIXTURE | Place a real Player on the reserved northern camp floor. |
+| [WildlifeTests.waitFor](../tests/WildlifeTests.java#L145) | COMBAT STATE WAIT | Advance the real creature until a requested warning or pounce with a finite timeout. |
+| [WildlifeTests.tap](../tests/WildlifeTests.java#L147) | REAL INPUT FIXTURE | Deliver one keyboard edge through the actual session key handler. |
+| [WildlifeTests.get](../tests/WildlifeTests.java#L149) | SESSION INSPECTION | Inspect existing private state without adding production test hooks. |
+| [WildlifeTests.set](../tests/WildlifeTests.java#L151) | CAMERA FIXTURE | Set only the offscreen preview's camera interpolation values. |
+| [WildlifeTests.check](../tests/WildlifeTests.java#L153) | ASSERTION | Count a behavior contract and identify the exact failure. |
+
 ## tools/importers/BossSpriteImporter.java
 
 | Method / constructor | Label | Purpose |
@@ -1119,15 +1423,34 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [CombatBodyImporter.mirror](../tools/importers/CombatBodyImporter.java#L157) | ART TOOL | Handle mirror for CombatBodyImporter. |
 | [CombatBodyImporter.previews](../tools/importers/CombatBodyImporter.java#L162) | ART TOOL | Handle previews for CombatBodyImporter. |
 
+## tools/importers/EquipmentSpriteImporter.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [EquipmentSpriteImporter.EquipmentSpriteImporter](../tools/importers/EquipmentSpriteImporter.java#L24) | STATIC TOOL | Prevent instances of the sprite preparation tool. |
+| [EquipmentSpriteImporter.main](../tools/importers/EquipmentSpriteImporter.java#L26) | ART IMPORT / ARRAY REGISTRATION | Pack twenty-four authored bodies and record shared boot/wrist metadata. |
+| [EquipmentSpriteImporter.bounds](../tools/importers/EquipmentSpriteImporter.java#L65) | ALPHA BOUNDS | Measure only the visible character within one authored grid cell. |
+| [EquipmentSpriteImporter.boots](../tools/importers/EquipmentSpriteImporter.java#L71) | BOOT REGISTRATION | Locate the boot midpoint without letting arms or bandana move the body anchor. |
+
 ## tools/importers/GuardSpriteImporter.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
 | [GuardSpriteImporter.GuardSpriteImporter](../tools/importers/GuardSpriteImporter.java#L20) | ART TOOL | Prevent instances of this static helper class. |
 | [GuardSpriteImporter.main](../tools/importers/GuardSpriteImporter.java#L22) | ART TOOL | Entry point for this developer tool. |
-| [GuardSpriteImporter.read](../tools/importers/GuardSpriteImporter.java#L69) | ART TOOL | Load or validate read data. |
-| [GuardSpriteImporter.bounds](../tools/importers/GuardSpriteImporter.java#L75) | ART TOOL | Handle bounds for GuardSpriteImporter. |
-| [GuardSpriteImporter.pack](../tools/importers/GuardSpriteImporter.java#L85) | ART TOOL | Handle pack for GuardSpriteImporter. |
+| [GuardSpriteImporter.read](../tools/importers/GuardSpriteImporter.java#L72) | ART TOOL | Load or validate read data. |
+| [GuardSpriteImporter.bounds](../tools/importers/GuardSpriteImporter.java#L78) | ART TOOL | Handle bounds for GuardSpriteImporter. |
+| [GuardSpriteImporter.pack](../tools/importers/GuardSpriteImporter.java#L88) | ART TOOL | Handle pack for GuardSpriteImporter. |
+
+## tools/importers/PotionSpriteImporter.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [PotionSpriteImporter.PotionSpriteImporter](../tools/importers/PotionSpriteImporter.java#L18) | STATIC TOOL | Prevent instances of the artwork packing tool. |
+| [PotionSpriteImporter.main](../tools/importers/PotionSpriteImporter.java#L20) | IMPORT / DSA ARRAY | Pack three potion icons and twenty-two effect frames into deterministic runtime images. |
+| [PotionSpriteImporter.read](../tools/importers/PotionSpriteImporter.java#L54) | VALIDATED IMAGE IO | Require a readable transparent source PNG. |
+| [PotionSpriteImporter.bounds](../tools/importers/PotionSpriteImporter.java#L58) | ALPHA SCAN | Crop empty bottle margins using visible alpha rather than hidden RGB pixels. |
+| [PotionSpriteImporter.row](../tools/importers/PotionSpriteImporter.java#L64) | ASSET PROVENANCE | Record atlas coordinates and the exact original SHA-256 for each supplied frame. |
 
 ## tools/importers/RpgAssetImporter.java
 
@@ -1160,6 +1483,15 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [SpriteImporter.frame](../tools/importers/SpriteImporter.java#L66) | IMPORT: IMAGE PACKING | Pack one active frame on a 64x64 transparent canvas at the shared baseline. |
 | [SpriteImporter.death](../tools/importers/SpriteImporter.java#L73) | IMPORT: IMAGE PACKING | Pack the wider 96x64 death pose from the original source sheet. |
 | [SpriteImporter.main](../tools/importers/SpriteImporter.java#L84) | ART TOOL | Entry point for this developer tool. |
+
+## tools/importers/WildlifeSpriteImporter.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WildlifeSpriteImporter.WildlifeSpriteImporter](../tools/importers/WildlifeSpriteImporter.java#L24) | TOOL UTILITY | Prevent construction of this offline import tool. |
+| [WildlifeSpriteImporter.bodyBounds](../tools/importers/WildlifeSpriteImporter.java#L26) | DSA FIFO FLOOD FILL | Register the largest opaque connected body, excluding detached dust and the death puff. |
+| [WildlifeSpriteImporter.offer](../tools/importers/WildlifeSpriteImporter.java#L45) | DSA ARRAY QUEUE | Append one unseen opaque neighbor to the flood-fill FIFO in constant time. |
+| [WildlifeSpriteImporter.main](../tools/importers/WildlifeSpriteImporter.java#L49) | IMPORT ENTRY | Pack original RGBA poses once, record source hashes and export a transparent-art review gallery. |
 
 ## tools/previews/RpgVillagePreviews.java
 

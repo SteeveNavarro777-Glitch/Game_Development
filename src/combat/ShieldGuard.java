@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 public final class ShieldGuard {
     static BufferedImage[][] bodies;
     private static final int[][] IMPACT={{-8,-10},{-12,-31},{-17,-18},{17,-18}};
+    private static final int[][] EQUIPPED_IMPACT={{-9,-19},{10,-34},{-14,-24},{14,-24}};
     private static final Color GLINT=new Color(0xF8E4A2);
     private double flash,cooldown;
     // [BLOCK: FUNCTION] ShieldGuard.update - Advance update state with elapsed time.
@@ -43,16 +44,16 @@ public final class ShieldGuard {
         flash=0.13;
         if(cooldown>0)return;
         cooldown=0.14;
-        int[] point=impact(owner.dir);
+        int[] point=impact(owner.dir,owner.heldItem()==Inventory.Item.SPEAR);
         Fx.spark(owner.x+point[0]*GameScale.AGYU,owner.y+point[1]*GameScale.AGYU);
         Fx.hitStop(0.025);
     }
     // [BLOCK: FUNCTION] ShieldGuard.impact - Handle impact for ShieldGuard.
-    private static int[] impact(Player.Dir dir){return IMPACT[dir.ordinal()];}
+    private static int[] impact(Player.Dir dir,boolean spearReady){return (spearReady?IMPACT:EQUIPPED_IMPACT)[dir.ordinal()];}
     // [BLOCK: FUNCTION] ShieldGuard.drawImpact - Render draw impact using the current graphics state.
-    void drawImpact(Graphics2D g,int sx,int sy,Player.Dir dir){
+    void drawImpact(Graphics2D g,int sx,int sy,Player.Dir dir,boolean spearReady){
         if(flash<=0)return;
-        int[] point=impact(dir);
+        int[] point=impact(dir,spearReady);
         int x=sx+point[0],y=sy+point[1];
         g.setColor(GLINT);
         g.drawLine(x-2,y,x+2,y);g.drawLine(x,y-2,x,y+2);

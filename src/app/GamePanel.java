@@ -29,7 +29,7 @@ public final class GamePanel extends JPanel implements Runnable {
     private final WorldLighting lighting=new WorldLighting(VIEW_W,VIEW_H);
     // [SECTION: OOP - POLYMORPHISM / DSA - ARRAY LIST] One list renders every Drawable subtype.
     private final List<Drawable> drawList=new ArrayList<>(128);
-    // [SECTION: OOP - POLYMORPHISM] Slime and Guardian share the Enemy abstraction.
+    // [SECTION: OOP - POLYMORPHISM] Forest wildlife and the three villains share the Enemy abstraction.
     private final List<Enemy> enemies=new ArrayList<>();
     private final List<Npc> npcs=new ArrayList<>();
     // [SECTION: DSA - FIFO EVENT QUEUE] Defer defeat rewards until actor traversal finishes.
@@ -46,6 +46,7 @@ public final class GamePanel extends JPanel implements Runnable {
     private long flowVersion=-1;
     private List<Point> path=List.of();
     private boolean mapOpen,journalOpen,hint,debug;
+    private int hotbarDrag=-1;
     private volatile boolean running;
     private Thread thread;
     private double updateMs,renderMs;
@@ -57,24 +58,43 @@ public final class GamePanel extends JPanel implements Runnable {
         setPreferredSize(new Dimension(W,H));
         setBackground(INK);setFocusable(true);setFocusTraversalKeysEnabled(false);
         addKeyListener(keys);
-        addMouseListener(keys);
         addMouseListener(new java.awt.event.MouseAdapter(){
-            // [BLOCK: FUNCTION] GamePanel.mousePressed - Handle mouse pressed for GamePanel.
-            @Override public void mousePressed(java.awt.event.MouseEvent event){requestFocusInWindow();}
+            // [BLOCK: UI INPUT ROUTING] GamePanel.mousePressed - Select hotbar boxes without leaking UI clicks into combat.
+            @Override public void mousePressed(java.awt.event.MouseEvent event){
+                requestFocusInWindow();synchronized(lock){
+                    int slot=pointerSlot(event);
+                    if(event.getButton()==java.awt.event.MouseEvent.BUTTON1&&mode==Mode.PLAYING&&!mapOpen&&!journalOpen&&slot>=0){hotbarDrag=slot;keys.selectSlot(slot);}
+                    else keys.mousePressed(event);
+                }
+            }
+            // [BLOCK: HOTBAR DRAG] GamePanel.mouseReleased - Swap dropped slots through deferred input, then release held combat buttons.
+            @Override public void mouseReleased(java.awt.event.MouseEvent event){synchronized(lock){
+                if(event.getButton()==java.awt.event.MouseEvent.BUTTON1&&hotbarDrag>=0){
+                    int slot=pointerSlot(event);if(mode==Mode.PLAYING&&!mapOpen&&!journalOpen&&slot>=0&&slot!=hotbarDrag)keys.swapSlots(hotbarDrag,slot);
+                    hotbarDrag=-1;
+                }
+                keys.mouseReleased(event);
+            }}
         });
+        addMouseWheelListener(keys);
         addFocusListener(new FocusAdapter(){
             // [BLOCK: FUNCTION] GamePanel.focusLost - Handle focus lost for GamePanel.
             @Override public void focusLost(FocusEvent event){
                 keys.clear();
-                synchronized(lock){if(mode==Mode.PLAYING){mode=Mode.PAUSED;freezeInterpolation();}}
+                synchronized(lock){hotbarDrag=-1;if(mode==Mode.PLAYING){mode=Mode.PAUSED;freezeInterpolation();}}
             }
         });
         Assets.load();reset();
     }
+    // [BLOCK: SCALED UI HIT TEST] GamePanel.pointerSlot - Convert native window coordinates into the shared art-resolution hotbar layout.
+    private int pointerSlot(java.awt.event.MouseEvent event){
+        if(getWidth()<=0||getHeight()<=0)return -1;
+        return HotbarHud.slotAt((int)((long)event.getX()*VIEW_W/getWidth()),(int)((long)event.getY()*VIEW_H/getHeight()),VIEW_W,VIEW_H);
+    }
     // [BLOCK: SESSION: RESTART] GamePanel.reset - Create a fresh world, actors, inventory, quests and timing state.
     void reset(){
         synchronized(lock){
-            Fx.clear();keys.clear();
+            Fx.clear();keys.clear();hotbarDrag=-1;
             world=new World(7);villageMap=new VillageMap(world);player=new Player(World.SPAWN_X,World.SPAWN_Y);
             quests=new QuestLog();enemies.clear();events.clear();drawList.clear();
             npcs.clear();npcs.addAll(NpcPopulation.create(world));
@@ -152,17 +172,15 @@ public final class GamePanel extends JPanel implements Runnable {
         player.savePrev();for(Enemy enemy:enemies)enemy.savePrev();for(Npc npc:npcs)npc.savePrev();
         prevCamX=camX;prevCamY=camY;
         if(Fx.hitStop>0){
-            keys.defer(input,KeyHandler.ATTACK|KeyHandler.JUMP|KeyHandler.DASH|KeyHandler.INTERACT|KeyHandler.HEAL);
+            keys.defer(input,KeyHandler.ATTACK|KeyHandler.JUMP|KeyHandler.DASH|KeyHandler.INTERACT|KeyHandler.HEAL|KeyHandler.USE_ITEM);
             Fx.hitStop=Math.max(0,Fx.hitStop-dt);Fx.update(dt);return;
         }
         time+=dt;world.updateAmbient(dt);
         for(Enemy enemy:enemies)enemy.refreshNightPower(world);
-        if(input.pressed(KeyHandler.HEAL))
-            player.useHerb();
         player.update(dt,input,world,enemies);
         for(Npc npc:npcs)npc.update(dt,world,player);
         updateNavigation(dt);
-        // [SECTION: OOP - DYNAMIC DISPATCH] Guardian overrides update; other enemies reuse Enemy.update.
+        // [SECTION: OOP - DYNAMIC DISPATCH] Each enemy subtype dispatches its movement and combat policy through Enemy.update.
         for(Enemy enemy:enemies){
             enemy.update(dt,player,world,flow);
             if(enemy.claimDefeat())events.addLast(new GameEvent(enemy));
@@ -171,6 +189,7 @@ public final class GamePanel extends JPanel implements Runnable {
         enemies.removeIf(Enemy::removable);
         forestEncounters.update(dt,player,enemies);
         if(!player.alive()){mode=Mode.DEFEAT;freezeInterpolation();}
+        else if(!player.airborne()&&!player.dashing()&&quests.finish("forest")){mode=Mode.VICTORY;freezeInterpolation();}
         else if(input.pressed(KeyHandler.INTERACT)&&!player.airborne()&&!player.dashing())interact();
         Fx.update(dt);
         double follow=1-Math.exp(-6*dt);
@@ -214,45 +233,20 @@ public final class GamePanel extends JPanel implements Runnable {
             Enemy enemy=events.removeFirst().enemy();
             kills++;
             if(enemy instanceof ArenaBoss boss){
-                if(quests.finish(boss.questId()))player.inventory().add(Inventory.Item.HERB,2);
+                if(quests.finish(boss.questId())){
+                    player.inventory().add(Inventory.Item.HEALTH_POTION,2);
+                    player.inventory().add(Inventory.Item.ENERGY_POTION,1);player.inventory().add(Inventory.Item.SHIELD_POTION,1);
+                }
                 pathTimer=0;
-            }else if(enemy instanceof Guardian){
-                quests.finish("guardian");
-                player.inventory().add(Inventory.Item.HERB,2);
             }else{
                 ordinaryKills++;
-                if(ordinaryKills%2==0)player.inventory().add(Inventory.Item.HERB,1);
+                if(ordinaryKills%2==0)player.inventory().add(Inventory.Item.HEALTH_POTION,1);
+                if(ordinaryKills%4==0)player.inventory().add(ordinaryKills%8==0?Inventory.Item.SHIELD_POTION:Inventory.Item.ENERGY_POTION,1);
             }
         }
     }
-    // [BLOCK: FUNCTION] GamePanel.guardsRemain - Handle guards remain for GamePanel.
-    private boolean guardsRemain(int group){
-        for(Enemy enemy:enemies)if(enemy.shrineGroup==group&&enemy.alive())return true;
-        return false;
-    }
-    // [BLOCK: GAMEPLAY: INTERACTION] GamePanel.interact - Restore eligible shrines, finish at HOME or talk to the nearest available NPC.
+    // [BLOCK: GAMEPLAY INTERACTION] GamePanel.interact - Open a nearby gate or talk to the nearest available villager.
     private void interact(){
-        for(int i=0;i<World.LANDMARKS.length;i++){
-            int[] site=World.LANDMARKS[i];
-            if(Math.hypot(player.x-(site[0]+0.5)*World.T,player.y-(site[1]+0.5)*World.T)>52)continue;
-            if(i==0){
-                if(quests.finish("home")){mode=Mode.VICTORY;freezeInterpolation();}
-            }else if(i<=3){
-                String id=QuestLog.SHRINES[i-1];
-                if(!quests.done(id)&&!guardsRemain(i-1)&&quests.finish(id)){
-                    player.inventory().add(Inventory.Item.SEAL,1);
-                    player.inventory().add(Inventory.Item.HERB,1);
-                    Fx.burst(player.x,player.y-20,0xF1C979,18,60,0.6,-15,2);
-                    if(quests.ready("guardian")){
-                        int[] boss=World.LANDMARKS[4];
-                        Guardian guardian=new Guardian((boss[0]+0.5)*World.T,(boss[1]+0.5)*World.T);
-                        guardian.refreshNightPower(world);enemies.add(guardian);
-                        quests.record("The guardian has awakened in the southeast.");
-                    }
-                }
-            }
-            return;
-        }
         if(world.interactGate(player,enemies,npcs))return;
         Npc nearest=null;double range=Double.MAX_VALUE;
         for(Npc npc:npcs)if(npc.canTalk(player)){
@@ -261,24 +255,14 @@ public final class GamePanel extends JPanel implements Runnable {
         }
         if(nearest!=null)nearest.talk(player);
     }
-    // [BLOCK: FUNCTION] GamePanel.objectiveSite - Handle objective site for GamePanel.
+    // [BLOCK: BOSS OBJECTIVE SELECTION] GamePanel.objectiveSite - Route the optional trail to the nearest undefeated villain.
     private int[] objectiveSite(){
-        if(quests.done("guardian")){
-            ForestRegion.Arena nearest=null;double best=Double.MAX_VALUE;
-            for(ForestRegion.Arena arena:world.forest.arenas())if(!quests.done(QuestLog.BOSSES[arena.id()-1])){
-                double distance=Math.hypot(player.x-(arena.c()+.5)*World.T,player.y-(arena.r()+.5)*World.T);
-                if(distance<best){best=distance;nearest=arena;}
-            }
-            return nearest==null?World.LANDMARKS[0]:new int[]{nearest.c(),nearest.r()};
+        ForestRegion.Arena nearest=null;double best=Double.MAX_VALUE;
+        for(ForestRegion.Arena arena:world.forest.arenas())if(!quests.done(QuestLog.BOSSES[arena.id()-1])){
+            double distance=Math.hypot(player.x-(arena.c()+.5)*World.T,player.y-(arena.r()+.5)*World.T);
+            if(distance<best){best=distance;nearest=arena;}
         }
-        if(quests.ready("guardian"))return World.LANDMARKS[4];
-        int best=1;double distance=Double.MAX_VALUE;
-        for(int i=1;i<=3;i++)if(!quests.done(QuestLog.SHRINES[i-1])){
-            int[] site=World.LANDMARKS[i];
-            double d=Math.hypot(player.x-(site[0]+0.5)*World.T,player.y-(site[1]+0.5)*World.T);
-            if(d<distance){distance=d;best=i;}
-        }
-        return World.LANDMARKS[best];
+        return nearest==null?new int[]{World.col(World.SPAWN_X),World.row(World.SPAWN_Y)}:new int[]{nearest.c(),nearest.r()};
     }
     // [BLOCK: OOP: POLYMORPHISM / SORTING] GamePanel.paintComponent - Sort Drawable objects by feet depth and dispatch each concrete draw implementation.
     @Override protected void paintComponent(Graphics graphics){
@@ -292,17 +276,17 @@ public final class GamePanel extends JPanel implements Runnable {
                 int cy=(int)Math.round(prevCamY+(camY-prevCamY)*alpha)+Fx.shakeY;
                 world.drawGround(g,cx,cy,VIEW_W,VIEW_H,time);
                 for(Enemy enemy:enemies)if(enemy instanceof ArenaBoss boss&&visible(boss.x,boss.y,cx,cy,512))boss.drawGround(g,cx,cy,alpha);
+                for(Enemy enemy:enemies)if(enemy instanceof ForestBeast boar&&visible(boar.x,boar.y,cx,cy,128))boar.drawGround(g,cx,cy,alpha);
                 if(hint&&mode==Mode.PLAYING){
                     g.setColor(new Color(241,201,121,150));
                     for(Point p:path)g.fillRect((int)((p.x+0.5)*World.T)-cx-1,(int)((p.y+0.5)*World.T)-cy-1,3,3);
                 }
-                if(mode!=Mode.TITLE)drawBeacons(g,cx,cy);
                 drawList.clear();
                 for(World.Tree tree:world.trees)if(visible(tree.x,tree.y,cx,cy,160))drawList.add(tree);
                 for(World.Building house:world.buildings)if(visible(house.x,house.y,cx,cy,224))drawList.add(house);
                 for(World.Prop prop:world.props)if(visible(prop.x,prop.y,cx,cy,160))drawList.add(prop);
                 for(Npc npc:npcs)if(visible(npc.x(),npc.y(),cx,cy,112))drawList.add(npc);
-                for(Enemy enemy:enemies)if(visible(enemy.x,enemy.y,cx,cy,enemy instanceof ArenaBoss?512:50))drawList.add(enemy);
+                for(Enemy enemy:enemies)if(visible(enemy.x,enemy.y,cx,cy,enemy instanceof ArenaBoss?512:96))drawList.add(enemy);
                 if(mode!=Mode.TITLE)drawList.add(player);
                 // [SECTION: DSA - SORTING] Ascending feet depth gives correct foreground overlap.
                 world.collectLandscape(drawList,cx,cy,VIEW_W,VIEW_H);
@@ -316,6 +300,7 @@ public final class GamePanel extends JPanel implements Runnable {
                 if(mode==Mode.PLAYING)world.palisade.drawPrompt(g,player,cx,cy,VIEW_W,VIEW_H);
                 Fx.draw(g,cx,cy);
                 lighting.draw(g,world,player,enemies,cx,cy,alpha);
+                if(mode!=Mode.TITLE)for(Enemy enemy:enemies)if(enemy instanceof Sigbin creature)creature.drawOverlay(g,VIEW_W,VIEW_H);
                 if(mode!=Mode.TITLE){for(Npc npc:npcs)npc.drawDialogue(g,cx,cy,alpha,VIEW_W,VIEW_H);drawHud(g);}
                 if(mapOpen)drawMap(g);
                 if(journalOpen)drawJournal(g);
@@ -323,7 +308,7 @@ public final class GamePanel extends JPanel implements Runnable {
                 if(mode==Mode.TITLE)drawTitle(g);
                 else if(mode==Mode.PAUSED)drawModal(g,"PAUSED","Esc / P / Enter to resume");
                 else if(mode==Mode.DEFEAT)drawModal(g,"AGYU HAS FALLEN","Press R to begin a new journey");
-                else if(mode==Mode.VICTORY)drawModal(g,"THE GROVE REMEMBERS","Shrines restored. Three villains defeated. R to play again.");
+                else if(mode==Mode.VICTORY)drawModal(g,"THE GROVE REMEMBERS","Three villains defeated. R to play again.");
             }finally{g.dispose();}
             Graphics2D screen=(Graphics2D)graphics.create();
             try{
@@ -339,29 +324,6 @@ public final class GamePanel extends JPanel implements Runnable {
     private boolean visible(double x,double y,int cx,int cy,int margin){
         return x>cx-margin&&x<cx+VIEW_W+margin&&y>cy-margin&&y<cy+VIEW_H+margin;
     }
-    // [BLOCK: FUNCTION] GamePanel.siteName - Handle site name for GamePanel.
-    private String siteName(int i){return new String[]{"HOME","GROVE","LAKE","RIDGE","GUARDIAN"}[i];}
-    // [BLOCK: FUNCTION] GamePanel.siteColor - Handle site color for GamePanel.
-    private Color siteColor(int i){
-        if(i==0)return new Color(0xB3DDF2);
-        if(i==4)return quests.done("guardian")?new Color(0xA4E3AE):new Color(0xEF8C79);
-        return quests.done(QuestLog.SHRINES[i-1])?new Color(0xA4E3AE):GOLD;
-    }
-    // [BLOCK: FUNCTION] GamePanel.drawBeacons - Render draw beacons using the current graphics state.
-    private void drawBeacons(Graphics2D g,int cx,int cy){
-        g.setFont(SMALL);
-        for(int i=0;i<World.LANDMARKS.length;i++){
-            int[] site=World.LANDMARKS[i];int x=(int)((site[0]+0.5)*World.T)-cx,y=(int)((site[1]+0.5)*World.T)-cy;
-            if(!visible(x+cx,y+cy,cx,cy,70))continue;
-            g.setColor(new Color(0,0,0,60));g.fillOval(x-15,y-4,30,10);
-            g.setColor(new Color(0x4A4F4C));g.fillRect(x-8,y-14,16,14);
-            g.setColor(siteColor(i));g.fillRect(x-5,y-20,10,10);g.drawOval(x-11,y-3,22,7);
-            String label=siteName(i);
-            if(Math.hypot(player.x-(site[0]+0.5)*World.T,player.y-(site[1]+0.5)*World.T)<60)label+=" [E]";
-            g.setColor(INK);g.fillRect(x-g.getFontMetrics().stringWidth(label)/2-3,y-65,g.getFontMetrics().stringWidth(label)+6,12);
-            g.setColor(CREAM);g.drawString(label,x-g.getFontMetrics().stringWidth(label)/2,y-56);
-        }
-    }
     // [BLOCK: FUNCTION] GamePanel.card - Handle card for GamePanel.
     private void card(Graphics2D g,int x,int y,int width,int height){
         g.setColor(new Color(18,26,29,235));g.fillRect(x,y,width,height);
@@ -374,39 +336,36 @@ public final class GamePanel extends JPanel implements Runnable {
         text(g,text,(VIEW_W-g.getFontMetrics().stringWidth(text))/2,y,color);
     }
     // [BLOCK: FUNCTION] GamePanel.vitalBar - Handle vital bar for GamePanel.
-    private void vitalBar(Graphics2D g,int x,int y,int width,int height,double ratio,String label,Color fill,Color shine){
+    private void vitalBar(Graphics2D g,int x,int y,int width,int height,double ratio,Color fill,Color shine){
         g.setColor(new Color(0x080F17));g.fillRect(x-1,y-1,width+2,height+2);
         g.setColor(new Color(0x35444C));g.fillRect(x,y,width,height);
         int filled=(int)Math.round(width*Math.max(0,Math.min(1,ratio)));
         g.setColor(fill);g.fillRect(x,y,filled,height);
         if(filled>0){g.setColor(shine);g.fillRect(x,y,filled,2);}
-        int tx=x+width/2-g.getFontMetrics().stringWidth(label)/2;
-        text(g,label,tx+1,y+9,INK);text(g,label,tx,y+8,CREAM);
     }
     // [BLOCK: FUNCTION] GamePanel.drawHud - Render draw hud using the current graphics state.
     private void drawHud(Graphics2D g){
         g.setFont(SMALL);
         text(g,"HEALTH",19,22,INK);text(g,"HEALTH",18,21,CREAM);
-        vitalBar(g,66,13,170,10,player.health()/(double)player.maxHealth(),
-                player.health()+" / "+player.maxHealth(),new Color(0xDB585B),new Color(0xFFA38B));
+        vitalBar(g,66,13,170,10,player.health()/(double)player.maxHealth(),new Color(0x69C833),new Color(0xC3F578));
         text(g,"ENERGY",19,38,INK);text(g,"ENERGY",18,37,CREAM);
-        vitalBar(g,66,29,170,10,player.energy()/player.maxEnergy(),
-                (int)Math.ceil(player.energy())+" / "+(int)player.maxEnergy(),
-                new Color(player.energyExhausted()?0xB77837:0x37AFC7),
-                new Color(player.energyExhausted()?0xF6CB77:0x9BFAE9));
+        vitalBar(g,66,29,170,10,player.energy()/player.maxEnergy(),new Color(player.energyExhausted()?0xAD6925:0xED9C23),new Color(0xFFE07B));
+        text(g,"SHIELD",19,54,INK);text(g,"SHIELD",18,53,CREAM);
+        vitalBar(g,66,45,170,10,player.protection()/(double)player.maxProtection(),new Color(0x22A9EB),new Color(0x8CEDFF));
         card(g,VIEW_W-112,10,104,92);
         text(g,world.forest.contains(player.x,player.y)?"FOREST":"VILLAGE",VIEW_W-104,21,GOLD);text(g,"N",VIEW_W-22,21,MUTED);
         g.setColor(new Color(0x796848));g.drawRect(VIEW_W-109,25,98,74);
         villageMap.draw(g,player,quests,VIEW_W-108,26,96,72,alpha,false);
         drawTimeOfDay(g);
         drawBossHealth(g);
+        HotbarHud.draw(g,player,VIEW_W,VIEW_H);
     }
     // [BLOCK: WORLD CLOCK HUD] GamePanel.drawTimeOfDay - Show a compact numbered phase and next-change countdown below the resource bars.
     private void drawTimeOfDay(Graphics2D g){
         DayNightCycle cycle=world.dayNight;Color color=new Color(cycle.night()?0xD2B8FF:0xF1D894);
         String label=cycle.label()+"  "+cycle.countdown();
-        text(g,label,19,55,INK);text(g,label,18,54,color);
-        if(cycle.night()){text(g,"STRONGER FOES",139,55,INK);text(g,"STRONGER FOES",138,54,color);}
+        text(g,label,19,71,INK);text(g,label,18,70,color);
+        if(cycle.night()){text(g,"STRONGER FOES",139,71,INK);text(g,"STRONGER FOES",138,70,color);}
     }
     // [BLOCK: BOSS HUD] GamePanel.drawBossHealth - Show one continuous health bar only during a nearby arena fight.
     private void drawBossHealth(Graphics2D g){
@@ -418,37 +377,28 @@ public final class GamePanel extends JPanel implements Runnable {
         if(nearest==null)return;
         Color color=new Color(new int[]{0x8ABD57,0xBC79EC,0xEB9952}[nearest.arenaId()-1]);
         String name=nearest.bossName();int tx=(VIEW_W-g.getFontMetrics().stringWidth(name))/2;
-        text(g,name,tx+1,VIEW_H-28,INK);text(g,name,tx,VIEW_H-29,CREAM);
-        vitalBar(g,VIEW_W/2-100,VIEW_H-22,200,10,nearest.health()/(double)nearest.maxHealth(),
-                nearest.health()+" / "+nearest.maxHealth(),color,new Color(0xF6E5C6));
+        text(g,name,tx+1,VIEW_H-89,INK);text(g,name,tx,VIEW_H-90,CREAM);
+        vitalBar(g,VIEW_W/2-100,VIEW_H-84,200,8,nearest.health()/(double)nearest.maxHealth(),color,new Color(0xF6E5C6));
     }
     // [BLOCK: FUNCTION] GamePanel.drawMap - Render draw map using the current graphics state.
     private void drawMap(Graphics2D g){
         g.setColor(new Color(0,0,0,145));g.fillRect(0,0,VIEW_W,VIEW_H);
         card(g,66,42,348,277);g.setFont(BOLD);center(g,"VILLAGE OF THE LOST GROVE",61,GOLD);
         villageMap.draw(g,player,quests,80,72,320,240,alpha,true);
-        g.setFont(SMALL);center(g,"Arrow: Agyu  Gold: shrines  Red: bosses  M: close",332,CREAM);
+        g.setFont(SMALL);center(g,"Arrow: Agyu  Red: villains  Green: defeated  M: close",332,CREAM);
     }
     // [BLOCK: FUNCTION] GamePanel.drawJournal - Render draw journal using the current graphics state.
     private void drawJournal(Graphics2D g){
         g.setColor(new Color(0,0,0,145));g.fillRect(0,0,VIEW_W,VIEW_H);
         card(g,35,50,410,258);g.setFont(BOLD);center(g,"AGYU'S JOURNAL",72,GOLD);
         g.setFont(SMALL);int y=97;
-        for(int i=0;i<QuestLog.SHRINES.length;i++){
-            String id=QuestLog.SHRINES[i];
-            text(g,(quests.done(id)?"[x] ":"[ ] ")+siteName(i+1)+" shrine",50,y,CREAM);y+=15;
-        }
-        text(g,(quests.done("guardian")?"[x] ":"[ ] ")+"Guardian",50,y,CREAM);
-        int by=97;
         for(int i=0;i<QuestLog.BOSSES.length;i++){
-            String id=QuestLog.BOSSES[i];text(g,(quests.done(id)?"[x] ":"[ ] ")+(i+1)+" "+id.toUpperCase(java.util.Locale.ROOT),265,by,CREAM);by+=15;
+            String id=QuestLog.BOSSES[i];text(g,(quests.done(id)?"[x] ":"[ ] ")+(i+1)+" "+id.toUpperCase(java.util.Locale.ROOT)+" / forest clearing "+(i+1),50,y,CREAM);y+=18;
         }
-        text(g,(quests.done("home")?"[x] ":"[ ] ")+"Return home",265,by,CREAM);
-        y+=22;text(g,"LATEST EVENTS",50,y,GOLD);
+        text(g,(quests.done("forest")?"[x] ":"[ ] ")+"Protect the forest",50,y,CREAM);
+        y+=27;text(g,"LATEST EVENTS",50,y,GOLD);
         for(String event:quests.history()){
-            y+=14;
-            // Keep each rendered line within the journal card.
-            if(event.length()>62)event=event.substring(0,59)+"...";
+            y+=14;if(event.length()>62)event=event.substring(0,59)+"...";
             text(g,event,50,y,MUTED);if(y>281)break;
         }
         center(g,"Tab: close / resume",330,CREAM);
@@ -470,10 +420,11 @@ public final class GamePanel extends JPanel implements Runnable {
         BufferedImage hero=Assets.front;
         g.drawImage(hero,VIEW_W/2-hero.getWidth(),133,hero.getWidth()*2,hero.getHeight()*2,null);
         g.setFont(SMALL);
-        center(g,"Restore the shrines. Defeat the villains. Return home.",267,CREAM);
+        center(g,"Defeat the three villains. Protect the village.",267,CREAM);
         center(g,"WASD move / Shift sprint / Space jump / Q or Ctrl dash",282,MUTED);
         center(g,"LMB / J combo / RMB shield / E interact / H heal",298,MUTED);
-        g.setFont(BOLD);center(g,"PRESS ENTER TO BEGIN",321,GOLD);
+        center(g,"1-9 / wheel / click: select   F: drink   Drag slots",311,MUTED);
+        g.setFont(BOLD);center(g,"PRESS ENTER TO BEGIN",329,GOLD);
         g.setFont(SMALL);center(g,"An original fictional adventure featuring your Agyu character",344,MUTED);
     }
     // [BLOCK: FUNCTION] GamePanel.drawModal - Render draw modal using the current graphics state.
@@ -481,6 +432,6 @@ public final class GamePanel extends JPanel implements Runnable {
         g.setColor(new Color(8,15,18,195));g.fillRect(0,0,VIEW_W,VIEW_H);
         card(g,35,125,410,103);g.setFont(new Font("Serif",Font.BOLD,25));center(g,title,163,GOLD);
         g.setFont(SMALL);center(g,subtitle,191,CREAM);
-        if(mode==Mode.VICTORY)center(g,"Seals "+quests.seals()+"/3 / guards "+kills+" / time "+(int)time+"s",213,MUTED);
+        if(mode==Mode.VICTORY)center(g,"Bosses "+quests.bossesDefeated()+"/3 / enemies "+kills+" / time "+(int)time+"s",213,MUTED);
     }
 }

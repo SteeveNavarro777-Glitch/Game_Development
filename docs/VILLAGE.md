@@ -1,8 +1,8 @@
 # Village map and house artwork
 
-The playable 192 x 160 tile world surrounds a fictional 64 x 48 tile Bukidnon-inspired village with dense forest. The current eight-design house set, detailed scenery, 12 NPCs and animated river are documented in RPG_ART.md. The current architecture and cultural references are described below. House exteriors are solid; entering buildings is outside this update. The existing shrine/guardian journey remains playable in the new setting.
+The playable 192 x 160 tile world surrounds a fictional 64 x 48 tile Bukidnon-inspired village with dense forest. The current eight-design house set, detailed scenery, 12 NPCs and animated river are documented in RPG_ART.md. The current architecture and cultural references are described below. House exteriors are solid; entering buildings is outside this update. Progress now comes from the three villain fights. The former beacon sites and village spawn contain ordinary ground.
 
-The top-right time/kill panel has been replaced by a live 96 x 72 minimap. Its bright green arrow follows Agyu's interpolated ground position and rotates with his facing. M opens the larger labelled village map using the same arrow. Quest markers update as shrines and the guardian are completed. The former attack combo panel has been removed. The top-left HUD shows health and energy bars plus a compact day/night countdown; the large background card, title, inventory counts, dash status and control hints have been removed.
+The top-right time/kill panel has been replaced by a live 96 x 72 minimap. Its bright green arrow follows Agyu's interpolated ground position and rotates with his facing. M opens the larger labelled village map using the same arrow. The three villain markers turn green after their respective defeats. The former attack combo panel has been removed. The top-left HUD shows health and energy bars plus a compact day/night countdown; the large background card, title, inventory counts, dash status and control hints have been removed.
 
 ## Architectural references
 
@@ -74,4 +74,8 @@ These images are produced by the real renderer and were visually reviewed. Autom
 
 ## Night cycle
 
-Every five active minutes the world switches between day and night. DayNightCycle retains the numbered phase, WorldLighting supplies cached moonlight/lamps and living outdoor enemies gain temporary pursuit/damage bonuses. NPCs and village enemies keep their normal strength. See [DAY_NIGHT.md](DAY_NIGHT.md) for the exact rules and [the comparison preview](../build/preview-day-night.png).
+Every three active minutes the world switches between day and night. DayNightCycle retains the numbered phase, WorldLighting supplies cached moonlight/lamps and living outdoor enemies gain temporary pursuit/damage bonuses. NPCs and village enemies keep their normal strength. See [DAY_NIGHT.md](DAY_NIGHT.md) for the exact rules and [the comparison preview](../build/preview-day-night.png).
+
+## Wildlife outside the enclosure
+
+Twelve randomized boar herds now populate reachable exterior woodland. Their complete feet remain outside the village even through an open gate. Rare wolves use a total nightly quota. Sigbin ambushes occur only at night in dense woodland at least five tiles away from the village, and lead to real combat. See [WILDLIFE.md](WILDLIFE.md).

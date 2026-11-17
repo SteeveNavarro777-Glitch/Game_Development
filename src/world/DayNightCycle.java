@@ -1,4 +1,4 @@
-/* FILE PURPOSE: WORLD CLOCK | Five-minute day/night phases, numbered cycles and continuous dusk/dawn lighting.
+/* FILE PURPOSE: WORLD CLOCK | Three-minute day/night phases, numbered cycles and continuous dusk/dawn lighting.
  * Course examples: enum states, encapsulation and deterministic simulation; docs/CODE_GUIDE.md.
  */
 import java.util.Locale;
@@ -6,7 +6,7 @@ import java.util.Locale;
 /** Advances only with active world simulation; render queries never change the clock. */
 final class DayNightCycle {
     enum Phase { DAY,NIGHT }
-    static final double PHASE_SECONDS=300,TRANSITION_SECONDS=12;
+    static final double PHASE_SECONDS=180,TRANSITION_SECONDS=12;
     private static final double EPSILON=1e-8;
     private long phaseIndex;
     private double seconds;
@@ -22,7 +22,7 @@ final class DayNightCycle {
     boolean night(){return phase()==Phase.NIGHT;}
     // [BLOCK: NUMBERED CYCLE] DayNightCycle.number - Return Day 1/Night 1, Day 2/Night 2 and subsequent cycle numbers.
     long number(){return phaseIndex/2+1;}
-    // [BLOCK: ENCAPSULATION] DayNightCycle.phaseSeconds - Read active seconds elapsed in the current five-minute phase.
+    // [BLOCK: ENCAPSULATION] DayNightCycle.phaseSeconds - Read active seconds elapsed in the current three-minute phase.
     double phaseSeconds(){return seconds;}
     // [BLOCK: COUNTDOWN] DayNightCycle.remainingSeconds - Round the remaining phase duration for a stable whole-second HUD.
     int remainingSeconds(){return Math.max(1,(int)Math.ceil(PHASE_SECONDS-seconds-EPSILON));}

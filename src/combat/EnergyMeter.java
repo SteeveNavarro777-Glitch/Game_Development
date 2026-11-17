@@ -22,6 +22,12 @@ final class EnergyMeter {
         if (value <= 1e-9) { value = 0; exhausted = true; }
         return true;
     }
+    // [BLOCK: RESOURCE RESTORE] EnergyMeter.restore - Clamp potion recovery and release exhaustion when enough energy returns.
+    void restore(double amount) {
+        if(!Double.isFinite(amount)||amount<=0)throw new IllegalArgumentException("Invalid energy recovery");
+        value=Math.min(MAX,value+amount);recoveryDelay=0;
+        if(value>=RESUME_AT)exhausted=false;
+    }
     // [BLOCK: RESOURCE: SPRINT] EnergyMeter.sprint - Spend energy for the time actually spent moving.
     void sprint(double dt) {
         if (dt <= 0 || !canSprint()) return;

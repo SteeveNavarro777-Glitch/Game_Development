@@ -48,8 +48,8 @@ public final class ArenaBossTests {
     }
     // [BLOCK: POLYMORPHIC POPULATION] ArenaBossTests.population - Verify exact Tank/Mage/Fighter mapping and outdoor, collision-free placement.
     private static void population(){
-        List<Enemy> enemies=new ArrayList<>();new ForestEncounters(world).populate(enemies);
-        check(enemies.size()==21,"The initial population does not contain the ordinary enemies and three bosses");
+        List<Enemy> enemies=new ArrayList<>();ForestEncounters population=new ForestEncounters(world,7);population.populate(enemies);
+        check(enemies.size()==population.capacity()+3,"The initial population does not contain the ordinary enemies and three bosses");
         check(enemies.stream().filter(e->e instanceof ArenaBoss).count()==3,"Missing or duplicate arena boss");
         Class<?>[] expected={TankBoss.class,MageBoss.class,FighterBoss.class};String[] keys={"tank","mage","fighter"};
         for(int id=1;id<=3;id++){
@@ -58,7 +58,7 @@ public final class ArenaBossTests {
             check(expected[id-1].isInstance(boss)&&boss.questId().equals(keys[id-1]),"Wrong villain in clearing "+id);
             check(boss.x==(arena.c()+.5)*World.T&&boss.y==(arena.r()+.5)*World.T,"Boss does not start at its clearing center");
             check(world.forest.contains(boss.x,boss.y)&&!world.blocked(boss.feetBox()),"Boss spawn is indoors or embedded in scenery");
-            check(boss.shrineGroup==-2,"Boss is classified as a shrine guard or ambient respawn slot");
+            check(boss.spawnGroup==-2,"Boss is classified as a shrine guard or ambient respawn slot");
             Player far=new Player(World.SPAWN_X,World.SPAWN_Y);boss.update(2,far,world,null);
             check(!boss.engaged()&&boss.state()==ArenaBoss.State.DORMANT,"A distant boss attacks while Agyu is inside the village");
         }
@@ -153,15 +153,15 @@ public final class ArenaBossTests {
         double phase=boss.phaseTime();tap(panel,KeyEvent.VK_M);panel.update(2);check(boss.phaseTime()==phase,"Map advances boss attacks");tap(panel,KeyEvent.VK_M);
         tap(panel,KeyEvent.VK_ESCAPE);phase=boss.phaseTime();panel.update(2);check(boss.phaseTime()==phase,"Pause advances boss attacks");tap(panel,KeyEvent.VK_ENTER);
         VillageMap map=new VillageMap((World)get(panel,"world"));Object cache=get(map,"terrain");long before=mapHash(map,player,quests);
-        int herbs=player.inventory().count(Inventory.Item.HERB);boss.damage(10000,boss.x-20,boss.y);Fx.clear();panel.update(DT);
-        check(quests.done("tank")&&player.inventory().count(Inventory.Item.HERB)==herbs+2,"Tank defeat event did not record its quest and herb reward");
+        int healthPotions=player.inventory().count(Inventory.Item.HEALTH_POTION);boss.damage(10000,boss.x-20,boss.y);Fx.clear();panel.update(DT);
+        check(quests.done("tank")&&player.inventory().count(Inventory.Item.HEALTH_POTION)==healthPotions+2,"Tank defeat event did not record its quest and health potion reward");
         check(before!=mapHash(map,player,quests)&&cache==get(map,"terrain"),"Boss map marker is stale or rebuilds static terrain");
-        herbs=player.inventory().count(Inventory.Item.HERB);boss.damage(10000,boss.x,boss.y);Fx.clear();panel.update(DT);
-        check(player.inventory().count(Inventory.Item.HERB)==herbs,"Repeated boss defeat duplicated its reward");
-        List<Enemy> ordinary=enemies.stream().filter(e->e instanceof Slime&&e.alive()).limit(2).toList();
+        healthPotions=player.inventory().count(Inventory.Item.HEALTH_POTION);boss.damage(10000,boss.x,boss.y);Fx.clear();panel.update(DT);
+        check(player.inventory().count(Inventory.Item.HEALTH_POTION)==healthPotions,"Repeated boss defeat duplicated its reward");
+        List<Enemy> ordinary=enemies.stream().filter(e->e instanceof WildBoar&&e.alive()).limit(2).toList();
         for(int i=0;i<ordinary.size();i++){
             ordinary.get(i).damage(10000,0,0);Fx.clear();panel.update(DT);
-            check(player.inventory().count(Inventory.Item.HERB)==herbs+(i==0?0:1),"Boss defeat changes the two-ordinary-enemy herb reward cadence");
+            check(player.inventory().count(Inventory.Item.HEALTH_POTION)==healthPotions+(i==0?0:1),"Boss defeat changes the two-ordinary-enemy health potion reward cadence");
         }
         player.damage(10000,0,0);player.invincible=0;player.damage(10000,0,0);Fx.clear();panel.update(DT);tap(panel,KeyEvent.VK_R);
         enemies=(List<Enemy>)get(panel,"enemies");quests=(QuestLog)get(panel,"quests");

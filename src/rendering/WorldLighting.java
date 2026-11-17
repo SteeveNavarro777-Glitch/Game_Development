@@ -48,7 +48,6 @@ final class WorldLighting {
             for(World.Building house:world.buildings)pool(mask,house.x-cx,house.y-cy-32,76,65,.58f);
             for(World.Prop prop:world.props)if(prop.style==6)pool(mask,prop.x-cx,prop.y-cy-62,92,85,.92f);
             for(Palisade.Gate gate:world.palisade.gates())pool(mask,gate.closed.getCenterX()-cx,gate.closed.getCenterY()-cy-20,82,72,.55f);
-            for(int[] site:World.LANDMARKS)pool(mask,(site[0]+.5)*World.T-cx,(site[1]+.5)*World.T-cy-18,50,48,.6f);
             pool(mask,(MountainRiver.CENTER_C+.5)*World.T-cx,MountainRiver.SOURCE_R*World.T-cy-210,100,250,.75f);
             for(Enemy enemy:enemies)if(enemy.alive()&&enemy instanceof ArenaBoss&&((ArenaBoss)enemy).engaged())
                 pool(mask,enemy.px+(enemy.x-enemy.px)*blend-cx,enemy.py+(enemy.y-enemy.py)*blend-cy-38,80,94,.6f);

@@ -19,7 +19,7 @@ public final class World {
     static final int T = Assets.TILE, GRASS = 0, DIRT = 1, WATER = 2, WALL = 3, ROCK = WALL, PAVING = 4, BRIDGE = 5, GATE = 6, MOUNTAIN = 7, CULVERT = 8;
     static final int VILLAGE_MIN=48,VILLAGE_COLS=64,VILLAGE_ROWS=48;
     static final int[][] VILLAGE_SITES=shifted(new int[][]{{32,27},{12,12},{49,26},{28,39},{51,39}});
-    static final int[][] LANDMARKS={{80,75},{41,41},{118,72},{50,103},{117,103}};
+    static final int[][] TRAIL_SITES={{80,75},{41,41},{118,72},{50,103},{117,103}};
     static final double SPAWN_X=(VILLAGE_MIN+32.5)*T,SPAWN_Y=(VILLAGE_MIN+27.5)*T;
     private static final int[][] DIRECTIONS = {{0,-1},{0,1},{-1,0},{1,0}};
     private static final int[][] WORK_SITES=shifted(new int[][]{{30,22},{24,22},{35,22},{24,31},{6,11}});
@@ -82,7 +82,7 @@ public final class World {
             connectStreet(site[0],site[1]);
             court(site[0]-3,site[1]-3,site[0]+3,site[1]+3);
         }
-        court(villageCell(28),villageCell(23),villageCell(36),villageCell(31)); // open HOME court and its eight-direction dash space
+        court(villageCell(28),villageCell(23),villageCell(36),villageCell(31)); // open village spawn court and its eight-direction dash space
         connectStreet(villageCell(29),villageCell(2));connectStreet(villageCell(29),villageCell(45));connectStreet(villageCell(2),villageCell(24));connectStreet(villageCell(61),villageCell(24));
         for (int[] lot : LOTS) connectStreet(lot[0],lot[1]);
         // Group crops beside district streets, with a gate facing the existing pavement.
@@ -377,15 +377,7 @@ public final class World {
         }
         mountain.drawCurrents(g,cx,cy,vw,vh);
         for(FarmPlot garden:gardens)if(garden.bounds.intersects(cx,cy,vw,vh))garden.draw(g,cx,cy);
-        // A low, inset circular stone inlay anchors the open central court.
-        int sx=(int)SPAWN_X-cx,sy=(int)SPAWN_Y-cy;
-        g.setColor(new Color(0x8B8160));g.drawOval(sx-88,sy-60,176,112);g.drawOval(sx-83,sy-56,166,104);
-        g.setColor(new Color(0xC8BA8D));g.drawOval(sx-85,sy-58,170,108);
-        for(int[] site:LANDMARKS){
-            int x=(int)((site[0]+.5)*T)-cx,y=(int)((site[1]+.5)*T)-cy;
-            g.setColor(new Color(0x7E765A));g.drawRect(x-29,y-24,58,46);
-            g.setColor(new Color(0xD3C595));g.drawRect(x-26,y-21,52,40);
-        }
+
     }
     static final class Prop implements Drawable,Obstacle {
         final double x,y;final int style;final Rectangle2D.Double footprint;double time;

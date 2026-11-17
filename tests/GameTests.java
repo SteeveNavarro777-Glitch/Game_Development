@@ -31,9 +31,9 @@ public final class GameTests {
         }
         long indexedChecks=w.collisionChecks;
         ForestTests.openGates(w);
-        for(int[] start:World.LANDMARKS){
+        for(int[] start:World.TRAIL_SITES){
             int[][] distance=Pathfinder.distances(w,start[0],start[1]);
-            for(int[] goal:World.LANDMARKS){
+            for(int[] goal:World.TRAIL_SITES){
                 check(distance[goal[1]][goal[0]]>=0,"Mission landmark unreachable");
                 List<Point> path=Pathfinder.find(w,start[0],start[1],goal[0],goal[1]);
                 check(path.size()==distance[goal[1]][goal[0]],"A* differs from shortest BFS distance");
@@ -54,20 +54,17 @@ public final class GameTests {
         cycle.add(2);cycle.add(3);
         check(cycle.size()==3&&cycle.current()==1&&cycle.advance()==2&&cycle.advance()==3&&cycle.advance()==1,"Linked-list wrap");
         Inventory inventory=new Inventory();
-        check(!inventory.consume(Inventory.Item.HERB),"Empty inventory consumed");
-        inventory.add(Inventory.Item.HERB,2);
-        check(inventory.consume(Inventory.Item.HERB)&&inventory.count(Inventory.Item.HERB)==1,"Item consumption");
-        expect(IllegalArgumentException.class,()->inventory.add(Inventory.Item.HERB,0));
+        check(!inventory.consume(Inventory.Item.HEALTH_POTION),"Empty inventory consumed");
+        inventory.add(Inventory.Item.HEALTH_POTION,2);
+        check(inventory.consume(Inventory.Item.HEALTH_POTION)&&inventory.count(Inventory.Item.HEALTH_POTION)==1,"Item consumption");
+        expect(IllegalArgumentException.class,()->inventory.add(Inventory.Item.HEALTH_POTION,0));
         expect(IllegalArgumentException.class,()->inventory.add(null,1));
-        inventory.add(Inventory.Item.SEAL,Integer.MAX_VALUE);
-        expect(ArithmeticException.class,()->inventory.add(Inventory.Item.SEAL,1));
-        check(inventory.count(Inventory.Item.SEAL)==Integer.MAX_VALUE,"Overflow modified inventory");
-        QuestLog log=new QuestLog();
-        check(!log.finish("guardian")&&!log.finish("home")&&!log.finish("unknown"),"Quest prerequisites");
-        for(String id:QuestLog.SHRINES){check(log.finish(id),"Independent shrine");check(!log.finish(id),"Duplicate quest");}
-        check(log.seals()==3&&log.finish("guardian")&&!log.finish("home"),"HOME ignored undefeated villain bosses");
-        for(String boss:new String[]{"tank","mage","fighter"}){check(log.finish(boss),"Boss completion failed");check(!log.finish(boss),"Duplicate boss completion");}
-        check(log.finish("home")&&!log.finish("home"),"Quest progression");
+        Inventory overflow=new Inventory();overflow.add(Inventory.Item.HEALTH_POTION,Integer.MAX_VALUE);
+        expect(ArithmeticException.class,()->overflow.add(Inventory.Item.HEALTH_POTION,1));
+        check(overflow.count(Inventory.Item.HEALTH_POTION)==Integer.MAX_VALUE,"Overflow modified inventory");
+        QuestLog log=new QuestLog();check(!log.finish("forest")&&!log.finish("unknown"),"Quest prerequisites");
+        for(String id:QuestLog.BOSSES){check(log.finish(id),"Independent villain objective");check(!log.finish(id),"Duplicate boss quest");}
+        check(log.bossesDefeated()==3&&log.finish("forest")&&!log.finish("forest"),"Boss prerequisite progression");
         KeyHandler keys=new KeyHandler();press(keys,KeyEvent.VK_J);
         check(keys.poll().pressed(KeyHandler.ATTACK),"Attack edge lost");
         press(keys,KeyEvent.VK_J);check(!keys.poll().pressed(KeyHandler.ATTACK),"Autorepeat attack");
@@ -76,7 +73,7 @@ public final class GameTests {
         press(keys,KeyEvent.VK_W);press(keys,KeyEvent.VK_SHIFT);
         check(keys.poll().up&&keys.poll().run,"Held inputs lost");
         keys.clear();check(!keys.poll().up&&!keys.poll().run&&!keys.poll().pressed(KeyHandler.ATTACK),"Focus clear");
-        Enemy target=new Slime(100,100,0);
+        Enemy target=new WildBoar(100,100,0);
         check(!target.claimDefeat(),"Living enemy rewarded");
         target.damage(3,0,0);
         check(target.health()==0&&target.claimDefeat()&&!target.claimDefeat(),"Duplicate defeat reward");
@@ -90,6 +87,8 @@ public final class GameTests {
         checks += MouseGuardTests.run();
         checks += JumpTests.run();
         checks += EnergyDashTests.run();
+        checks += PotionHotbarTests.run();
+        checks += EquipmentTests.run();
         checks += VillageTests.run();
         checks += VillageLayoutTests.run();
         checks += TreeBoundaryTests.run();
@@ -97,6 +96,9 @@ public final class GameTests {
         checks += ExpansionTests.run();
         checks += ArenaBossTests.run();
         checks += DayNightTests.run();
+        checks += BoarTests.run();
+        checks += WildlifeTests.run();
+        checks += ForestRevisionTests.run();
         checks += NpcTests.run();
         checks += GuardVisualTests.run();
         testSession();
@@ -123,15 +125,18 @@ public final class GameTests {
         double[][] offsets={{0,25},{0,-28},{-25,0},{25,0}};
         for(int i=0;i<directions.length;i++){
             Player player=new Player(World.SPAWN_X,World.SPAWN_Y);player.dir=directions[i];
-            Enemy enemy=new Slime(player.x+offsets[i][0],player.y+offsets[i][1],0);
+            Enemy enemy=new WildBoar(player.x+offsets[i][0],player.y+offsets[i][1],0);
             KeyHandler input=new KeyHandler();press(input,KeyEvent.VK_J);
             for(int tick=0;tick<40;tick++)player.update(1.0/60,input.poll(),w,List.of(enemy));
             check(enemy.health()==2,"A directional spear attack must hit exactly once");
         }
         Player player=new Player(World.SPAWN_X,World.SPAWN_Y);
-        check(!player.useHerb()&&player.inventory().count(Inventory.Item.HERB)==3,"Full health consumed an herb");
-        player.damage(1,0,0);
-        check(player.useHerb()&&player.health()==player.maxHealth()&&player.inventory().count(Inventory.Item.HERB)==2,"Healing failed");
+        check(!player.usePotion(Inventory.Item.HEALTH_POTION)&&player.inventory().count(Inventory.Item.HEALTH_POTION)==3,"Full health consumed a potion");
+        player.damage(1,0,0);Fx.clear();
+        player.update(.4,new KeyHandler.Input(false,false,false,false,false,false,0),w,List.of());
+        check(player.usePotion(Inventory.Item.HEALTH_POTION),"Healing action failed to begin");
+        for(int i=0;i<55;i++)player.update(1.0/60,new KeyHandler.Input(false,false,false,false,false,false,0),w,List.of());
+        check(player.health()==player.maxHealth()&&player.inventory().count(Inventory.Item.HEALTH_POTION)==2,"Healing sip failed");
         Fx.clear();
     }
     // [BLOCK: TEST HELPER] GameTests.testSprites - Handle test sprites for GameTests.
@@ -210,28 +215,13 @@ public final class GameTests {
         tap(panel,KeyEvent.VK_ESCAPE);
         check(field(panel,"mode")==GamePanel.Mode.PAUSED,"Pause failed");
         tap(panel,KeyEvent.VK_ENTER);
-        for(int group=0;group<3;group++){
-            for(Enemy enemy:enemies)if(enemy.shrineGroup==group)enemy.damage(100,0,0);
-            Fx.clear();panel.update(1.0/60);
-            int[] site=World.LANDMARKS[group+1];player.x=(site[0]+0.5)*World.T;player.y=(site[1]+0.5)*World.T;
-            tap(panel,KeyEvent.VK_E);
-            check(log.seals()==group+1,"Shrine interaction failed");
-            int seals=player.inventory().count(Inventory.Item.SEAL);
-            tap(panel,KeyEvent.VK_E);
-            check(player.inventory().count(Inventory.Item.SEAL)==seals,"Repeated shrine duplicated seal");
+        for(int i=0;i<QuestLog.BOSSES.length;i++){
+            String id=QuestLog.BOSSES[i];ArenaBoss boss=(ArenaBoss)enemies.stream().filter(e->e instanceof ArenaBoss&&((ArenaBoss)e).questId().equals(id)).findFirst().orElseThrow();
+            boss.damage(10000,boss.x,boss.y-20);Fx.clear();panel.update(1d/60);
+            check(log.done(id),"Villain defeat did not process its quest");
+            if(i<2)check(field(panel,"mode")==GamePanel.Mode.PLAYING&&!log.done("forest"),"Victory ignored an undefeated villain");
         }
-        Enemy guardian=null;
-        for(Enemy enemy:enemies)if(enemy instanceof Guardian)guardian=enemy;
-        check(guardian!=null,"Guardian was not spawned");
-        guardian.damage(100,0,0);Fx.clear();panel.update(1.0/60);
-        check(log.done("guardian"),"Guardian event not processed");
-        player.x=World.SPAWN_X;player.y=World.SPAWN_Y;tap(panel,KeyEvent.VK_E);
-        check(field(panel,"mode")==GamePanel.Mode.PLAYING&&!log.done("home"),"Victory ignored living arena bosses");
-        for(Enemy enemy:enemies)if(enemy instanceof ArenaBoss)enemy.damage(10000,enemy.x,enemy.y-10);
-        Fx.clear();panel.update(1.0/60);
-        for(String boss:new String[]{"tank","mage","fighter"})check(log.done(boss),"Boss defeat was not required/processed before HOME");
-        player.x=World.SPAWN_X;player.y=World.SPAWN_Y;tap(panel,KeyEvent.VK_E);
-        check(field(panel,"mode")==GamePanel.Mode.VICTORY&&log.done("home"),"Return home did not win");
+        check(field(panel,"mode")==GamePanel.Mode.VICTORY&&log.done("forest"),"The third villain did not finish the journey automatically");
         render(panel,"build/preview-victory.png");
         tap(panel,KeyEvent.VK_R);
         check(field(panel,"mode")==GamePanel.Mode.PLAYING,"Victory restart failed");
@@ -239,7 +229,7 @@ public final class GameTests {
         player.damage(100,0,0);Fx.clear();panel.update(1.0/60);
         check(field(panel,"mode")==GamePanel.Mode.DEFEAT,"Death transition failed");
         tap(panel,KeyEvent.VK_R);
-        check(field(panel,"mode")==GamePanel.Mode.PLAYING&&((QuestLog)field(panel,"quests")).seals()==0,"Death restart did not reset quest");
+        check(field(panel,"mode")==GamePanel.Mode.PLAYING&&((QuestLog)field(panel,"quests")).bossesDefeated()==0,"Death restart did not reset quest");
         panel.start();panel.start();panel.stop();
     }
     // [BLOCK: TEST HELPER] GameTests.testPanelMouse - Handle test panel mouse for GameTests.

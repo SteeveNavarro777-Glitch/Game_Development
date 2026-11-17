@@ -18,6 +18,8 @@ public final class SpearAttack {
     private static final int GRIP_X=4;
     private static final BasicStroke LIGHT_STROKE=new BasicStroke(1);
     private static BufferedImage weapon;
+    // [BLOCK: CACHED EQUIPMENT ART] SpearAttack.icon - Reuse the prepared spear image for the hotbar icon cache.
+    static BufferedImage icon(){return weapon;}
     static final int STAGES=6;
     private record Move(String name,double duration,double start,double end,double chain,int damage,
             double reach,double knockback,int color){}

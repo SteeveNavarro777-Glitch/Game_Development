@@ -15,7 +15,7 @@ Moved the 32 gameplay files into functional src folders, 11 regression suites in
 - An unused prop and 91 byte-identical local custom-art/source duplicates. The optional creator houses and original free sheet remain local.
 - Old overwritten procedural grass/dirt/water/tree art, unused asset caches, fields, attack constants and helper APIs.
 - The masked-idle attack fallback; rendering, effects and its regression fixtures now use the current authored combat poses directly.
-- The invisible notice subsystem left after the HUD change. Healing still calls useHerb; shrine, reward and guardian transitions are preserved.
+- The invisible notice subsystem left after the HUD change. Healing still calls usePotion; shrine, reward and guardian transitions are preserved.
 - Generated old class files, temporary repository snapshots and previous build output.
 
 The custom patrol linked list, actual queue/stack/graph implementations, current authored combat poses, collision reference, tests and current regeneration sources remain in use and are labeled.

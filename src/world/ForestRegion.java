@@ -35,8 +35,8 @@ final class ForestRegion {
         route(new int[][]{{117,72},{130,72},{144,64}});
         route(new int[][]{{144,104},{157,104},{171,97},{176,93}});
         clearing(176,92,4,2);
-        for(int i=1;i<World.LANDMARKS.length;i++){
-            int[] site=World.LANDMARKS[i];clearing(site[0],site[1],4,4);
+        for(int i=1;i<World.TRAIL_SITES.length;i++){
+            int[] site=World.TRAIL_SITES[i];clearing(site[0],site[1],4,4);
         }
         for(Point camp:camps)clearing(camp.x,camp.y,3,3);
         for(Arena arena:arenas)clearing(arena.c(),arena.r(),arena.rx(),arena.ry());

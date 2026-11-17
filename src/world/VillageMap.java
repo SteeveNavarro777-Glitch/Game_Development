@@ -21,7 +21,6 @@ final class VillageMap {
     private static final BasicStroke OUTLINE=new BasicStroke(2),THIN=new BasicStroke(1);
     private static final Polygon SMALL=new Polygon(new int[]{0,3,0,-3},new int[]{-4,3,1,3},4);
     private static final Polygon LARGE=new Polygon(new int[]{0,5,0,-5},new int[]{-7,5,2,5},4);
-    private static final String[] NAMES={"HOME","GROVE","LAKE","RIDGE","GUARDIAN"};
     private final World world;
     private final BufferedImage terrain=new BufferedImage(256,192,BufferedImage.TYPE_INT_RGB);
     // [BLOCK: FUNCTION] VillageMap.VillageMap - Initialize VillageMap state.
@@ -79,20 +78,6 @@ final class VillageMap {
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             g.drawImage(terrain,x,y,width,height,null);
             boolean large=width>=256;g.setFont(LABEL_FONT);
-            for(int i=0;i<World.LANDMARKS.length;i++){
-                int[] site=World.LANDMARKS[i];
-                int sx=x+(int)Math.round((site[0]+.5)/world.cols*width);
-                int sy=y+(int)Math.round((site[1]+.5)/world.rows*height),radius=large?2:1;
-                g.setColor(INK);g.fillRect(sx-radius-1,sy-radius-1,radius*2+3,radius*2+3);
-                g.setColor(siteColor(i,quests));g.fillRect(sx-radius,sy-radius,radius*2+1,radius*2+1);
-                if(labels&&large){
-                    int tw=g.getFontMetrics().stringWidth(NAMES[i]);
-                    int tx=Math.max(x+2,Math.min(x+width-tw-3,sx+6));
-                    int ty=Math.max(y+10,Math.min(y+height-3,sy-5));
-                    g.setColor(new Color(15,29,24,220));g.fillRect(tx-2,ty-9,tw+4,11);
-                    g.setColor(new Color(0xF0EACF));g.drawString(NAMES[i],tx,ty);
-                }
-            }
             for(ForestRegion.Arena arena:world.forest.arenas()){
                 String id=QuestLog.BOSSES[arena.id()-1];
                 int ax=x+(int)Math.round((arena.c()+.5)/world.cols*width),ay=y+(int)Math.round((arena.r()+.5)/world.rows*height);
@@ -135,11 +120,5 @@ final class VillageMap {
         int tw=g.getFontMetrics().stringWidth(text),tx=Math.max(x+2,Math.min(x+width-tw-2,sx-tw/2));
         int ty=Math.max(y+10,Math.min(y+height-3,sy-4));
         g.setColor(INK);g.fillRect(tx-1,ty-8,tw+2,10);g.setColor(new Color(0xE7CF9C));g.drawString(text,tx,ty);
-    }
-    // [BLOCK: FUNCTION] VillageMap.siteColor - Handle site color for VillageMap.
-    private static Color siteColor(int index,QuestLog quests){
-        if(index==0)return new Color(0xACDBE6);
-        if(index==4)return new Color(quests.done("guardian")?0xA5DD9C:0xEB9674);
-        return new Color(quests.done(QuestLog.SHRINES[index-1])?0xA5DD9C:0xF2CA72);
     }
 }

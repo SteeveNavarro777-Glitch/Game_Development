@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.List;
 import javax.imageio.ImageIO;
 
-/** Real NPC movement, art, conversations, pause handling and beacon priority. */
+/** Real NPC movement, art, conversations, pause handling and interaction at the plain village spawn. */
 public final class NpcTests {
     private static final Canvas SOURCE=new Canvas();
     private static final double DT=1.0/60;
@@ -125,8 +125,8 @@ public final class NpcTests {
         panel.keys.clear();
         player.x=player.px=World.SPAWN_X;player.y=player.py=World.SPAWN_Y;player.state=Player.State.IDLE;player.vx=player.vy=0;
         Npc neighbor=npcs.get(0);set(neighbor,"x",World.SPAWN_X+16);set(neighbor,"y",World.SPAWN_Y);neighbor.px=neighbor.x();neighbor.py=neighbor.y();
-        QuestLog quests=(QuestLog)field(panel,"quests");for(String shrine:QuestLog.SHRINES)quests.finish(shrine);quests.finish("guardian");for(String boss:QuestLog.BOSSES)quests.finish(boss);
-        Fx.clear();tap(panel,KeyEvent.VK_E);check(field(panel,"mode")==GamePanel.Mode.VICTORY&&!neighbor.isSpeaking(),"NPC stole beacon interaction");
+        Fx.clear();tap(panel,KeyEvent.VK_E);check(field(panel,"mode")==GamePanel.Mode.PLAYING&&neighbor.isSpeaking(),"A retired home beacon intercepted NPC interaction");
+        player.damage(100,0,0);Fx.clear();panel.update(DT);
         tap(panel,KeyEvent.VK_R);List<Npc> restarted=npcs(panel);
         check(restarted.size()==npcs.size()&&Arrays.equals(initial,snapshot(restarted)),"Restart retained NPC state");
         for(Npc npc:restarted)check(!npc.isSpeaking(),"Restart retained dialogue");Fx.clear();

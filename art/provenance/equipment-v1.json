@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-17",
+  "method": "built-in imagegen",
+  "reference": "art/source/player/agyu-guard-sheet.png",
+  "assets": [
+    {
+      "source": "art/source/player/agyu-guard-forward-v3.png",
+      "source_sha256": "c6f76ada0ae74cd94694461d2d5a91e9317abcb04585ced6cb758e36e9bab163",
+      "prompt": "art/prompts/agyu-guard-forward-v3.txt",
+      "prompt_sha256": "670721f9cb7217ca39f66c3ed16a5da5e6b65cc58d6dff68ee4015c477004267"
+    },
+    {
+      "source": "art/source/player/agyu-held-items-v1.png",
+      "source_sha256": "f581b7ad36d77e7d448d0941cc4263bff81d6800ee898e9c88795e1b8d758351",
+      "prompt": "art/prompts/agyu-held-items-v1.txt",
+      "prompt_sha256": "9879f5255025f0160c279d12be6c47a00ec2246660533a346d8566745210ffac"
+    }
+  ]
+}

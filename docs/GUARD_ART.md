@@ -1,6 +1,6 @@
 # Shield holding pose repair
 
-The guard state uses one complete 64 x 64 character sprite per direction:
+With the spear selected, the guard state uses one complete 64 x 64 character sprite per direction:
 
 - res/player/guard_down.png
 - res/player/guard_up.png
@@ -25,7 +25,7 @@ After Java compilation:
 java "-Djava.awt.headless=true" -cp "build/tool-classes;." GuardSpriteImporter
 ```
 
-The two optional arguments specify the original guard sheet and the standalone corrected rear source, respectively.
+Three optional arguments specify the original sheet, corrected rear source and forward-pointing side source, respectively.
 
 ## Verification
 
@@ -41,3 +41,7 @@ Previews:
 - build/preview-guard-down.png, up/left/right equivalents: real game camera.
 
 Space jumps. Holding right mouse during a hop raises the shield on landing. Close any running game and start run.bat to load changed assets.
+
+## Forward-facing spear and selected items
+
+The new side cells in `art/source/player/agyu-guard-forward-v3.png` move the weapon arm to the front and point the spearhead ahead of the shield. Front and rear runtime PNGs remain byte-identical. With a potion, empty slot or shield selected, defense uses a prepared shield-only body rather than showing an unequipped spear. Updated impact points match that held shield. [EQUIPMENT_ART.md](EQUIPMENT_ART.md) records the new sources, exact prompts, packing and held-item/drinking workflow.

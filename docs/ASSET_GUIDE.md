@@ -4,6 +4,11 @@ The runtime reads PNGs and manifests from `res/`. Editable source atlases and ar
 
 | Location | Contents | Loaded by |
 | --- | --- | --- |
+| `res/player/equipment/` | 24 authored empty-handed body poses in one atlas, wrist/boot/source manifest; cached left mirrors and item composites | HeldItemArt |
+| `res/items/` | 3 potion icons, one 22-frame effect atlas and source-hash manifest | PotionArt |
+| `art/source/potions/` | 25 unchanged supplied potion/effect PNGs | PotionSpriteImporter |
+| `res/wildlife/` | 3 wildlife atlases, one detailed Sigbin portrait and source manifests | WildlifeArt |
+| `art/source/boar/`, `art/source/wolf/`, `art/source/sigbin/` | 67 unchanged user-supplied PNG poses | WildlifeSpriteImporter |
 | `res/bosses/` | 3 packed villain atlases and a 452-frame source manifest | BossArt |
 | `art/source/bosses/` | The user-supplied Tank, Mage and Fighter source sheets | BossSpriteImporter |
 | `res/player/` | 47 movement/hurt/death PNGs and 4 complete guard PNGs | Assets / ShieldGuard |
@@ -18,7 +23,7 @@ The runtime reads PNGs and manifests from `res/`. Editable source atlases and ar
 | `art/prompts/`, `art/provenance/` | Saved generation prompts, source hashes and credits metadata | Documentation / artwork provenance |
 | `art/local-village/` | Optional creator house styles 4-7 and original free sheet; ignored by Git | RpgArt / RpgAssetImporter |
 
-There are **211 runtime PNGs** in the tracked `res/` folders. Slime frames, wooden palisade/gate/bridge art, the mountain and its four waterfall/mist phases, rock tiles, the night mask and soft light textures, the forest camera margin, cropped spear, mirrored poses, transitions and farm artwork are prepared or cached by code. Prop ID 4 was retired; the remaining authored IDs are preserved in map placement.
+There are **220 runtime PNGs** in the tracked `res/` folders. Wildlife flash/mirror variants, wooden palisade/gate/bridge art, the mountain and its four waterfall/mist phases, rock tiles, the night mask and soft light textures, the forest camera margin, cropped spear, mirrored poses, transitions and farm artwork are prepared or cached by code. Prop ID 4 was retired; the remaining authored IDs are preserved in map placement.
 
 ## Regenerate the current assets
 
@@ -30,6 +35,9 @@ Run from the project root with JDK 17+:
 .\tools.bat CombatBodyImporter
 .\tools.bat RpgAssetImporter
 .\tools.bat BossSpriteImporter
+.\tools.bat WildlifeSpriteImporter
+.\tools.bat PotionSpriteImporter
+.\tools.bat EquipmentSpriteImporter
 ```
 
 The player tools export only the current runtime frame sets. RpgAssetImporter reads the five custom atlases and skips the retired prop. If the optional free creator sheet is available, its four packed houses stay in the ignored local folder. Without it, the game uses full-size custom alternatives for those styles.

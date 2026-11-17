@@ -79,7 +79,7 @@ abstract class ArenaBoss extends Enemy {
     protected double knockbackFactor(){return .28;}
     // [BLOCK: COLLISION SHAPE] ArenaBoss.feetBox - Keep boss feet compatible with the arena's collision-safe routes.
     @Override Rectangle2D.Double feetBox(){return new Rectangle2D.Double(x-13,y-12,26,12);}
-    // [BLOCK: AUTHORED BODY HITBOX] ArenaBoss.hurtBox - Match the substantial authored torso instead of the old slime body.
+    // [BLOCK: AUTHORED BODY HITBOX] ArenaBoss.hurtBox - Match the substantial authored boss torso.
     @Override Rectangle2D.Double hurtBox(){return new Rectangle2D.Double(x-24,y-73,48,73);}
     // [BLOCK: DEATH LIFECYCLE] ArenaBoss.removable - Let every authored death frame finish before removal.
     @Override boolean removable(){return !alive()&&deathTime>=1.2;}

@@ -89,7 +89,7 @@ public final class TreeBoundaryTests {
                 check(before(actor.feetBox(),target.trunk,direction),"Movement tunneled through the tree: "+style+"/"+direction+"/"+mode);
                 if(mode==3)check(!actor.dashing(),"Tree did not stop a dash");Fx.clear();
             }
-            Enemy enemy=new Slime(start.x,start.y,0);enemy.kbx=DIRS[direction][0]*250;enemy.kby=DIRS[direction][1]*250;
+            Enemy enemy=new WildBoar(start.x,start.y,0);enemy.kbx=DIRS[direction][0]*250;enemy.kby=DIRS[direction][1]*250;
             enemy.update(.7,new Player(start.x+DIRS[direction][0]*200,start.y+DIRS[direction][1]*200),world,null);
             check(!world.blocked(enemy.feetBox())&&before(enemy.feetBox(),target.trunk,direction),"Enemy knockback crossed or entered roots: "+style+"/"+direction+" at "+enemy.feetBox()+" target "+target.trunk);Fx.clear();
         }
@@ -135,7 +135,7 @@ public final class TreeBoundaryTests {
             }
             version=world.navigationVersion();Player occupant=new Player(gate.closed.getCenterX(),gate.closed.getCenterY()+2.55);
             check(world.interactGate(occupant,List.of(),List.of())&&gate.open()&&world.navigationVersion()==version,"Gate closed on Agyu");
-            Enemy enemy=new Slime(gate.closed.getCenterX(),gate.closed.getCenterY()+4,0);
+            Enemy enemy=new WildBoar(gate.closed.getCenterX(),gate.closed.getCenterY()+4,0);
             check(world.interactGate(actor,List.of(enemy),List.of())&&gate.open(),"Gate closed on a living enemy");
             Npc npc=new Npc("gate-worker","Worker",Npc.Role.FARMER,gate.closed.getCenterX(),gate.closed.getCenterY()+2.5,RpgArt.npc(0),List.of(),"Hello.");
             check(world.interactGate(actor,List.of(),List.of(npc))&&gate.open(),"Gate closed on an NPC");

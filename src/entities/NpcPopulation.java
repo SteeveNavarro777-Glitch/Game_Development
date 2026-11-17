@@ -15,16 +15,16 @@ final class NpcPopulation {
         List<Npc> result=new ArrayList<>();int[][] distance=Pathfinder.distances(world,World.col(World.SPAWN_X),World.row(World.SPAWN_Y));
         add(result,world,distance,"elder","Village Elder",Npc.Role.ELDER,5,World.villageCell(30),World.villageCell(22),List.of(),
                 "Welcome, Agyu. Our homes and gardens shelter a community that cares for the grove.",
-                "Restore the shrines and defeat the guardian, Tank, Mage and Fighter before returning home.");
+                "Tank, Mage and Fighter threaten the forest. Their clearings are marked on your map.");
         add(result,world,distance,"smith","Village Smith",Npc.Role.SMITH,2,World.villageCell(24),World.villageCell(22),List.of(),
                 "A steady grip beats a hurried swing. Tap your attack to link each spear movement.",
-                "Keep your shield facing danger. A dash can carry you out of a guardian's warning.");
+                "Keep your shield facing danger. A dash can carry you out of a villain's warning.");
         add(result,world,distance,"weaver","Village Weaver",Npc.Role.WEAVER,1,World.villageCell(35),World.villageCell(22),List.of(),
                 "I am weaving cloth for the market. These colors are part of our village's everyday life.",
                 "Look closely at each strand. Patience makes a strong weave, just as practice makes a strong fighter.");
         add(result,world,distance,"vendor","Produce Vendor",Npc.Role.VENDOR,4,World.villageCell(24),World.villageCell(31),List.of(),
                 "Bananas, roots and grain from the gardens! The market keeps our neighbors supplied.",
-                "Carry your herbs carefully. Press H when you need to recover health.");
+                "Keep potions on your hotbar. Green heals, orange restores energy and blue protects you.");
         Point shore=findFishingBank(world);
         add(result,world,distance,"fisher","River Fisher",Npc.Role.FISHER,3,shore.x,shore.y,List.of(),
                 "The river runs through our village. Please use the bridges and keep its banks clear.",
