@@ -14,8 +14,8 @@ import java.awt.image.BufferedImage;
 final class VillageMap {
     private static final Color INK=new Color(0x152920),GREEN=new Color(0x7EFF75),LIGHT=new Color(0xD5FFBC);
     private static final Color[] GROUND={
-        new Color(0x416C49),new Color(0xAD925F),new Color(0x3E8190),
-        new Color(0x6A482C),new Color(0xC0B38B),new Color(0xB78B52),new Color(0xAD925F),new Color(0x67715C),new Color(0x3E8190)};
+        new Color(0x416C49),new Color(0xAD925F),new Color(0x157F68),
+        new Color(0x6A482C),new Color(0xC0B38B),new Color(0xB78B52),new Color(0xAD925F),new Color(0x67715C),new Color(0x157F68)};
     private static final Color ROOF_EDGE=new Color(0x3D3325),ROOF_DARK=new Color(0x866337),ROOF_LIGHT=new Color(0xBE9A59);
     private static final Font LABEL_FONT=new Font("Monospaced",Font.BOLD,9);
     private static final BasicStroke OUTLINE=new BasicStroke(2),THIN=new BasicStroke(1);
@@ -58,10 +58,7 @@ final class VillageMap {
                 int width=cacheX((arena.c()+arena.rx()+1)*World.T)-left,height=cacheY((arena.r()+arena.ry()+1)*World.T)-top;
                 g.setColor(new Color(0x8D7651));g.drawOval(left,top,width,height);
             }
-            Rectangle2D mountain=world.mountain.bounds();int mx=cacheX(mountain.getX()),my=cacheY(mountain.getY());
-            g.drawImage(MountainArt.mountain(),mx,my,cacheX(mountain.getMaxX())-mx,cacheY(mountain.getMaxY())-my,null);
-            int fx=cacheX((MountainRiver.CENTER_C+.5)*World.T),fy=cacheY(68*World.T);
-            g.drawImage(MountainArt.waterfall(0),fx-3,fy,7,Math.max(1,cacheY(MountainRiver.SOURCE_R*World.T)-fy),null);
+            world.mountain.drawOverview(g,256,192);
         }finally{g.dispose();}
     }
     // [BLOCK: FUNCTION] VillageMap.cacheX - Handle cache x for VillageMap.

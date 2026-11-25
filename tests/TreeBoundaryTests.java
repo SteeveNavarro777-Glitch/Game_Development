@@ -174,7 +174,7 @@ public final class TreeBoundaryTests {
     }
     // [BLOCK: REAL INPUT] TreeBoundaryTests.input - E edges toggle gates, held presses do not repeat, and pause/map/restart preserve expected state.
     private static void input()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);press(panel.keys,KeyEvent.VK_ENTER);panel.update(1.0/60);panel.keys.clear();
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         ((List<?>)get(panel,"enemies")).clear();World world=(World)get(panel,"world");Player actor=(Player)get(panel,"player");
         Palisade.Gate gate=world.palisade.gates().get(0);position(panel,actor,inside(gate));
         int builds=(Integer)get(panel,"flowBuilds");
@@ -203,7 +203,7 @@ public final class TreeBoundaryTests {
     }
     // [BLOCK: ACTUAL RENDER PREVIEWS] TreeBoundaryTests.previews - Export four gate states, the protected village and root/canopy behavior.
     private static void previews()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);press(panel.keys,KeyEvent.VK_ENTER);panel.update(1.0/60);panel.keys.clear();
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         ((List<?>)get(panel,"enemies")).clear();World world=(World)get(panel,"world");Player actor=(Player)get(panel,"player");
         BufferedImage gallery=new BufferedImage(1920,800,BufferedImage.TYPE_INT_RGB);Graphics2D out=gallery.createGraphics();out.setColor(new Color(0x203729));out.fillRect(0,0,1920,800);
         for(int i=0;i<4;i++){

@@ -47,3 +47,9 @@ The 25 original user-supplied PNGs are preserved unchanged under `art/source/pot
 The runtime decodes only three small bottle icons and one effect atlas, and reuses cached subimages for every animation. There is no per-frame disk access, resizing cache creation or runtime download. Generated review images remain in ignored `build/`.
 
 See [EQUIPMENT_ART.md](EQUIPMENT_ART.md) for final sprite source paths, exact built-in imagegen prompts and reproducible packing.
+
+## I-key inventory
+
+Press **I** to open the bag; **I** or **Esc** closes it. Gameplay, day/night, enemies, drinking and effect timers pause while it is open. Click an item card or use the wheel to inspect it. The portrait previews the selected item and turns when clicked. Choose a quick slot with 1-9 or a slot click, then click **EQUIP** or press **Enter**. **CLEAR SLOT** stows the reference without destroying the item. Bag quantities remain in the encapsulated hash map; hotbar assignment moves an existing reference instead of duplicating stacks.
+
+**DRINK / F** is enabled for a useful owned potion when Agyu can drink. It equips the bottle, closes the bag, and starts the normal raise/sip/lower action on the next gameplay step. Supplies are consumed at the sip. A released shield is lowered for a deliberate potion command; active held defense still takes priority. Modal clicks are queued and handled by the simulation thread, never by changing the player inside Swing listeners.

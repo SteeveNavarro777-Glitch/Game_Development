@@ -51,7 +51,7 @@ public final class GuardVisualTests {
                     reference.translate(96,100);reference.scale(GameScale.AGYU,GameScale.AGYU);
                     reference.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                     reference.setColor(new Color(0,0,0,70));reference.fillOval(-11,-4,22,8);
-                    reference.drawImage(original,-32,-63,null);
+                    HeldItemArt.drawGuard(reference,0,0,Inventory.Item.SPEAR,Player.Dir.values()[direction],1.2,false);
                 }finally{reference.dispose();}
                 boolean oneWholePose=true;
                 for(int y=0;y<144;y++)for(int x=0;x<192;x++)

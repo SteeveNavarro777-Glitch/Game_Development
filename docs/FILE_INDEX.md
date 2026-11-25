@@ -1,6 +1,6 @@
 # Java file responsibilities
 
-86 Java files: 56 gameplay, 21 regression suites and 9 developer tools. 1072 method/constructor blocks have purpose labels.
+95 Java files: 60 gameplay, 25 regression suites and 10 developer tools. 1173 method/constructor blocks have purpose labels.
 
 | File | Responsibility |
 | --- | --- |
@@ -22,8 +22,11 @@
 | [src/dsa/Inventory.java](../src/dsa/Inventory.java) | DSA HASH MAP / OOP ENCAPSULATION - Validated equipment and potion quantities. |
 | [src/dsa/Pathfinder.java](../src/dsa/Pathfinder.java) | DSA GRAPH SEARCH - A*, priority queue, predecessor stack and BFS queue. |
 | [src/dsa/QuestLog.java](../src/dsa/QuestLog.java) | DSA GRAPH / MAP / SET - Prerequisites, completion membership and bounded journal deque. |
+| [src/dsa/Wallet.java](../src/dsa/Wallet.java) | ECONOMY ENCAPSULATION - Validated coin deposits and atomic purchases. |
 | [src/entities/ArenaBoss.java](../src/entities/ArenaBoss.java) | ARENA BOSS ABSTRACTION - Leashed encounters, explicit attack phases, bounded hazards and cached authored animation. |
 | [src/entities/Enemy.java](../src/entities/Enemy.java) | OOP ABSTRACTION - Shared enemy lifecycle, linked-list patrol and damage contract. |
+| [src/entities/CoinDrop.java](../src/entities/CoinDrop.java) | COIN PICKUP - Deterministic reward partition, magnetic collection and pixel rendering. |
+| [src/entities/EquipmentLoadout.java](../src/entities/EquipmentLoadout.java) | EQUIPMENT PROGRESSION - Independent Basic, Rare and Legendary spear/shield levels. |
 | [src/entities/FighterBoss.java](../src/entities/FighterBoss.java) | FIGHTER VILLAIN - Quick two-cut sword combinations and a locked-direction flaming dash in Clearing 3. |
 | [src/entities/ForestBeast.java](../src/entities/ForestBeast.java) | FOREST BEAST ABSTRACTION - Shared wildlife patrol, pursuit, committed attack phases and cached rendering. |
 | [src/entities/ForestEncounters.java](../src/entities/ForestEncounters.java) | RANDOM FOREST HERDS - Distribute small boar herds across reachable woodland and replenish bounded outdoor slots. |
@@ -45,13 +48,19 @@
 | [src/rendering/GameScale.java](../src/rendering/GameScale.java) | DISPLAY - Shared player/house scale and anchored drawing transforms. |
 | [src/rendering/HeldItemArt.java](../src/rendering/HeldItemArt.java) | EQUIPMENT ANIMATION - Authored body/wrist poses and cached held potion, shield and empty-hand composites. |
 | [src/rendering/HotbarHud.java](../src/rendering/HotbarHud.java) | HOTBAR UI - Centered nine-slot equipment dock, consistent icon bounds, quantity badges and drink progress. |
-| [src/rendering/MountainArt.java](../src/rendering/MountainArt.java) | MOUNTAIN ART CACHE - Detailed pixel mountain, four falling-water phases and soft pool mist. |
+| [src/rendering/InventoryScreen.java](../src/rendering/InventoryScreen.java) | INVENTORY UI - Paused bag inspection, equipment preview and nine-slot assignment. |
+| [src/rendering/MountainArt.java](../src/rendering/MountainArt.java) | MOUNTAIN ART - Shared access to the detailed registered mountain and source-fed cascade. |
 | [src/rendering/PotionArt.java](../src/rendering/PotionArt.java) | CACHED ITEM ART - Supplied potion icons/effect arrays and icons cropped from current Agyu equipment. |
 | [src/rendering/PotionEffects.java](../src/rendering/PotionEffects.java) | PLAYER EFFECTS - Bounded potion animation timers and a blue protection aura. |
+| [src/rendering/ProfileWalkArt.java](../src/rendering/ProfileWalkArt.java) | PROFILE WALK ART - Isolate the original leg and boot pixels from Agyu's side walk sprites. |
 | [src/rendering/RpgArt.java](../src/rendering/RpgArt.java) | ASSET CACHE - Validate and cache the current village and NPC sprites. |
 | [src/rendering/RpgTerrain.java](../src/rendering/RpgTerrain.java) | TERRAIN CACHE - Prebaked path/bank transitions selected by cached edge masks. |
+| [src/rendering/SmithShop.java](../src/rendering/SmithShop.java) | BLACKSMITH UI - Four prerequisite-aware gear offers, selection and purchase feedback. |
+| [src/rendering/SmithShopArt.java](../src/rendering/SmithShopArt.java) | BLACKSMITH ART - Extract and isolate the supplied Rare/Legendary gear icons. |
 | [src/rendering/VillageArt.java](../src/rendering/VillageArt.java) | VILLAGE ART - Current bridge images and shared house cache slots. |
+| [src/rendering/WaterfallArt.java](../src/rendering/WaterfallArt.java) | WATERFALL CACHE - Registered cove, cascade and river animation with a matching physical surface mask. |
 | [src/rendering/WildlifeArt.java](../src/rendering/WildlifeArt.java) | WILDLIFE ANIMATION ARRAYS - Cache supplied boar, wolf and Sigbin poses by species, action, direction and phase. |
+| [src/rendering/WoodenShieldArt.java](../src/rendering/WoodenShieldArt.java) | SHIELD ART - Native-size wooden shield faces shared by Agyu's gear poses and item icon. |
 | [src/rendering/WorldLighting.java](../src/rendering/WorldLighting.java) | WORLD LIGHTING - Reused moonlight mask, soft actor visibility and warm village lights. |
 | [src/world/DayNightCycle.java](../src/world/DayNightCycle.java) | WORLD CLOCK - Three-minute day/night phases, numbered cycles and continuous dusk/dawn lighting. |
 | [src/world/FarmPlot.java](../src/world/FarmPlot.java) | FARM ART - Deterministic crop beds and an image cached per plot. |
@@ -73,13 +82,18 @@
 | [tests/ForestTests.java](../tests/ForestTests.java) | REGRESSION TEST - Dense exterior forest, safe outdoor spawn slots, route access and hidden combo HUD. |
 | [tests/GameTests.java](../tests/GameTests.java) | REGRESSION TEST - Full suite entry point; collision equivalence, routing, resources and complete journey transitions. |
 | [tests/GuardVisualTests.java](../tests/GuardVisualTests.java) | REGRESSION TEST - Complete guard sprites, source pixels, connected body silhouettes and drawing. |
+| [tests/InventoryGuardTests.java](../tests/InventoryGuardTests.java) | REGRESSION TEST - Shield footfalls and real paused inventory input, equipment assignment and animated drinking. |
 | [tests/JumpTests.java](../tests/JumpTests.java) | REGRESSION TEST - Space input, jump interpolation, landing, collision and action priority. |
 | [tests/MouseGuardTests.java](../tests/MouseGuardTests.java) | REGRESSION TEST - Mouse press edges, frontal shield cones, cancellation, contact repulsion and focus. |
 | [tests/NpcTests.java](../tests/NpcTests.java) | REGRESSION TEST - NPC sprite caches, occupations, patrols, conversations, pause/focus and restart. |
 | [tests/PotionHotbarTests.java](../tests/PotionHotbarTests.java) | REGRESSION TEST - Potion resource rules, shield absorption, real hotbar pointer/keyboard input and three-bar rendering. |
+| [tests/PresentationTests.java](../tests/PresentationTests.java) | REGRESSION TEST - Identical equipped body proportions, forward grips and continuous river/pond presentation. |
+| [tests/SpearCarryTests.java](../tests/SpearCarryTests.java) | REGRESSION TEST - Upright right-hand spear grips, attached opaque wrists and stable carried pixels in all four views. |
+| [tests/SmithShopTests.java](../tests/SmithShopTests.java) | ECONOMY REGRESSION - Gear prerequisites, prices, bonuses, coin partition/pickup and shop rendering. |
 | [tests/TreeBoundaryTests.java](../tests/TreeBoundaryTests.java) | REGRESSION TEST - Bark-aligned tree collision, swept movement, four safe gates and live rendering/navigation. |
 | [tests/VillageLayoutTests.java](../tests/VillageLayoutTests.java) | REGRESSION TEST - Connected road surfaces, protected farm plots, open gates and deterministic scenery. |
 | [tests/VillageTests.java](../tests/VillageTests.java) | REGRESSION TEST - House walls/approaches, dash collision, map arrows and compact HUD placement. |
+| [tests/WaterfallTests.java](../tests/WaterfallTests.java) | REGRESSION TEST - Registered waterfall art, receiving pond, hydraulic continuity, shore collision and source provenance. |
 | [tests/WildlifeTests.java](../tests/WildlifeTests.java) | WILDLIFE REGRESSION - Verify rare night wolf budgets, dawn departure and bounded harmless Sigbin scares. |
 | [tools/importers/BossSpriteImporter.java](../tools/importers/BossSpriteImporter.java) | BOSS IMPORT TOOL - Pack the three supplied directional villain sheets into reproducible cached atlases. |
 | [tools/importers/CombatBodyImporter.java](../tools/importers/CombatBodyImporter.java) | IMPORT TOOL - Pack the 72 current body poses and record their spear-grip anchors. |
@@ -88,5 +102,6 @@
 | [tools/importers/PotionSpriteImporter.java](../tools/importers/PotionSpriteImporter.java) | IMPORT TOOL - Preserve supplied potion RGBA art in small icons and an indexed effect atlas with hashes. |
 | [tools/importers/RpgAssetImporter.java](../tools/importers/RpgAssetImporter.java) | IMPORT TOOL - Pack current village atlases and keep optional creator house outputs local. |
 | [tools/importers/SpriteImporter.java](../tools/importers/SpriteImporter.java) | IMPORT TOOL - Pack the active movement, hurt and death frames from the supplied Agyu atlas. |
+| [tools/importers/WaterfallSpriteImporter.java](../tools/importers/WaterfallSpriteImporter.java) | WATERFALL IMPORTER - Composite GIF delta frames and pack registered cove, water masks and animation atlases. |
 | [tools/importers/WildlifeSpriteImporter.java](../tools/importers/WildlifeSpriteImporter.java) | WILDLIFE IMPORT TOOL - Pack all supplied boar, wolf and Sigbin frames into three reproducible transparent atlases. |
 | [tools/previews/RpgVillagePreviews.java](../tools/previews/RpgVillagePreviews.java) | PREVIEW TOOL - Export actual-camera work sites, NPC conversations, river animation and village overview. |

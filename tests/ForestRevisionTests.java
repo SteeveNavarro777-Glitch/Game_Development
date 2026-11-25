@@ -66,7 +66,7 @@ public final class ForestRevisionTests {
     }
     // [BLOCK: RETIRED INTERACTION REMOVAL] ForestRevisionTests.interactions - Visit every former beacon and press real E input; only normal village interactions remain.
     private static void interactions()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);Player player=(Player)get(panel,"player");QuestLog quests=(QuestLog)get(panel,"quests");
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);Player player=(Player)get(panel,"player");QuestLog quests=(QuestLog)get(panel,"quests");
         for(int[] site:World.TRAIL_SITES){player.x=player.px=(site[0]+.5)*World.T;player.y=player.py=(site[1]+.5)*World.T;
             int healthPotions=player.inventory().count(Inventory.Item.HEALTH_POTION),events=quests.history().size();tap(panel,KeyEvent.VK_E);
             check(get(panel,"mode")==GamePanel.Mode.PLAYING&&quests.bossesDefeated()==0&&!quests.done("forest"),"A retired beacon still controls progression");

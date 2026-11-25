@@ -146,7 +146,7 @@ public final class ArenaBossTests {
     // [BLOCK: SESSION PROGRESSION] ArenaBossTests.session - Exercise paused attacks, one-time boss rewards, live map state and fresh-session reset.
     @SuppressWarnings("unchecked")
     private static void session()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");Player player=(Player)get(panel,"player");QuestLog quests=(QuestLog)get(panel,"quests");
         ArenaBoss boss=(ArenaBoss)enemies.stream().filter(e->e instanceof TankBoss).findFirst().orElseThrow();
         player.x=player.px=boss.x+70;player.y=player.py=boss.y;player.invincible=1000;panel.update(DT);
@@ -174,7 +174,7 @@ public final class ArenaBossTests {
         try{
             out.setColor(new Color(0x23382A));out.fillRect(0,0,gallery.getWidth(),gallery.getHeight());
             for(int id=1;id<=3;id++){
-                GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+                GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
                 List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");final int arenaId=id;
                 ArenaBoss boss=(ArenaBoss)enemies.stream().filter(e->e instanceof ArenaBoss b&&b.arenaId()==arenaId).findFirst().orElseThrow();
                 Player player=(Player)get(panel,"player");player.x=player.px=boss.x+90;player.y=player.py=boss.y+45;player.invincible=1000;

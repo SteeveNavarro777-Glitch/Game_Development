@@ -115,7 +115,7 @@ public final class DayNightTests {
     @SuppressWarnings("unchecked")
     private static void session()throws Exception{
         GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);World world=(World)get(panel,"world");panel.update(DayNightCycle.PHASE_SECONDS+1);
-        check(world.dayNight.phaseSeconds()==0&&!world.dayNight.night(),"Title screen advances the day/night clock");tap(panel,KeyEvent.VK_ENTER);
+        check(world.dayNight.phaseSeconds()==0&&!world.dayNight.night(),"Title screen advances the day/night clock");TitleMenuTests.startGame(panel);
         ((List<?>)get(panel,"enemies")).clear();((List<?>)get(panel,"npcs")).clear();world.updateAmbient(DayNightCycle.PHASE_SECONDS-.1);panel.update(.1);
         check(world.dayNight.night()&&world.dayNight.number()==1,"Real world update misses Night 1");
         tap(panel,KeyEvent.VK_M);double before=world.dayNight.phaseSeconds();panel.update(DayNightCycle.PHASE_SECONDS+1);check(world.dayNight.phaseSeconds()==before,"Map advances the world clock");tap(panel,KeyEvent.VK_M);
@@ -151,7 +151,7 @@ public final class DayNightTests {
     // [BLOCK: ACTUAL SCENE PREVIEWS] DayNightTests.previews - Export the same village camera by day/night and a powered night boss encounter.
     @SuppressWarnings("unchecked")
     private static void previews()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);World world=(World)get(panel,"world");
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);World world=(World)get(panel,"world");
         Player actor=(Player)get(panel,"player");List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");
         World.Building home=world.buildings.get(0);actor.x=actor.px=home.x+84;actor.y=actor.py=home.y+35;actor.dir=Player.Dir.LEFT;
         camera(panel,home.x-220,home.y-230);BufferedImage day=render(panel);ImageIO.write(day,"png",new File("build/preview-day.png"));

@@ -58,7 +58,7 @@ A cached, 1024 x 1280 mountain occupies the far-right highlands. A four-phase wa
 Tree generation now uses temporary spatial buckets instead of comparing each new root with the entire forest. Normal movement retains the shared collision index and cached navigation. Full-world preview exports render at quarter size rather than allocating enormous full-resolution canvases.
 
 - [Expanded forest and three clearings](../build/preview-forest-overview.png)
-- [Waterfall and viewing deck](../build/preview-waterfall-camera.png)
+- [Waterfall and viewing shore](../build/preview-waterfall-camera.png)
 - [Mountain and animated cascade](../build/preview-mountain-waterfall.png)
 
 ## Verification and previews

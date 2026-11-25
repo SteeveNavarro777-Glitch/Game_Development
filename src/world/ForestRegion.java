@@ -35,6 +35,7 @@ final class ForestRegion {
         route(new int[][]{{117,72},{130,72},{144,64}});
         route(new int[][]{{144,104},{157,104},{171,97},{176,93}});
         clearing(176,92,4,2);
+        route(new int[][]{{176,93},{178,90},{178,88}});clearing(178,88,3,1);
         for(int i=1;i<World.TRAIL_SITES.length;i++){
             int[] site=World.TRAIL_SITES[i];clearing(site[0],site[1],4,4);
         }
@@ -51,7 +52,7 @@ final class ForestRegion {
             if(!contains(x,y))continue;
             World.Tree tree=new World.Tree(x,y);
             Rectangle2D root=new Rectangle2D.Double(tree.trunk.x-12,tree.trunk.y-12,tree.trunk.width+24,tree.trunk.height+24);
-            if(reserved(root)||!dry(root)||touchesVillage(root))continue;
+            if(reserved(root)||world.mountain.reserved(root)||!dry(root)||touchesVillage(root))continue;
             boolean overlap=false;
             for(int y0=World.row(root.getMinY());y0<=World.row(root.getMaxY())&&!overlap;y0++)
                 for(int x0=World.col(root.getMinX());x0<=World.col(root.getMaxX())&&!overlap;x0++)

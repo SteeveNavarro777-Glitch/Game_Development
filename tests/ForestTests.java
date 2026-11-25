@@ -89,7 +89,7 @@ public final class ForestTests {
     // [BLOCK: SESSION INPUT] ForestTests.session - Verify pause/map timer freezing, fresh-session reset and the removed attack card.
     @SuppressWarnings("unchecked")
     private static void session()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");Player actor=(Player)get(panel,"player");
         ForestEncounters population=(ForestEncounters)get(panel,"forestEncounters");
         Enemy ambient=enemies.stream().filter(e->e instanceof WildBoar).findFirst().orElseThrow();ambient.damage(100,0,0);Fx.clear();panel.update(.1);
@@ -118,7 +118,7 @@ public final class ForestTests {
     // [BLOCK: RENDER EVIDENCE] ForestTests.previews - Export the expanded world and an actual forest combat camera without the combo panel.
     @SuppressWarnings("unchecked")
     private static void previews()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         World world=(World)get(panel,"world");Player actor=(Player)get(panel,"player");List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");
         BufferedImage overview=new BufferedImage(world.cols*World.T/4,world.rows*World.T/4,BufferedImage.TYPE_INT_RGB);Graphics2D g=overview.createGraphics();g.scale(.25,.25);
         try{

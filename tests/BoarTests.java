@@ -1,11 +1,9 @@
 /* FILE PURPOSE: BOAR REGRESSION | Authored frames, forest habitat, telegraphed charges, shield/collision and complete death lifecycle.
  * Course examples: deterministic simulation, array caches and polymorphic populations; docs/CODE_GUIDE.md.
  */
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -136,9 +134,7 @@ public final class BoarTests {
     @SuppressWarnings("unchecked")
     private static void preview()throws Exception{
         GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);
-        Field keys=GamePanel.class.getDeclaredField("keys");keys.setAccessible(true);KeyHandler input=(KeyHandler)keys.get(panel);
-        input.keyPressed(new KeyEvent(new Canvas(),KeyEvent.KEY_PRESSED,0,0,KeyEvent.VK_ENTER,KeyEvent.CHAR_UNDEFINED));panel.update(DT);
-        input.keyReleased(new KeyEvent(new Canvas(),KeyEvent.KEY_RELEASED,0,0,KeyEvent.VK_ENTER,KeyEvent.CHAR_UNDEFINED));
+        TitleMenuTests.startGame(panel);
         Field worldField=GamePanel.class.getDeclaredField("world"),playerField=GamePanel.class.getDeclaredField("player"),enemiesField=GamePanel.class.getDeclaredField("enemies");
         worldField.setAccessible(true);playerField.setAccessible(true);enemiesField.setAccessible(true);
         World world=(World)worldField.get(panel);Player player=(Player)playerField.get(panel);List<Enemy> enemies=(List<Enemy>)enemiesField.get(panel);

@@ -250,7 +250,7 @@ public final class EnergyDashTests {
     }
     // [BLOCK: TEST HELPER] EnergyDashTests.panelChecks - Handle panel checks for EnergyDashTests.
     private static void panelChecks() throws Exception {
-        GamePanel panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); tap(panel, KeyEvent.VK_ENTER);
+        GamePanel panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); TitleMenuTests.startGame(panel);
         Player actor = (Player)field(panel, "player");
         Fx.hitStop = .04; press(panel.keys, KeyEvent.VK_Q); panel.update(DT); release(panel.keys, KeyEvent.VK_Q);
         check(!actor.dashing(), "Dash advanced during hit-stop");
@@ -285,7 +285,7 @@ public final class EnergyDashTests {
     }
     // [BLOCK: TEST HELPER] EnergyDashTests.hudAndPreview - Handle hud and preview for EnergyDashTests.
     private static void hudAndPreview() throws Exception {
-        GamePanel panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); tap(panel, KeyEvent.VK_ENTER);
+        GamePanel panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); TitleMenuTests.startGame(panel);
         Player actor = (Player)field(panel, "player");
         actor.damage(2, actor.x - 20, actor.y); Fx.clear();
         for (int i = 0; i < 25; i++) panel.update(DT);

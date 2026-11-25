@@ -1,0 +1,9 @@
+source,sha256,role
+art/source/waterfall/Falls.gif,34eab0120f7dccb804b6da326e5d917a8e135477259fb1649a862e9fc57ad986,user supplied animation
+art/source/waterfall/cove-v1.png,93e1ae98dc476c464529c45ac936063d46ff4c99307e53457d21ec03d542436b,built-in imagegen cove terrain
+art/source/waterfall/mountain-v1.png,5af1d6756219560118e6602da35f144685284d42a91211d9fabbfd3dc0b51cfa,built-in imagegen mountain terrain
+registration,512x384,fall x260 lip76 foot171; outlet center 338.0 half width 22.5
+gif crop,563 107 134 189,fall to64x96
+river crop,cove 224 204 32 64,mirrored seamless64x128; eight32px variants;48px per second westward
+mouth,-172 235 192 288,cove relative origin; matching bank samples and water mask
+frames,0 3 6 9 12 15 18 21,delta composites; runtime6 phases per second

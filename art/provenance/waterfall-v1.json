@@ -1,0 +1,63 @@
+{
+  "mode": "built-in imagegen",
+  "date": "2026-11-17",
+  "user_reference_original": "C:/Users/User/Downloads/Falls.gif",
+  "sources": [
+    {
+      "path": "art/source/waterfall/Falls.gif",
+      "sha256": "34eab0120f7dccb804b6da326e5d917a8e135477259fb1649a862e9fc57ad986",
+      "role": "user-supplied moving-water reference",
+      "prompt": null
+    },
+    {
+      "path": "art/source/waterfall/cove-v1.png",
+      "sha256": "93e1ae98dc476c464529c45ac936063d46ff4c99307e53457d21ec03d542436b",
+      "role": "generated cove terrain",
+      "prompt": "art/prompts/waterfall-cove-v1.txt"
+    },
+    {
+      "path": "art/source/waterfall/mountain-v1.png",
+      "sha256": "5af1d6756219560118e6602da35f144685284d42a91211d9fabbfd3dc0b51cfa",
+      "role": "generated matching mountain",
+      "prompt": "art/prompts/waterfall-mountain-v1.txt"
+    }
+  ],
+  "importer": "tools/importers/WaterfallSpriteImporter.java",
+  "runtime_manifest": "res/waterfall/manifest.csv",
+  "references": {
+    "cove": [
+      "art/source/waterfall/Falls.gif"
+    ],
+    "mountain": [
+      "build/preview-mountain-waterfall.png (former procedural mountain)",
+      "art/source/waterfall/cove-v1.png",
+      "build/falls-reference.png (first composited GIF frame)"
+    ]
+  },
+  "river_revision_date": "2026-11-18",
+  "river_registration": {
+    "native_patch": [
+      224,
+      204,
+      32,
+      64
+    ],
+    "seamless_pattern": [
+      64,
+      128
+    ],
+    "tile_variants_per_phase": 8,
+    "flow_art_pixels_per_second": 48,
+    "mouth_offset": [
+      -172,
+      235
+    ],
+    "mouth_size": [
+      192,
+      288
+    ],
+    "outlet_center_y": 338,
+    "outlet_half_width": 22.5,
+    "stream_width": 96
+  }
+}

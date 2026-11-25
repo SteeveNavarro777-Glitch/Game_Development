@@ -105,7 +105,7 @@ public final class NpcTests {
     }
     // [BLOCK: TEST HELPER] NpcTests.session - Handle session for NpcTests.
     private static void session()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);((List<?>)field(panel,"enemies")).clear();
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);((List<?>)field(panel,"enemies")).clear();
         List<Npc> npcs=npcs(panel);check(npcs.size()>=8,"Panel population missing");long[] initial=snapshot(npcs);
         for(int i=0;i<20;i++)panel.update(DT);check(!Arrays.equals(initial,snapshot(npcs)),"NPC clocks frozen in play");
         tap(panel,KeyEvent.VK_P);long[] frozen=snapshot(npcs);for(int i=0;i<10;i++)panel.update(DT);check(Arrays.equals(frozen,snapshot(npcs)),"Pause advanced NPCs");
@@ -118,10 +118,11 @@ public final class NpcTests {
         Fx.hitStop=.04;frozen=snapshot(npcs);panel.update(DT);panel.update(DT);check(Arrays.equals(frozen,snapshot(npcs)),"Hit-stop advanced NPCs");
         for(int i=0;i<3;i++)panel.update(DT);check(!Arrays.equals(frozen,snapshot(npcs)),"NPCs stuck after hit-stop");
         Player player=(Player)field(panel,"player");Npc smith=npcs.get(1);player.x=player.px=smith.x()+20;player.y=player.py=smith.y();
-        player.state=Player.State.IDLE;player.vx=player.vy=0;Fx.clear();tap(panel,KeyEvent.VK_E);check(smith.isSpeaking(),"Actual E did not talk");
-        String first=smith.dialogue();press(panel.keys,KeyEvent.VK_E);panel.update(DT);
-        String second=smith.dialogue();check(!first.equals(second),"Fresh E failed to advance");
-        for(int i=0;i<20;i++)panel.update(DT);check(smith.dialogue().equals(second),"Held E repeated dialogue");
+        player.state=Player.State.IDLE;player.vx=player.vy=0;Fx.clear();tap(panel,KeyEvent.VK_E);
+        SmithShop shop=(SmithShop)field(panel,"smithShop");
+        check(shop.isOpen()&&!smith.isSpeaking(),"Actual E did not open the Village Smith shop");
+        press(panel.keys,KeyEvent.VK_E);panel.update(DT);check(!shop.isOpen(),"Fresh E failed to close the smith shop");
+        for(int i=0;i<20;i++)panel.update(DT);check(!shop.isOpen(),"Held E repeatedly reopened the smith shop");
         panel.keys.clear();
         player.x=player.px=World.SPAWN_X;player.y=player.py=World.SPAWN_Y;player.state=Player.State.IDLE;player.vx=player.vy=0;
         Npc neighbor=npcs.get(0);set(neighbor,"x",World.SPAWN_X+16);set(neighbor,"y",World.SPAWN_Y);neighbor.px=neighbor.x();neighbor.py=neighbor.y();

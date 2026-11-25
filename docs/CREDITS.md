@@ -22,3 +22,7 @@ The importer keeps those four packed creator house files local. It can also rege
 - **Health, energy and shield potions:** 25 original PNGs supplied by the user from their Healing, Energy and Shield folders on 16 November 2026. All three bottles and 22 animation frames are retained unchanged in `art/source/potions/`; `res/items/frames.csv` records source SHA-256 hashes. No third-party creator attribution was supplied with these files. Runtime gear icons are cropped from the current Agyu spear/guard art.
 
 - **Forward side guards and held-item/drinking bodies:** derived Agyu artwork generated using the built-in imagegen tool on 17 November 2026. Final source PNGs, exact prompts, reference, hashes and reproducible import commands are recorded in [EQUIPMENT_ART.md](EQUIPMENT_ART.md). Original front/rear guard outputs and the existing combat bodies are retained.
+
+## Waterfall and mountain
+
+The user supplied the original Falls.gif animation as a visual and moving-water source. Built-in imagegen produced matching custom cove and mountain terrain. Exact prompts, retained sources, transformation details and SHA-256 records are linked in [WATERFALL_ART.md](WATERFALL_ART.md). The importer prepares source water animation and registered pixel-art atlases; runtime uses those local files.

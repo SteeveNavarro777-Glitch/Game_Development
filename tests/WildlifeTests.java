@@ -119,7 +119,7 @@ public final class WildlifeTests {
     // [BLOCK: PAUSED SESSION / RESET] WildlifeTests.session - Confirm pause freezes the real director and a fresh journey clears its night budget.
     @SuppressWarnings("unchecked")
     private static void session()throws Exception{
-        GamePanel panel=new GamePanel();tap(panel,KeyEvent.VK_ENTER);World world=(World)get(panel,"world");world.dayNight.update(DayNightCycle.PHASE_SECONDS+20);panel.update(DT);
+        GamePanel panel=new GamePanel();TitleMenuTests.startGame(panel);World world=(World)get(panel,"world");world.dayNight.update(DayNightCycle.PHASE_SECONDS+20);panel.update(DT);
         ForestEncounters population=(ForestEncounters)get(panel,"forestEncounters");NightWildlife director=(NightWildlife)get(population,"wildlife");
         check(director.wolvesSpawned()==1,"Session never updates its night wildlife director");double time=world.dayNight.phaseSeconds();tap(panel,KeyEvent.VK_ESCAPE);panel.update(140);
         check(world.dayNight.phaseSeconds()==time&&director.wolvesSpawned()==1,"Pause advances night wildlife or the world clock");
@@ -129,7 +129,7 @@ public final class WildlifeTests {
     // [BLOCK: RENDER EVIDENCE] WildlifeTests.previews - Export the actual night forest and a representative Sigbin reveal using normal GamePanel rendering.
     @SuppressWarnings("unchecked")
     private static void previews()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);World world=(World)get(panel,"world");world.dayNight.update(DayNightCycle.PHASE_SECONDS);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);World world=(World)get(panel,"world");world.dayNight.update(DayNightCycle.PHASE_SECONDS);
         Player player=(Player)get(panel,"player");Player center=camp(world);player.x=player.px=center.x-30;player.y=player.py=center.y;
         List<Enemy> enemies=(List<Enemy>)get(panel,"enemies");Wolf wolf=new Wolf(player.x+110,player.y-35);wolf.refreshNightPower(world);enemies.add(wolf);
         for(Enemy enemy:enemies)enemy.refreshNightPower(world);Sigbin creature=new Sigbin(player.x-110,player.y+35);enemies.add(creature);for(int i=0;i<50;i++)creature.update(DT,player,world,null);

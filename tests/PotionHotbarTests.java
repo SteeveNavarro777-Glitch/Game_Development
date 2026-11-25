@@ -128,7 +128,7 @@ public final class PotionHotbarTests {
     // [BLOCK: ACTUAL PANEL INPUT] PotionHotbarTests.panelInput - Exercise scaled box clicks, fast drags, potion clicks, hit-stop, overlays and focus loss.
     @SuppressWarnings("unchecked")
     private static void panelInput()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         ((List<Enemy>)get(panel,"enemies")).clear();Player actor=(Player)get(panel,"player");
         point(panel,4,true);point(panel,4,false);panel.update(DT);
         check(actor.hotbar().selectedIndex()==4&&actor.protection()==0&&actor.state!=Player.State.ATTACK,"UI slot click uses item or attacks");
@@ -158,7 +158,7 @@ public final class PotionHotbarTests {
     }
     // [BLOCK: REAL HUD / PREVIEW] PotionHotbarTests.hud - Assert text-free green/orange/blue bar interiors and export an actual-game screenshot.
     private static void hud()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);Player actor=(Player)get(panel,"player");
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);Player actor=(Player)get(panel,"player");
         actor.usePotion(Inventory.Item.SHIELD_POTION);finishDrink(actor);BufferedImage hud=new BufferedImage(480,360,BufferedImage.TYPE_INT_RGB);Graphics2D g=hud.createGraphics();
         Method draw=GamePanel.class.getDeclaredMethod("drawHud",Graphics2D.class);draw.setAccessible(true);
         try{draw.invoke(panel,g);}finally{g.dispose();}

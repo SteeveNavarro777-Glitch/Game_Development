@@ -2,6 +2,7 @@
  * Code labels and course examples: docs/CODE_GUIDE.md.
  */
 import java.awt.BasicStroke;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -84,11 +85,12 @@ public final class SpearAttack {
     /** Cache a pole using the supplied blue spearhead; no images are made during play. */
     // [BLOCK: ASSET PREPARATION] SpearAttack.loadWeapon - Cache the supplied spearhead and matching shaft before gameplay.
     static void loadWeapon(BufferedImage source){
-        int minX=source.getWidth(),maxX=-1,minY=source.getHeight(),maxY=-1;
+        int tipX=-1,minY=source.getHeight(),maxY=-1;
         for(int y=0;y<32;y++)for(int x=0;x<source.getWidth();x++)if(blue(source.getRGB(x,y))){
-            minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+            if(y<minY){tipX=x;minY=y;}
+            maxY=y;
         }
-        if(maxX<minX)throw new IllegalArgumentException("Spearhead missing from supplied sprite");
+        if(tipX<0)throw new IllegalArgumentException("Spearhead missing from supplied sprite");
         weapon=new BufferedImage(9,51,BufferedImage.TYPE_INT_ARGB);
         Graphics2D g=weapon.createGraphics();
         try{
@@ -98,13 +100,22 @@ public final class SpearAttack {
             g.setColor(new Color(0x455E66));g.fillRect(2,10,5,4);
             g.setColor(new Color(0xB7DCE1));g.fillRect(3,10,3,2);
         }finally{g.dispose();}
-        int cx=(minX+maxX)/2;
+        int cx=tipX;
         for(int y=Math.max(0,minY-1);y<=Math.min(31,maxY+1);y++)
             for(int x=cx-4;x<=cx+4;x++){
                 int dx=x-cx+4,dy=y-minY+1;
-                if(x>=0&&x<source.getWidth()&&dy>=0&&dy<14)
-                    weapon.setRGB(dx,dy,source.getRGB(x,y));
+                if(x>=0&&x<source.getWidth()&&dy>=0&&dy<14){
+                    int rgb=source.getRGB(x,y);
+                    if((rgb>>>24)<128)continue;
+                    int red=rgb>>16&255,green=rgb>>8&255,blue=rgb&255;
+                    boolean outline=red<80&&green<90&&blue<100;
+                    boolean metal=blue>red*1.1&&blue>=green*.8;
+                    boolean glint=red>150&&blue>=green*.95&&green>=red*.95;
+                    if(outline||metal||glint)weapon.setRGB(dx,dy,0xFF000000|(rgb&0xFFFFFF));
+                }
             }
+        for(int x=3;x<=5;x++)weapon.setRGB(x,13,0xFF455E66);
+        weapon.setRGB(4,13,0xFF95B8BC);
     }
     // [BLOCK: FUNCTION] SpearAttack.clamp - Handle clamp for SpearAttack.
     private static double clamp(double value){return Math.max(0,Math.min(1,value));}
@@ -209,7 +220,7 @@ public final class SpearAttack {
                     Rectangle2D box=enemy.hurtBox();
                     box.setRect(box.getX()-RADIUS*scale,box.getY()-RADIUS*scale,box.getWidth()+RADIUS*2*scale,box.getHeight()+RADIUS*2*scale);
                     if(box.intersectsLine(ax,ay,bx,by)){
-                        hit.add(enemy);enemy.damage(m.damage,owner.x,owner.y);
+                        hit.add(enemy);enemy.damage(owner.spearDamage(m.damage),owner.x,owner.y);
                         enemy.kbx*=m.knockback;enemy.kby*=m.knockback;
                         ComboEffects.hit(stage,enemy.x,enemy.y-8);
                         if(stage==5){Fx.shake(3.2,.18);Fx.hitStop(.075);}
@@ -231,7 +242,7 @@ public final class SpearAttack {
     // [BLOCK: FUNCTION] SpearAttack.behindBody - Handle behind body for SpearAttack.
     boolean behindBody(Player.Dir dir,double time){return Math.sin(pose(dir,time,stage).angle)<-.12;}
     // [BLOCK: FUNCTION] SpearAttack.trail - Handle trail for SpearAttack.
-    private void trail(Graphics2D g,int sx,int sy,Player.Dir dir,double time){
+    private void trail(Graphics2D g,int sx,int sy,Player.Dir dir,double time,EquipmentLoadout.Level level){
         Move m=move(stage);
         if(time<m.start||time>m.end+.08)return;
         double end=Math.min(time,m.end),begin=Math.max(m.start,end-(stage==4?.18:.10));
@@ -258,15 +269,43 @@ public final class SpearAttack {
                 g.drawLine(x1,y1,x2,y2);
             }
         }
+        drawPurchasedEffect(g,sx,sy,dir,time,m,level);
+    }
+
+    // [BLOCK: TIER COMBAT EFFECT] SpearAttack.drawPurchasedEffect - Animate the exact blue/orange shop arc while the spear is active.
+    private static void drawPurchasedEffect(Graphics2D target,int sx,int sy,Player.Dir dir,double time,Move move,
+            EquipmentLoadout.Level level){
+        if(level==EquipmentLoadout.Level.BASIC||time<move.start||time>move.end)return;
+        double progress=clamp((time-move.start)/(move.end-move.start));
+        BufferedImage effect=EquipmentArt.spearEffect(level,Math.min(7,(int)Math.floor(progress*8)));
+        if(effect==null)return;
+        double angle=Math.toRadians(forward(dir)),distance=24;
+        Graphics2D g=(Graphics2D)target.create();
+        try{
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g.translate(sx+Math.cos(angle)*distance,sy-21+Math.sin(angle)*distance);g.rotate(angle);
+            float alpha=(float)(.58+.34*Math.sin(progress*Math.PI));
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,alpha));
+            g.drawImage(effect,-effect.getWidth()/2,-effect.getHeight()/2,null);
+        }finally{g.dispose();}
     }
     // [BLOCK: FUNCTION] SpearAttack.draw - Render draw using the current graphics state.
     void draw(Graphics2D graphics,int sx,int sy,Player.Dir dir,double time){
+        draw(graphics,sx,sy,dir,time,EquipmentLoadout.Level.BASIC);
+    }
+
+    // [BLOCK: EQUIPPED ATTACK ART] SpearAttack.draw - Use the selected inventory tier for every combo stage.
+    void draw(Graphics2D graphics,int sx,int sy,Player.Dir dir,double time,EquipmentLoadout.Level level){
+        // Assets.load supplies this runtime cache. Tests may clear it deliberately
+        // to isolate the authored combat body and grounded shadow.
         if(weapon==null)return;
+        BufferedImage equipped=EquipmentArt.spear(level);
+        if(equipped==null)return;
         Pose p=pose(dir,time,stage);Move m=move(stage);
         Graphics2D g=(Graphics2D)graphics.create();
         try{
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            trail(g,sx,sy,dir,time);
+            trail(g,sx,sy,dir,time,level);
             if(stage==5&&time<m.start){
                 int radius=3+(int)(time/m.start*4),tx=sx+(int)Math.round(p.tipX()),ty=sy+(int)Math.round(p.tipY());
                 g.setColor(new Color(255,216,126,155));g.drawOval(tx-radius,ty-radius,radius*2,radius*2);
@@ -274,12 +313,13 @@ public final class SpearAttack {
             }
             // The whole pole stays connected to the compact torso grip; never draw a skin bar.
             g.translate(sx+p.handX,sy+p.handY);g.rotate(p.angle+Math.PI/2);
-            int reach=(int)Math.round(p.reach);
-            if(stage==0)g.drawImage(weapon,-GRIP_X,-reach,null);
+            int reach=(int)Math.round(p.reach),width=equipped.getWidth(),grip=width/2;
+            if(stage==0)g.drawImage(equipped,-grip,-reach,null);
             else{
                 // Stretch only the shaft; the supplied blue spearhead keeps its pixel proportions.
-                g.drawImage(weapon,-GRIP_X,14-reach,9-GRIP_X,12,0,14,9,weapon.getHeight(),null);
-                g.drawImage(weapon,-GRIP_X,-reach,9-GRIP_X,14-reach,0,0,9,14,null);
+                int head=Math.min(16,Math.max(8,equipped.getHeight()/3));
+                g.drawImage(equipped,-grip,head-reach,width-grip,12,0,head,width,equipped.getHeight(),null);
+                g.drawImage(equipped,-grip,-reach,width-grip,head-reach,0,0,width,head,null);
             }
         }finally{g.dispose();}
     }

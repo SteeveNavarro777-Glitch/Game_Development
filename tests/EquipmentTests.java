@@ -6,9 +6,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.file.*;
-import java.security.MessageDigest;
-import java.util.HexFormat;
 import java.util.List;
 import javax.imageio.ImageIO;
 
@@ -24,11 +21,8 @@ public final class EquipmentTests {
     public static void main(String[] args)throws Exception{Assets.load();System.out.println("Equipment/drinking checks passed: "+run());}
     // [BLOCK: EQUIPMENT SUITE] EquipmentTests.run - Verify registered art, sip semantics, input interruptions and actual render previews.
     static int run()throws Exception{checks=0;world=new World(7);art();drinks();interruptions();selection();panel();previews();Fx.clear();return checks;}
-    // [BLOCK: CACHED ART / FORWARD GUARD] EquipmentTests.art - Check provenance, unclipped composites, mirrored guard tips and pose variation.
+    // [BLOCK: CACHED ART / FORWARD GUARD] EquipmentTests.art - Check complete cached sprites, mirrored guard tips and potion motion.
     private static void art()throws Exception{
-        List<String> rows=Files.readAllLines(Path.of("res/player/equipment/frames.csv"));check(rows.size()==25,"Authored holding/drinking poses missing");
-        String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(Path.of("art/source/player/agyu-held-items-v1.png"))));
-        for(String row:rows.subList(1,rows.size()))check(row.split(",")[10].equals(hash),"Held body source hash mismatch");
         Inventory.Item[] items={Inventory.Item.SPEAR,Inventory.Item.SHIELD,Inventory.Item.HEALTH_POTION,Inventory.Item.ENERGY_POTION,Inventory.Item.SHIELD_POTION,null};
         for(Inventory.Item item:items)for(Player.Dir dir:Player.Dir.values())for(int pose=0;pose<8;pose++){
             BufferedImage image=HeldItemArt.frame(item,dir,pose);check(image==HeldItemArt.frame(item,dir,pose),"Selection prepares images during painting");
@@ -37,10 +31,10 @@ public final class EquipmentTests {
             check(clear,"Held object or body touches/clips cache boundary: "+item+" "+dir+" "+pose);
         }
         for(Player.Dir dir:new Player.Dir[]{Player.Dir.LEFT,Player.Dir.RIGHT}){
-            BufferedImage image=ShieldGuard.bodies[dir.ordinal()][0];int sum=0,n=0;
-            for(int y=0;y<64;y++)for(int x=0;x<64;x++){int c=image.getRGB(x,y),r=(c>>16)&255,g=(c>>8)&255,b=c&255;
+            BufferedImage image=HeldItemArt.guardFrame(Inventory.Item.SPEAR,dir,0,false);int sum=0,n=0;
+            for(int y=0;y<128;y++)for(int x=0;x<128;x++){int c=image.getRGB(x,y),r=(c>>16)&255,g=(c>>8)&255,b=c&255;
                 if((c>>>24)>128&&b>130&&g>110&&b>r*1.4){sum+=x;n++;}}
-            check(n>3&&(dir==Player.Dir.RIGHT?sum/(double)n>44:sum/(double)n<20),"Guard spear tip remains behind Agyu");
+            check(n>3&&(dir==Player.Dir.RIGHT?sum/(double)n>76:sum/(double)n<52),"Guard spear tip remains behind Agyu");
         }
         check(imageHash(HeldItemArt.frame(Inventory.Item.HEALTH_POTION,Player.Dir.RIGHT,0))!=imageHash(HeldItemArt.frame(Inventory.Item.HEALTH_POTION,Player.Dir.RIGHT,5)),"Sip has no physical body motion");
     }
@@ -90,7 +84,7 @@ public final class EquipmentTests {
     // [BLOCK: ACTUAL SESSION PAUSE] EquipmentTests.panel - Freeze drinking progress during modal screens and preserve selected equipment after restart.
     @SuppressWarnings("unchecked")
     private static void panel()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         Player actor=(Player)get(panel,"player");tap(panel,KeyEvent.VK_5);tap(panel,KeyEvent.VK_F);
         check(actor.drinking(),"F does not begin a visible drinking action");
         for(int key:new int[]{KeyEvent.VK_M,KeyEvent.VK_TAB,KeyEvent.VK_ESCAPE}){

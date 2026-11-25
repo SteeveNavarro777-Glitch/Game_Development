@@ -1,4 +1,4 @@
-# Agyu: Guardians of the Lost Grove
+# Agyu: The Epic Hero of Bukidnon
 
 A single-player Java Swing action adventure for a combined Data Structures and Algorithms / Object Oriented Programming project.
 
@@ -18,15 +18,21 @@ From PowerShell in the project folder:
 
 `build.ps1` gathers Java files recursively. Gameplay, tests and tools compile into separate fresh class folders under `build/`.
 
+Use the mouse or arrow keys and Enter in the title menu. To return to the title during a run, pause with Esc and press T. Continue resumes that run while the game window remains open. Music and sound effects have separate switches under Settings.
+
 ## Forest wildlife
 
 Each new journey places **12 randomized boar herds of 1?4 members** across reachable outer forest areas. Rare white wolves have a total limit of **2?3 spawns per night** and leave at dawn. The **night-only Sigbin** jumpscares Agyu, then hunts and attacks; spear combos can stagger and defeat it. See [the wildlife rules and sprite guide](docs/WILDLIFE.md).
+
+Agyu keeps one body size across equipped items, guarded walking and dash afterimages. The waterfall pond joins a tapered, textured river with matching rock/moss banks; gray edge blocks and detached spill-water puddles are removed.
 
 ## Controls
 
 | Key | Action |
 | --- | --- |
 | Enter | Start; resume when paused |
+| I | Open/close inventory; click items, choose slots 1-9, Enter equips, F drinks |
+| Esc in inventory | Close inventory and resume |
 | WASD / arrows | Move |
 | Shift | Sprint while energy lasts |
 | Q / Ctrl | Lightning dash (25 energy; movement direction or current facing) |
@@ -49,7 +55,7 @@ Select the spear slot, then tap left mouse or J repeatedly to chain six spear mo
 
 Health is green, energy is orange, and blue potion shield appears below energy. All three bars have no numeric text inside. The energy bar holds 100 points: sprinting uses 25 per second, and each lightning dash costs 25. Energy recovers at 22 per second after 0.8 seconds without spending it. Empty energy forces walking until 20 energy returns. Sprinting in place does not spend energy. Dashes travel up to 115 art pixels over 0.16 seconds, have a 0.55-second cooldown, and briefly evade damage during the burst. Terrain stops the dash. Dash cancels a spear combo, cannot begin in midair or while shielding, and takes priority over simultaneous attack/jump inputs. New attacks/jumps during a dash are ignored; held shield raises afterward.
 
-The bottom hotbar has nine slots. Spear, wooden shield, green health potion, orange energy potion and blue shield potion start in slots 1-5; slots 6-9 are empty. Right-click still guards with the wooden shield regardless of selection. Slot clicks select; world clicks use the selected item. Agyu visibly holds the selected item and raises, tilts and lowers potions when drinking. He can walk slowly during the action. Guarding, damage, another selection, jumping or dashing can interrupt it. H selects the green potion in its current slot. Side guards point the spear toward the enemy. See [potions and hotbar](docs/POTIONS.md) for resource and inventory rules.
+The bottom hotbar has nine slots. Spear, shield, green health potion, orange energy potion and blue shield potion start in slots 1-5; slots 6-9 are empty. Right-click guards with the currently equipped shield regardless of selection. Slot clicks select; world clicks use the selected item. Agyu visibly holds the selected spear or shield tier and raises, tilts and lowers potions when drinking. He can walk slowly during the action. Guarding, damage, another selection, jumping or dashing can interrupt it. H selects the green potion in its current slot. Side guards point the equipped spear toward the enemy. See [potions and hotbar](docs/POTIONS.md) for resource and inventory rules.
 
 Focus loss pauses the game and clears held keys and mouse buttons. The map and journal also pause combat.
 
@@ -60,7 +66,7 @@ The world has 20 homes across eight style slots, using custom Bukidnon-inspired 
 
 The playable world is 192 x 160 tiles, with dense woodland around the 64 x 48 village. Trails, river crossings and free clearings connect the four gates to the three villain arenas and the eastern mountain/waterfall. The old beacons, labels, floor outlines and live map markers are removed, including HOME. The village spawn remains plain open ground. Randomized boar herds use BFS-validated reachable positions; empty slots replenish after 25 active seconds on nearby free ground outside Agyu's view. Herd members stay outside the village even through open gates. M shows the three villain objectives, and N routes to the nearest undefeated villain. Their continuous health bars appear during nearby fights.
 
-A large mountain rises on the far-right edge. Its animated waterfall feeds a basin, a winding river through the village and a western outlet. Water passes below the palisade through solid culverts. An accessible viewing deck approaches the pool, and the camera gently lifts nearby to show the falls. Mountain art, water phases, mist and rock textures are cached; the cliff collision follows the opaque mountain silhouette.
+A detailed forested mountain rises on the far-right edge. Its source-fed waterfall drops into an open jade pond with lily pads, rocky banks and a dry viewing shore. The southwest outlet joins the river through the village and the western outflow; solid culverts preserve the palisade. Prepared animation atlases, the native water mask and mountain silhouette keep art, collision and maps aligned. The nearby camera lift keeps Agyu above the hotbar. See [waterfall artwork and regeneration](docs/WATERFALL_ART.md).
 
 ## Day and night
 
@@ -75,6 +81,8 @@ The clock pauses on the title, map, journal, pause, focus loss, hit-stop and end
 1. Press E at a village gate to enter the forest. Use M to find Tank, Mage and Fighter, or N for a route to the nearest undefeated villain.
 2. Defeat the three villains in any order. Each gives two health potions, one energy potion and one shield potion once; every second ordinary enemy defeat gives one health potion. Every fourth ordinary defeat also gives energy or shield supplies alternately.
 3. Defeating the final villain completes the journey automatically once Agyu is grounded and has finished any dash.
+
+Every defeated enemy drops collectible coins. Press E beside the Village Smith to open his shop: the spear and shield each progress **Basic → Rare → Legendary**, and Legendary is locked until its Rare version is forged. Rare and Legendary spears add +1 and +2 damage to every hit. Shield upgrades widen the guarded arc and increase braced walking speed. Use 1-4 or the mouse to select an offer, Enter/click to buy, and E/Esc to close the shop. Buying unlocks the item in Agyu's inventory; press I, select the spear or shield, choose its Basic/Rare/Legendary tier, then equip it to a hotbar slot. The held model changes immediately. Rare attacks/guards use the supplied blue effect sequence, while Legendary gear uses its supplied orange sequence.
 
 Use shield, jump, dash and spear combos during encounters. Potions are consumed only when their resource is missing. Green restores 2 health, orange restores up to 60 energy, and blue provides 3 damage-absorption points. Drinking takes 0.84 active seconds, with recovery and consumption at the 0.44-second sip. Interrupting before the sip spends nothing. The map and journal pause simulation. R starts a fresh journey after defeat or victory, including a new boar distribution.
 

@@ -112,8 +112,7 @@ public final class VillageTests {
     }
     // [BLOCK: TEST HELPER] VillageTests.panelChecks - Handle panel checks for VillageTests.
     private static void panelChecks()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);press(panel.keys,KeyEvent.VK_ENTER);
-        panel.update(1.0/60);panel.keys.clear();
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         World world=(World)field(panel,"world");Player actor=(Player)field(panel,"player");QuestLog quests=(QuestLog)field(panel,"quests");
         BufferedImage hud=drawPrivate(panel,"drawHud"),expected=new BufferedImage(GamePanel.VIEW_W,GamePanel.VIEW_H,BufferedImage.TYPE_INT_ARGB);
         Graphics2D g=expected.createGraphics();
@@ -137,7 +136,7 @@ public final class VillageTests {
             for(Drawable object:objects)object.draw(g,0,0,1);
         }finally{g.dispose();}
         check(ImageIO.write(overview,"png",new File("build/preview-village-overview.png")),"Overview export failed");
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);press(panel.keys,KeyEvent.VK_ENTER);panel.update(1.0/60);panel.keys.clear();
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);
         World.Building house=((World)field(panel,"world")).buildings.get(6);
         Player actor=(Player)field(panel,"player");actor.x=actor.px=house.x+105;actor.y=actor.py=house.y-25;actor.dir=Player.Dir.LEFT;
         set(panel,"camX",house.x-220);set(panel,"prevCamX",house.x-220);set(panel,"camY",house.y-305);set(panel,"prevCamY",house.y-305);

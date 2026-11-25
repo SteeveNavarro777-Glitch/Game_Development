@@ -18,6 +18,11 @@ final class Hotbar {
     void select(int slot) { check(slot); selected=slot; }
     // [BLOCK: ARRAY SEARCH] Hotbar.indexOf - Find an item's current slot after rearrangement for the direct healing shortcut.
     int indexOf(Inventory.Item item){for(int i=0;i<SIZE;i++)if(slots[i]==item)return i;return -1;}
+    // [BLOCK: INVENTORY ARRAY ASSIGNMENT] Hotbar.assign - Move an existing reference or bind a bag item, preserving uniqueness and item quantities.
+    void assign(int slot,Inventory.Item item){check(slot);if(item==null)throw new IllegalArgumentException("Item required");int from=indexOf(item);
+        if(from>=0&&from!=slot)swap(from,slot);else slots[slot]=item;selected=slot;}
+    // [BLOCK: INVENTORY ARRAY CLEAR] Hotbar.clear - Unbind a slot without consuming anything from the shared inventory.
+    void clear(int slot){check(slot);slots[slot]=null;}
     // [BLOCK: MODULAR INDEXING] Hotbar.cycle - Wrap mouse-wheel selection in either direction without overflow.
     void cycle(int steps) { selected=(int)Math.floorMod((long)selected+steps,(long)SIZE); }
     // [BLOCK: ARRAY SWAP] Hotbar.swap - Exchange two references while preserving the selected item and inventory quantities.

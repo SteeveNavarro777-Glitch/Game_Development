@@ -125,7 +125,7 @@ public final class World {
                 random.nextDouble();trees.add(candidate);
             }
         }
-        mountain=new MountainRiver(this,seed);
+        mountain=new MountainRiver(this);
         forest=new ForestRegion(this,seed);
         cacheTerrainEdges();
         for (Tree tree : trees) index(tree);
@@ -358,10 +358,10 @@ public final class World {
         int r0=Math.max(0,Math.floorDiv(cy,T)),r1=Math.min(rows-1,Math.floorDiv(cy+vh,T));
         for(int r=r0;r<=r1;r++)for(int c=c0;c<=c1;c++){
             int kind=tile[r][c],v=variant[r][c],x=c*T-cx,y=r*T-cy;
-            BufferedImage image=switch(kind){
+            BufferedImage image=kind==WATER&&mountain.underMouth(c,r)?ForestRegion.ground(v):switch(kind){
                 case DIRT,WATER,PAVING,GATE,CULVERT->RpgTerrain.tile(this,c,r,time);
                 case BRIDGE->VillageArt.bridge;
-                case MOUNTAIN->MountainRiver.rock(v);
+                case MOUNTAIN->ForestRegion.ground(v);
                 default->kind==GRASS&&forest.contains((c+.5)*T,(r+.5)*T)?ForestRegion.ground(v):Assets.grass[v];};
             g.drawImage(image,x,y,null);
             if(kind==BRIDGE)for(int[] d:DIRECTIONS){
@@ -375,7 +375,6 @@ public final class World {
                 if(d[0]<0)g.fillRect(x,y,thick,T);if(d[0]>0)g.fillRect(x+T-thick,y,thick,T);
             }
         }
-        mountain.drawCurrents(g,cx,cy,vw,vh);
         for(FarmPlot garden:gardens)if(garden.bounds.intersects(cx,cy,vw,vh))garden.draw(g,cx,cy);
 
     }

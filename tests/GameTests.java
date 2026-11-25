@@ -89,11 +89,17 @@ public final class GameTests {
         checks += EnergyDashTests.run();
         checks += PotionHotbarTests.run();
         checks += EquipmentTests.run();
+        checks += SmithShopTests.run();
+        checks += TitleMenuTests.run();
+        checks += PresentationTests.run();
+        checks += SpearCarryTests.run();
+        checks += InventoryGuardTests.run();
         checks += VillageTests.run();
         checks += VillageLayoutTests.run();
         checks += TreeBoundaryTests.run();
         checks += ForestTests.run();
         checks += ExpansionTests.run();
+        checks += WaterfallTests.run();
         checks += ArenaBossTests.run();
         checks += DayNightTests.run();
         checks += BoarTests.run();
@@ -194,7 +200,7 @@ public final class GameTests {
     private static void testSession()throws Exception{
         GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);
         render(panel,"build/preview-title.png");
-        tap(panel,KeyEvent.VK_ENTER);
+        TitleMenuTests.startGame(panel);
         check(field(panel,"mode")==GamePanel.Mode.PLAYING,"Enter did not start");
         Player player=(Player)field(panel,"player");
         QuestLog log=(QuestLog)field(panel,"quests");

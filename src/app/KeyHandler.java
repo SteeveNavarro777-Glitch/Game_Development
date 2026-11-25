@@ -8,7 +8,8 @@ import java.util.Set;
 /** EDT input is consumed by the fixed-step simulation, never mutating live actors from listeners. */
 public final class KeyHandler extends KeyAdapter implements MouseListener, MouseWheelListener {
     public static final int ATTACK=1,INTERACT=2,HEAL=4,PAUSE=8,MAP=16,
-            JOURNAL=32,START=64,RESTART=128,HINT=256,DEBUG=512,JUMP=1024,DASH=2048,USE_ITEM=4096;
+            JOURNAL=32,START=64,RESTART=128,HINT=256,DEBUG=512,JUMP=1024,DASH=2048,USE_ITEM=4096,INVENTORY=8192,
+            MENU_UP=16384,MENU_DOWN=32768,MENU_LEFT=65536,MENU_RIGHT=131072,TITLE_MENU=262144;
     // [SECTION: DSA - HASH SET] Held membership distinguishes a fresh press from autorepeat.
     private final Set<Integer> held=new HashSet<>();
     private int edges,slot=-1,scroll,swapFrom=-1,swapTo=-1;
@@ -42,10 +43,15 @@ public final class KeyHandler extends KeyAdapter implements MouseListener, Mouse
         if(code>=KeyEvent.VK_1&&code<=KeyEvent.VK_9){selectSlot(code-KeyEvent.VK_1);return;}
         if(code>=KeyEvent.VK_NUMPAD1&&code<=KeyEvent.VK_NUMPAD9){selectSlot(code-KeyEvent.VK_NUMPAD1);return;}
         switch(code){
+            case KeyEvent.VK_W:case KeyEvent.VK_UP:edges|=MENU_UP;break;
+            case KeyEvent.VK_S:case KeyEvent.VK_DOWN:edges|=MENU_DOWN;break;
+            case KeyEvent.VK_A:case KeyEvent.VK_LEFT:edges|=MENU_LEFT;break;
+            case KeyEvent.VK_D:case KeyEvent.VK_RIGHT:edges|=MENU_RIGHT;break;
             case KeyEvent.VK_SPACE:edges|=JUMP;break;
             case KeyEvent.VK_Q:case KeyEvent.VK_CONTROL:edges|=DASH;break;
             case KeyEvent.VK_J:edges|=ATTACK;break;
             case KeyEvent.VK_F:edges|=USE_ITEM;break;
+            case KeyEvent.VK_I:edges|=INVENTORY;break;
             case KeyEvent.VK_E:edges|=INTERACT;break;
             case KeyEvent.VK_H:edges|=HEAL;break;
             case KeyEvent.VK_ESCAPE:case KeyEvent.VK_P:edges|=PAUSE;break;
@@ -53,6 +59,7 @@ public final class KeyHandler extends KeyAdapter implements MouseListener, Mouse
             case KeyEvent.VK_TAB:edges|=JOURNAL;break;
             case KeyEvent.VK_ENTER:edges|=START;break;
             case KeyEvent.VK_R:edges|=RESTART;break;
+            case KeyEvent.VK_T:edges|=TITLE_MENU;break;
             case KeyEvent.VK_N:edges|=HINT;break;
             case KeyEvent.VK_F1:edges|=DEBUG;break;
             default:break;
@@ -99,6 +106,10 @@ public final class KeyHandler extends KeyAdapter implements MouseListener, Mouse
         if(slot<0){slot=input.slot;scroll=clampScroll((long)scroll+input.scroll);}
         if(swapFrom<0){swapFrom=input.swapFrom;swapTo=input.swapTo;}
     }
+    // [BLOCK: INVENTORY USE EDGE] KeyHandler.useSelectedItem - Resume a deliberate inventory-use command through the normal player input path.
+    synchronized void useSelectedItem(){edges|=USE_ITEM;}
+    // [BLOCK: MODAL INPUT] KeyHandler.clearOverlayActions - Release mouse/actions while preserving held-key membership to suppress I/Esc autorepeat.
+    synchronized void clearOverlayActions(){edges=scroll=0;slot=swapFrom=swapTo=-1;leftMouse=rightMouse=false;}
     // [BLOCK: FOCUS / RESET] KeyHandler.clear - Drop all held inputs, drag commands and pending action edges.
     public synchronized void clear(){held.clear();edges=scroll=0;slot=swapFrom=swapTo=-1;leftMouse=rightMouse=false;}
 }

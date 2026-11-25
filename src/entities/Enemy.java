@@ -44,6 +44,8 @@ public abstract class Enemy implements Drawable, Damageable {
     public final int health(){return hp;}
     // [BLOCK: OOP: ENCAPSULATION] Enemy.maxHealth - Expose the immutable maximum health.
     public final int maxHealth(){return maximum;}
+    // [BLOCK: OOP DEFAULT REWARD] Enemy.coinReward - Scale ordinary enemy rewards from immutable maximum health.
+    int coinReward(){return maximum;}
     // [BLOCK: NIGHT POWER] Enemy.refreshNightPower - Apply the current outdoor night state without altering health, maximum health or rewards.
     final void refreshNightPower(World world){empowered=alive()&&world.dayNight.night()&&world.forest.contains(x,y);}
     // [BLOCK: ENCAPSULATION] Enemy.nightEmpowered - Read whether this living actor currently receives the outdoor night bonus.

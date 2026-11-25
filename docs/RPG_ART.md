@@ -4,16 +4,16 @@ The user selected the creator's free houses plus custom artwork. The current vil
 
 ## Art sources and credits
 
-**Rafael Matos — Epic RPG World: The Village**
+**Rafael Matos â€” Epic RPG World: The Village**
 
 - [Creator page and license](https://rafaelmatos.itch.io/epic-rpg-world-the-village-asset-pack).
 - Downloaded the publicly offered **Free Premade houses.png** (2048 x 1536 RGBA).
-- Four complete house exteriors are imported from that sheet into runtime styles 4–7.
+- Four complete house exteriors are imported from that sheet into runtime styles 4â€“7.
 - The creator permits using and modifying assets in games, while prohibiting repackaging or redistributing the standalone assets.
 
 The user-supplied GIFs, Assets.png and House4.png supplied visual references. The GIFs are full scene previews; their later transparent frames encode changes to those scenes. They are not used as isolated NPC animations.
 
-**Custom project artwork — built-in imagegen**
+**Custom project artwork â€” built-in imagegen**
 
 Generated terrain, broadleaf trees/banana plants, six NPC roles with directional/work poses, four Bukidnon-inspired raised homes, and village craft props. The style follows the supplied references. These are original custom game sprites rather than the paid pack's original NPC or terrain sheets.
 
@@ -91,7 +91,7 @@ MountainArt constructs the eastern range at half resolution and enlarges it with
 MountainRiver derives solid cliff tiles from opaque art, carries water below the timber wall through impassable culverts, and reserves four forest crossings plus a basin jetty. Its simulation clock drives falling water, mist and downstream streaks; rendering does not advance timers. ForestRegion's three distant arena records and map labels expose Tank, Mage and Fighter locations. Full-world previews use a 1536 x 1280 canvas for the 192 x 160 world.
 
 - [Mountain and cascade](../build/preview-mountain-waterfall.png)
-- [Actual game camera on the viewing deck](../build/preview-waterfall-camera.png)
+- [Actual game camera on the dry viewing shore](../build/preview-waterfall-camera.png)
 
 ## Supplied main villains
 

@@ -23,6 +23,10 @@ public final class Player implements Drawable, Damageable {
     // [SECTION: OOP - ENCAPSULATION] Damage and healing methods control private health.
     private int hp = maxHp;
     private final Inventory inventory = new Inventory();
+    // [SECTION: OOP - COMPOSITION / ENCAPSULATION] One wallet owns all dropped and spent coins.
+    private final Wallet wallet = new Wallet();
+    // [SECTION: OOP - COMPOSITION] Gear progression is owned by one encapsulated loadout.
+    private final EquipmentLoadout equipment = new EquipmentLoadout();
     double stateTime, animTime, invincible, kbx, kby, dustT;
     // [SECTION: OOP - COMPOSITION] Player owns these focused movement/resource/combat components.
     private final SpearAttack spear = new SpearAttack();
@@ -37,6 +41,7 @@ public final class Player implements Drawable, Damageable {
     private double potionCooldown,itemMessageTime;
     private String itemMessage="";
     private double attackBuffer,comboGrace;
+    private double gaitDistance;
     private int nextCombo;
     private Dir bufferedDir = Dir.DOWN;
 
@@ -55,6 +60,29 @@ public final class Player implements Drawable, Damageable {
     public double energy() { return energy.value(); }
     // [BLOCK: RESOURCE LIMIT] Player.maxEnergy - Read the shared energy capacity.
     public double maxEnergy() { return EnergyMeter.MAX; }
+    // [BLOCK: ECONOMY READ] Player.coins - Expose the wallet balance to the HUD and smith shop.
+    int coins(){return wallet.balance();}
+    // [BLOCK: ECONOMY REWARD] Player.addCoins - Route enemy rewards through the wallet invariant.
+    void addCoins(int amount){wallet.deposit(amount);}
+    // [BLOCK: ECONOMY TRANSACTION] Player.spendCoins - Let shops charge atomically without mutating balance directly.
+    boolean spendCoins(int price){return wallet.spend(price);}
+    // [BLOCK: EQUIPMENT READ] Player.equipment - Expose upgrade queries without exposing mutable fields.
+    EquipmentLoadout equipment(){return equipment;}
+    // [BLOCK: EQUIPMENT TRANSACTION] Player.buyUpgrade - Charge only after validating the next legal tier.
+    boolean buyUpgrade(EquipmentLoadout.Gear gear,EquipmentLoadout.Level level,int price){
+        if(!equipment.canUpgrade(gear,level)||!wallet.spend(price))return false;
+        boolean purchased=equipment.upgrade(gear,level);
+        if(purchased)message("Purchased "+level.label+" "+gear.label+" - open inventory [I] to equip",4.0);
+        return purchased;
+    }
+    // [BLOCK: COMBAT PROGRESSION] Player.spearDamage - Apply the equipped spear tier to each hit.
+    int spearDamage(int baseDamage){return equipment.spearDamage(baseDamage);}
+    // [BLOCK: EQUIPMENT LABEL] Player.itemLabel - Show the equipped tier in inventory/hotbar UI.
+    String itemLabel(Inventory.Item item){
+        if(item==Inventory.Item.SPEAR)return equipment.level(EquipmentLoadout.Gear.SPEAR).label+" Spear";
+        if(item==Inventory.Item.SHIELD)return equipment.level(EquipmentLoadout.Gear.SHIELD).label+" Shield";
+        return item==null?"Empty Hands":item.label;
+    }
     // [BLOCK: FUNCTION] Player.energyExhausted - Handle energy exhausted for Player.
     boolean energyExhausted() { return energy.exhausted(); }
     // [BLOCK: FUNCTION] Player.dashing - Handle dashing for Player.
@@ -75,6 +103,8 @@ public final class Player implements Drawable, Damageable {
     double itemMessageTime(){return itemMessageTime;}
     // [BLOCK: ITEM FEEDBACK] Player.message - Keep failed or successful item actions visible briefly.
     private void message(String text){itemMessage=text;itemMessageTime=1.5;}
+    // [BLOCK: TIMED ITEM FEEDBACK] Player.message - Keep important purchase instructions visible after leaving the smith.
+    private void message(String text,double seconds){itemMessage=text;itemMessageTime=Math.max(0,seconds);}
     // [BLOCK: ITEM RENDER STATE] Player.drinking - Expose an active drinking action to the HUD and renderer.
     boolean drinking(){return state==State.DRINK&&drink.active();}
     // [BLOCK: ITEM PROGRESS] Player.drinkProgress - Read the active action's normalized progress for the selected slot.
@@ -83,6 +113,27 @@ public final class Player implements Drawable, Damageable {
     int drinkPose(){return drink.pose();}
     // [BLOCK: VISIBLE EQUIPMENT] Player.heldItem - Show the current bottle during a sip and only owned equipment otherwise.
     Inventory.Item heldItem(){Inventory.Item item=drinking()?drink.item():hotbar.selectedItem();return drinking()||inventory.count(item)>0?item:null;}
+    // [BLOCK: INVENTORY EQUIP] Player.equipItem - Move an owned item to a hotbar slot without duplicating supplies and cancel conflicting hand actions.
+    boolean equipItem(int slot,Inventory.Item item){
+        if(item==null||inventory.count(item)==0)return false;
+        hotbar.assign(slot,item);itemMessageTime=0;
+        if(drink.active()&&drink.item()!=item)cancelDrink();
+        if(state==State.ATTACK&&item!=Inventory.Item.SPEAR){resetCombo();setState(State.IDLE);}return true;
+    }
+    // [BLOCK: INVENTORY GEAR EQUIP] Player.equipGear - Equip only an owned smith tier and bind its generic gear item to the chosen quick slot.
+    boolean equipGear(int slot,Inventory.Item item,EquipmentLoadout.Level level){
+        EquipmentLoadout.Gear gear=item==Inventory.Item.SPEAR?EquipmentLoadout.Gear.SPEAR:
+                item==Inventory.Item.SHIELD?EquipmentLoadout.Gear.SHIELD:null;
+        if(gear==null||inventory.count(item)==0||!equipment.equip(gear,level)){
+            message("That gear tier is not owned");return false;
+        }
+        equipItem(slot,item);message(level.label+" "+gear.label+" equipped",2.5);return true;
+    }
+    // [BLOCK: INVENTORY STOW] Player.clearSlot - Remove a quick reference while retaining every item quantity in the bag.
+    void clearSlot(int slot){hotbar.clear(slot);itemMessageTime=0;if(drink.active())cancelDrink();if(state==State.ATTACK){resetCombo();setState(State.IDLE);}}
+    // [BLOCK: INVENTORY USE AVAILABILITY] Player.inventoryCanUse - Enable the inventory use action only for owned, useful potions and stable player states.
+    boolean inventoryCanUse(Inventory.Item item){return item!=null&&item.potion()&&alive()&&inventory.count(item)>0&&potionUseful(item)&&potionCooldown<=1e-9&&!airborne()&&
+        (state==State.IDLE||state==State.WALK||state==State.RUN||state==State.GUARD);}
     // [BLOCK: RESOURCE VALIDATION] Player.potionUseful - Test whether a resource still needs recovery at start and at the sip commit.
     private boolean potionUseful(Inventory.Item item){return switch(item){case HEALTH_POTION->hp<maxHp;case ENERGY_POTION->energy.value()<EnergyMeter.MAX-1e-9;case SHIELD_POTION->protection.value()<ShieldMeter.MAX;default->false;};}
     // [BLOCK: ITEM ACTION / ENCAPSULATION] Player.usePotion - Start a validated raise-sip-lower action; consumption happens only at the sip.
@@ -94,7 +145,7 @@ public final class Player implements Drawable, Damageable {
         if(potionCooldown>1e-9){message("Potion is not ready yet");return false;}
         if(inventory.count(item)==0){message("No "+item.label.toLowerCase(java.util.Locale.ROOT)+"s left");return false;}
         if(!potionUseful(item)){message("Resource already full");return false;}
-        int slot=hotbar.indexOf(item);if(slot>=0)hotbar.select(slot);
+        int slot=hotbar.indexOf(item);if(slot>=0)hotbar.select(slot);else hotbar.assign(hotbar.selectedIndex(),item);
         resetCombo();vx=vy=0;drink.begin(item);setState(State.DRINK);potionCooldown=DrinkMotion.DURATION;
         message("Drinking "+item.label.toLowerCase(java.util.Locale.ROOT));return true;
     }
@@ -123,7 +174,10 @@ public final class Player implements Drawable, Damageable {
         boolean guarding=inventory.count(Inventory.Item.SHIELD)>0&&(input.guard||
                 item==Inventory.Item.SHIELD&&owned&&(input.primary||input.pressed(KeyHandler.ATTACK)));
         if(drink.active()&&(item!=drink.item()||guarding||input.pressed(KeyHandler.DASH)||input.pressed(KeyHandler.JUMP)))cancelDrink();
-        if(!guarding){
+        boolean potionCommand=input.pressed(KeyHandler.HEAL)||item!=null&&item.potion()&&
+                (input.pressed(KeyHandler.ATTACK)||input.pressed(KeyHandler.USE_ITEM));
+        if(!guarding&&potionCommand){
+            if(state==State.GUARD)setState(State.IDLE);
             if(input.pressed(KeyHandler.HEAL))usePotion(Inventory.Item.HEALTH_POTION);
             else if(item!=null&&item.potion()&&(input.pressed(KeyHandler.ATTACK)||input.pressed(KeyHandler.USE_ITEM)))usePotion(item);
         }
@@ -200,7 +254,7 @@ public final class Player implements Drawable, Damageable {
             resetCombo();
             if (state != State.GUARD) { vx = vy = 0; setState(State.GUARD); }
             dir = facingFor(keys);
-            moveFromInput(dt, keys, world, WALK_SPEED * 0.4);
+            moveFromInput(dt, keys, world, WALK_SPEED * equipment.guardMoveMultiplier());
             return;
         }
         if (state == State.GUARD) setState(State.IDLE);
@@ -255,9 +309,7 @@ public final class Player implements Drawable, Damageable {
             double beforeX = x, beforeY = y;
             move(mx, my, world);
             if (Math.hypot(x - trailX, y - trailY) >= 11 || i == steps - 1) {
-                BufferedImage[] frames = Assets.run[dir.ordinal()];
-                BufferedImage body = heldItem()==Inventory.Item.SPEAR?frames[(int)(animTime*30)%frames.length]:
-                        HeldItemArt.ghost(heldItem(),dir,HeldItemArt.walkPose(animTime,true));
+                BufferedImage body = HeldItemArt.ghost(heldItem(),dir,HeldItemArt.walkPose(animTime,true));
                 DashEffects.emit(trailX, trailY, x, y, body); trailX = x; trailY = y;
             }
             if (Math.abs(x - beforeX - mx) > 1e-6 || Math.abs(y - beforeY - my) > 1e-6) {
@@ -279,7 +331,10 @@ public final class Player implements Drawable, Damageable {
         double length = Math.max(1, Math.hypot(dx, dy));
         vx = approach(vx, moving ? dx / length * speed : 0, (moving ? ACCEL : DECEL) * dt);
         vy = approach(vy, moving ? dy / length * speed : 0, (moving ? ACCEL : DECEL) * dt);
+        double oldX=x,oldY=y;
         move(vx * dt, vy * dt, world);
+        // Wrap at a common multiple of the 64-, 48- and 16-pixel gait loops.
+        gaitDistance=(gaitDistance+Math.hypot(x-oldX,y-oldY))%192;
         return moving;
     }
 
@@ -341,7 +396,8 @@ public final class Player implements Drawable, Damageable {
 
     // [BLOCK: FUNCTION] Player.blocksFrom - Handle blocks from for Player.
     boolean blocksFrom(double fromX, double fromY) {
-        return state == State.GUARD && alive() && ShieldGuard.faces(dir, fromX - x, fromY - y);
+        return state == State.GUARD && alive() && ShieldGuard.faces(dir, fromX - x, fromY - y,
+                equipment.guardThreshold());
     }
 
     // [BLOCK: OOP: ENCAPSULATION] Player.damage - Resolve dash/guard protection, update private health and apply hurt/death state.
@@ -375,63 +431,36 @@ public final class Player implements Drawable, Damageable {
         // The shadow and collision stay on the ground; all held gear rises with Agyu.
         sy -= (int) Math.round(jump.renderHeight(alpha));
         if(alive())potionEffects.draw(g,sx,sy,protection.value()>0);
-        int facing = dir.ordinal();
-        boolean side = dir == Dir.LEFT || dir == Dir.RIGHT;
-        BufferedImage image;
-        BufferedImage[] sequence;
-        int bob = 0;
-        switch (state) {
-            case DEAD:
-                image = Assets.die[facing];
-                break;
-            case HURT:
-                sequence = Assets.hurt[facing];
-                image = sequence[Math.min(sequence.length - 1, (int) (stateTime / HURT_TIME * sequence.length))];
-                break;
-            case ATTACK:
-                image = CombatBody.frame(dir, spear.stage(), stateTime).image();
-                break;
-            case GUARD:
-                sequence = ShieldGuard.bodies[facing];
-                image = sequence[(int) (animTime * 4) % sequence.length];
-                break;
-            case DASH:
-                sequence = Assets.run[facing];
-                image = sequence[(int) (animTime * 30) % sequence.length];
-                break;
-            case RUN:
-                sequence = Assets.run[facing];
-                image = sequence[(int) (animTime * (side ? 24 : 5)) % sequence.length];
-                bob = side ? 0 : (int) (Math.abs(Math.sin(animTime * 14)) * 2.4);
-                break;
-            case WALK:
-                sequence = Assets.walk[facing];
-                image = sequence[(int) (animTime * (side ? 16 : 5)) % sequence.length];
-                bob = side ? 0 : (int) (Math.abs(Math.sin(animTime * 9)) * 1.9);
-                break;
-            default:
-                sequence = Assets.idle[facing];
-                image = sequence[(int) (animTime * 5) % sequence.length];
-        }
-        if (jump.airborne()) bob = 0;
         Composite original = g.getComposite();
         if (invincible > 0 && state != State.DEAD && ((int) (invincible * 14)) % 2 == 0)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
         // Weapon angle determines layering during both directional cuts and the full turn.
         boolean attacking = state == State.ATTACK;
-        if (attacking && spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
+        EquipmentLoadout.Level spearLevel=equipment.level(EquipmentLoadout.Gear.SPEAR);
+        EquipmentLoadout.Level shieldLevel=equipment.level(EquipmentLoadout.Gear.SHIELD);
+        if (attacking && spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime,spearLevel);
         int leanX = attacking ? SpearAttack.bodyOffsetX(dir, stateTime, spear.stage()) : 0;
         int leanY = attacking ? SpearAttack.bodyOffsetY(dir, stateTime, spear.stage()) : 0;
         Inventory.Item held=heldItem();
-        boolean selectedBody=state!=State.DEAD&&state!=State.ATTACK&&held!=Inventory.Item.SPEAR;
+        // Every non-combat state uses one complete supplied sprite at the same native foot anchor.
+        boolean selectedBody=state!=State.DEAD&&state!=State.ATTACK;
         if(selectedBody){
-            int pose=drinking()?drink.pose():state==State.GUARD?3:state==State.WALK||state==State.RUN||state==State.DASH?
-                    HeldItemArt.walkPose(animTime,state!=State.WALK):held==null?7:0;
-            if(drinking())HeldItemArt.drawDrinking(g,sx,sy,held,dir,pose,animTime,Math.hypot(vx,vy)>3);
-            else HeldItemArt.draw(g,sx,sy-bob,state==State.GUARD?Inventory.Item.SHIELD:held,dir,pose);
-        }else g.drawImage(image, sx - image.getWidth() / 2 + leanX, sy - image.getHeight() + 1 - bob + leanY, null);
-        if (attacking && !spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime);
-        if (state == State.GUARD) shield.drawImpact(g,sx,sy,dir,held==Inventory.Item.SPEAR);
+            boolean moving=Math.hypot(vx,vy)>3;
+            if(state==State.GUARD)HeldItemArt.drawGuard(g,sx,sy,held,dir,gaitDistance,moving,spearLevel,shieldLevel);
+            else if(drinking())HeldItemArt.drawDrinking(g,sx,sy,held,dir,drink.pose(),animTime,moving,spearLevel,shieldLevel);
+            else if(state==State.HURT)HeldItemArt.drawHurt(g,sx,sy,dir,stateTime,spearLevel,shieldLevel);
+            else if(state==State.DASH)HeldItemArt.draw(g,sx,sy,held,dir,HeldItemArt.walkPose(animTime,true),spearLevel,shieldLevel);
+            else if((state==State.WALK||state==State.RUN)&&moving&&!airborne()){
+                if(state==State.RUN)HeldItemArt.drawRun(g,sx,sy,held,dir,gaitDistance,spearLevel,shieldLevel);
+                else HeldItemArt.drawWalk(g,sx,sy,held,dir,gaitDistance,spearLevel,shieldLevel);
+            }else HeldItemArt.draw(g,sx,sy,held,dir,airborne()?0:HeldItemArt.walkPose(animTime,false),spearLevel,shieldLevel);
+        }else{
+            BufferedImage image=state==State.DEAD?Assets.die[dir.ordinal()]:CombatBody.frame(dir,spear.stage(),stateTime).image();
+            g.drawImage(image,sx-image.getWidth()/2+leanX,sy-image.getHeight()+1+leanY,null);
+        }
+        if (attacking && !spear.behindBody(dir, stateTime)) spear.draw(g, sx, sy, dir, stateTime,spearLevel);
+        if (state == State.GUARD) shield.drawImpact(g,sx,sy,dir,
+                equipment.level(EquipmentLoadout.Gear.SHIELD));
         g.setComposite(original);
         }finally{g.dispose();}
     }

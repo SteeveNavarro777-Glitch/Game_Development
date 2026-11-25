@@ -2,8 +2,11 @@
  * Code labels and course examples: docs/CODE_GUIDE.md.
  */
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
 /**
@@ -38,10 +41,12 @@ public class Assets {
         die = new BufferedImage[]{death, death, flip(death), death};
         front = idle[0][0];
         WildlifeArt.load();
+        WaterfallArt.load();
         VillageArt.load();
         BossArt.load();
         PotionArt.load();
         HeldItemArt.load();
+        front=HeldItemArt.ghost(Inventory.Item.SPEAR,Player.Dir.DOWN,0);
     }
 
     // [BLOCK: FUNCTION] Assets.frames - Handle frames for Assets.
@@ -62,16 +67,24 @@ public class Assets {
     private static BufferedImage load(String name) throws IOException {
         String path = "res/player/" + name + ".png";
         BufferedImage image;
-        try (java.io.InputStream stream = Assets.class.getResourceAsStream("/" + path)) {
-            if (stream != null) image = ImageIO.read(stream);
-            else {
-                File file = new File(path);
-                if (!file.isFile()) throw new IOException("Missing " + path + ". Start with run.bat or include the project root on the classpath.");
-                image = ImageIO.read(file);
-            }
+        try (InputStream stream = openResource(path)) {
+            image = ImageIO.read(stream);
         }
         if (image == null) throw new IOException("Unreadable PNG: " + path);
         return image;
+    }
+
+    // [BLOCK: RESOURCE LOOKUP] IDE launches may put only compiled classes on the classpath.
+    static InputStream openResource(String path) throws IOException {
+        InputStream resource = Assets.class.getResourceAsStream("/" + path);
+        if (resource != null) return resource;
+        Path file = Path.of(path);
+        try {
+            return Files.newInputStream(file);
+        } catch (NoSuchFileException missing) {
+            throw new IOException("Missing game asset: " + path + ". Also looked in " + file.toAbsolutePath()
+                    + ". Open the game project folder in your IDE or launch with run.bat.", missing);
+        }
     }
 
     // [BLOCK: ASSET PREPARATION] Assets.flip - Mirror exact RGBA pixels without changing semi-transparent edge colors.

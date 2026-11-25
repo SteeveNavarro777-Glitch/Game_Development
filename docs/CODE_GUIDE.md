@@ -97,3 +97,16 @@ Folders group responsibilities while the project retains one shared default Java
 ## Visible equipment and item action state
 
 [DrinkMotion](../src/combat/DrinkMotion.java) encapsulates a one-shot sip event and pose timeline. [Player](../src/entities/Player.java) validates and commits inventory/resource changes at that event; guard, damage and equipment changes can interrupt before consumption. [HeldItemArt](../src/rendering/HeldItemArt.java) indexes prebuilt images by item, direction and pose, and caches walking-leg variants. [Hotbar.indexOf](../src/dsa/Hotbar.java) demonstrates a small linear array search for H after slots are swapped. [EquipmentTests](../tests/EquipmentTests.java) verifies actual input, damage, freezing and rendering.
+
+## Inventory and guarded walking
+
+- Inventory encapsulates quantities in a hash map; Hotbar uses a fixed nine-item array and moves references without duplicating supplies.
+- InventoryScreen shares drawing and hit geometry. GamePanel uses a bounded FIFO queue for pointer commands, applies them on the simulation thread, and pauses gameplay while the bag is open.
+- HeldItemArt prepares common body/item/guard composites and two leg-step composites in direction-indexed arrays at startup. Guard drawing selects a cached phase only while velocity indicates real movement.
+- WaterfallSpriteImporter uses FIFO flood fill to identify connected native water. WaterfallArt stores the prepared animation arrays; MountainRiver registers art, collision and minimap placement against the same coordinates.
+
+The river cache indexes animation phase, world-pattern tile and rounded edge mask. The waterfall outlet uses the same cached pixels and collision surface as its registered connector. Native scenery hides its backing terrain, so transparent art corners cannot reveal rectangular water or gray rock tiles.
+
+## Coin economy and equipment progression
+
+[Wallet](../src/dsa/Wallet.java) encapsulates the balance and makes each smith charge atomic. [CoinDrop](../src/entities/CoinDrop.java) partitions an enemy reward into a bounded array list of visible bundles without changing the total. [EquipmentLoadout](../src/entities/EquipmentLoadout.java) composes two independent owned/equipped level state machines and prevents Basic-to-Legendary skips. [SmithShop](../src/rendering/SmithShop.java) stores its four fixed offers in an array and GamePanel routes pointer commands through a bounded FIFO queue while the world is paused. [EquipmentArt](../src/rendering/EquipmentArt.java) shares the purchased models and eight-frame tier effects across the Inventory, held-item renderer, spear combat and shield guard. [SmithShopTests](../tests/SmithShopTests.java) verifies the upgrade graph, inventory-only equipping, combat bonuses, exact-once collection and every supplied icon/effect extraction frame.

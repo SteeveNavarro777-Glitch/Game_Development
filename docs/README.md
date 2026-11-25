@@ -7,3 +7,5 @@ WILDLIFE.md describes the supplied boars, rare night wolves, Sigbin encounters a
 [POTIONS.md](POTIONS.md) describes the three resource bars, potion effects, equipment selection and nine-slot hotbar controls.
 
 [EQUIPMENT_ART.md](EQUIPMENT_ART.md) records visible equipped items, physical sipping/walking, forward guards and the exact artwork prompts.
+
+[Waterfall, pond and mountain artwork](WATERFALL_ART.md) records the retained sources, exact built-in imagegen prompts, runtime registration and reproducible importer. [Potion/inventory controls](POTIONS.md) now include the I-key bag.

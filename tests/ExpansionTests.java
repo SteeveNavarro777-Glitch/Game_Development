@@ -107,8 +107,8 @@ public final class ExpansionTests {
         check(mountain==MountainArt.mountain()&&mountain.getWidth()>=900&&mountain.getHeight()>=1100,"Mountain artwork is missing or rebuilt");
         Set<Long> frames=new HashSet<>();
         for(int phase=0;phase<4;phase++){
-            BufferedImage fall=MountainArt.waterfall(phase),mist=MountainArt.mist(phase);
-            check(fall==MountainArt.waterfall(phase)&&mist==MountainArt.mist(phase),"Waterfall images are rebuilt during lookup");
+            BufferedImage fall=MountainArt.waterfall(phase),lower=WaterfallArt.fall(phase);
+            check(fall==MountainArt.waterfall(phase)&&lower==WaterfallArt.fall(phase),"Waterfall images are rebuilt during lookup");
             frames.add(hash(fall));
         }
         check(frames.size()==4,"Waterfall phases do not visibly animate");
@@ -132,33 +132,44 @@ public final class ExpansionTests {
     }
     // [BLOCK: OFFSCREEN SCENERY] ExpansionTests.mountainFrame - Render the real mountain and waterfall into a compact local camera.
     private static BufferedImage mountainFrame(World world){
-        Rectangle2D bounds=world.mountain.bounds();BufferedImage out=new BufferedImage(512,640,BufferedImage.TYPE_INT_ARGB);Graphics2D g=out.createGraphics();
+        Rectangle2D bounds=world.mountain.bounds();BufferedImage out=new BufferedImage(512,(int)Math.ceil(bounds.getHeight()/2),BufferedImage.TYPE_INT_ARGB);Graphics2D g=out.createGraphics();
         try{g.scale(.5,.5);world.mountain.draw(g,(int)bounds.getX(),(int)bounds.getY(),1);}finally{g.dispose();}return out;
     }
     // [BLOCK: RENDER EVIDENCE] ExpansionTests.previews - Export a complete mountain view and the actual waterfall-side game camera.
     @SuppressWarnings("unchecked")
     private static void previews()throws Exception{
-        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);tap(panel,KeyEvent.VK_ENTER);World world=(World)get(panel,"world");
+        GamePanel panel=new GamePanel();panel.setSize(GamePanel.W,GamePanel.H);TitleMenuTests.startGame(panel);World world=(World)get(panel,"world");
         BufferedImage art=mountainFrame(world);check(ImageIO.write(art,"png",new File("build/preview-mountain-waterfall.png")),"Mountain/waterfall preview export failed");
-        Point source=world.mountain.source(),bank=new Point(source.x,84);
+        Point bank=new Point(178,88);
         ForestTests.openGates(world);
         List<Point> approach=Pathfinder.find(world,World.col(World.SPAWN_X),World.row(World.SPAWN_Y),bank.x,bank.y);
-        check(!approach.isEmpty()&&world.walkable(bank.x,bank.y),"Waterfall viewing deck is unreachable");
-        check(world.tile[bank.y][bank.x]==World.BRIDGE,"Waterfall approach does not end on the viewing deck");
+        check(!approach.isEmpty()&&world.walkable(bank.x,bank.y),"Waterfall beach is unreachable");
+        check(world.tile[bank.y][bank.x]==World.DIRT||world.tile[bank.y][bank.x]==World.GRASS,"Waterfall approach does not end on dry shore");
         Player actor=(Player)get(panel,"player");actor.x=actor.px=(bank.x+.5)*World.T;actor.y=actor.py=(bank.y+.5)*World.T;
-        check(!world.blocked(actor.feetBox()),"Viewing deck embeds Agyu in the cliff");
+        check(!world.blocked(actor.feetBox()),"Viewing shore embeds Agyu in the cliff");
         check(world.mountain.sortY()<actor.sortY(),"Mountain can cover an actor on a valid shore");
         double look=world.mountain.lookAhead(actor.x,actor.y);
-        check(look>=0&&look<=130&&world.mountain.lookAhead(World.SPAWN_X,World.SPAWN_Y)==0,"Scenic camera moves outside the waterfall area");
+        check(look>=0&&look<=84&&world.mountain.lookAhead(World.SPAWN_X,World.SPAWN_Y)==0,"Scenic camera moves outside the waterfall area");
         double cx=actor.x-GamePanel.VIEW_W/2.0,cy=actor.y-20-GamePanel.VIEW_H/2.0-look;
         set(panel,"camX",cx);set(panel,"prevCamX",cx);set(panel,"camY",cy);set(panel,"prevCamY",cy);set(panel,"alpha",1);
         BufferedImage frame=new BufferedImage(GamePanel.W,GamePanel.H,BufferedImage.TYPE_INT_RGB);Graphics2D g=frame.createGraphics();try{panel.paint(g);}finally{g.dispose();}
-        int reds=0;for(int y=frame.getHeight()-160;y<frame.getHeight();y++)for(int x=frame.getWidth()/2-65;x<frame.getWidth()/2+65;x++){
+        int feet=(int)Math.round((actor.y-cy)*GamePanel.SCALE);check(feet<GamePanel.SCALE*(HotbarHud.top(GamePanel.VIEW_H)-18),"Scenic camera hides Agyu under the hotbar");
+        int reds=0;for(int y=Math.max(0,feet-115);y<Math.min(frame.getHeight(),feet);y++)for(int x=frame.getWidth()/2-65;x<frame.getWidth()/2+65;x++){
             int pixel=frame.getRGB(x,y),red=(pixel>>>16)&255,green=(pixel>>>8)&255,blue=pixel&255;
             if(red>120&&red>green*1.6&&red>blue*1.6)reds++;
         }
-        check(reds>30,"The mountain hides Agyu on the viewing deck");
+        check(reds>30,"The mountain hides Agyu on the viewing shore");
         check(ImageIO.write(frame,"png",new File("build/preview-waterfall-camera.png")),"Actual waterfall camera export failed");
+        long day=hash(frame);world.dayNight.update(DayNightCycle.PHASE_SECONDS+30);
+        BufferedImage night=new BufferedImage(GamePanel.W,GamePanel.H,BufferedImage.TYPE_INT_RGB);g=night.createGraphics();
+        try{panel.paint(g);}finally{g.dispose();}
+        check(hash(night)!=day,"Night lighting does not affect the registered waterfall scene");
+        int nightReds=0;for(int y=Math.max(0,feet-115);y<Math.min(night.getHeight(),feet);y++)for(int x=night.getWidth()/2-65;x<night.getWidth()/2+65;x++){
+            int pixel=night.getRGB(x,y),red=pixel>>>16&255,green=pixel>>>8&255,blue=pixel&255;
+            if(red>120&&red>green*1.6&&red>blue*1.6)nightReds++;
+        }
+        check(nightReds>30,"Night scenery hides Agyu on the viewing shore");
+        check(ImageIO.write(night,"png",new File("build/preview-waterfall-night.png")),"Night waterfall preview export failed");
     }
     // [BLOCK: PIXEL FINGERPRINT] ExpansionTests.hash - Compare rendered cache contents without counting every pixel as a separate assertion.
     private static long hash(BufferedImage image){long value=1;for(int y=0;y<image.getHeight();y++)for(int x=0;x<image.getWidth();x++)value=value*31+image.getRGB(x,y);return value;}

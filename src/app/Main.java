@@ -15,7 +15,7 @@ public final class Main {
         SwingUtilities.invokeLater(()->{
             try{
                 GamePanel panel=new GamePanel();
-                JFrame frame=new JFrame("Agyu: Guardians of the Lost Grove");
+                JFrame frame=new JFrame("Agyu: The Epic Hero of Bukidnon");
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.setResizable(false);frame.add(panel);frame.pack();frame.setLocationRelativeTo(null);
                 frame.addWindowListener(new WindowAdapter(){

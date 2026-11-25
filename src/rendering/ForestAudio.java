@@ -11,10 +11,13 @@ import javax.sound.sampled.LineUnavailableException;
 /** Sound is optional: headless tests and computers without an output device retain the visual encounter. */
 final class ForestAudio {
     private static final AtomicBoolean PLAYING=new AtomicBoolean();
+    private static volatile boolean enabled=true;
     private static final int RATE=16000;
     private static final byte[] STING=sting();
     // [BLOCK: AUDIO UTILITY] ForestAudio.ForestAudio - Prevent instances of the single bounded sound provider.
     private ForestAudio(){}
+    // [BLOCK: SETTINGS PREFERENCE] ForestAudio.setEnabled - Let the title menu silence optional effects without touching combat state.
+    static void setEnabled(boolean value){enabled=value;}
     // [BLOCK: CACHED PCM ARRAY] ForestAudio.sting - Prepare a brief low-volume descending growl with a smooth attack and release.
     private static byte[] sting(){
         byte[] result=new byte[RATE*3/10];
@@ -27,7 +30,7 @@ final class ForestAudio {
     }
     // [BLOCK: BOUNDED AUDIO PLAYBACK] ForestAudio.scare - Play at most one sting off the game loop, release its device and tolerate missing audio hardware.
     static void scare(){
-        if(GraphicsEnvironment.isHeadless()||!PLAYING.compareAndSet(false,true))return;
+        if(!enabled||GraphicsEnvironment.isHeadless()||!PLAYING.compareAndSet(false,true))return;
         Thread worker=new Thread(()->{
             try(Clip clip=AudioSystem.getClip()){
                 clip.open(new AudioFormat(RATE,8,1,true,false),STING,0,STING.length);clip.start();Thread.sleep(360);

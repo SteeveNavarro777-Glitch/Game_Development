@@ -6,37 +6,41 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [GamePanel.GamePanel](../src/app/GamePanel.java#L57) | FUNCTION | Initialize GamePanel state. |
-| [GamePanel.mousePressed](../src/app/GamePanel.java#L63) | UI INPUT ROUTING | Select hotbar boxes without leaking UI clicks into combat. |
-| [GamePanel.mouseReleased](../src/app/GamePanel.java#L71) | HOTBAR DRAG | Swap dropped slots through deferred input, then release held combat buttons. |
-| [GamePanel.focusLost](../src/app/GamePanel.java#L82) | FUNCTION | Handle focus lost for GamePanel. |
-| [GamePanel.pointerSlot](../src/app/GamePanel.java#L90) | SCALED UI HIT TEST | Convert native window coordinates into the shared art-resolution hotbar layout. |
-| [GamePanel.reset](../src/app/GamePanel.java#L95) | SESSION: RESTART | Create a fresh world, actors, inventory, quests and timing state. |
-| [GamePanel.start](../src/app/GamePanel.java#L110) | FUNCTION | Handle start for GamePanel. |
-| [GamePanel.stop](../src/app/GamePanel.java#L115) | FUNCTION | Handle stop for GamePanel. |
-| [GamePanel.run](../src/app/GamePanel.java#L120) | TIMING: FIXED STEP | Advance simulation at 60 Hz and interpolate rendering. |
-| [GamePanel.targetX](../src/app/GamePanel.java#L141) | FUNCTION | Handle target x for GamePanel. |
-| [GamePanel.targetY](../src/app/GamePanel.java#L143) | FUNCTION | Handle target y for GamePanel. |
-| [GamePanel.freezeInterpolation](../src/app/GamePanel.java#L145) | FUNCTION | Handle freeze interpolation for GamePanel. |
-| [GamePanel.update](../src/app/GamePanel.java#L150) | SIMULATION / DSA EVENT QUEUE | Apply input, update actors, enqueue defeats, then process rewards safely. |
-| [GamePanel.updateNavigation](../src/app/GamePanel.java#L199) | DSA: BFS / A* CACHES | Refresh enemy flow distances and the optional player trail when needed. |
-| [GamePanel.processEvents](../src/app/GamePanel.java#L231) | DSA: FIFO QUEUE | Remove defeat events in insertion order after actor updates, then award progression. |
-| [GamePanel.interact](../src/app/GamePanel.java#L249) | GAMEPLAY INTERACTION | Open a nearby gate or talk to the nearest available villager. |
-| [GamePanel.objectiveSite](../src/app/GamePanel.java#L259) | BOSS OBJECTIVE SELECTION | Route the optional trail to the nearest undefeated villain. |
-| [GamePanel.paintComponent](../src/app/GamePanel.java#L268) | OOP: POLYMORPHISM / SORTING | Sort Drawable objects by feet depth and dispatch each concrete draw implementation. |
-| [GamePanel.visible](../src/app/GamePanel.java#L324) | FUNCTION | Handle visible for GamePanel. |
-| [GamePanel.card](../src/app/GamePanel.java#L328) | FUNCTION | Handle card for GamePanel. |
-| [GamePanel.text](../src/app/GamePanel.java#L333) | FUNCTION | Handle text for GamePanel. |
-| [GamePanel.center](../src/app/GamePanel.java#L335) | FUNCTION | Handle center for GamePanel. |
-| [GamePanel.vitalBar](../src/app/GamePanel.java#L339) | FUNCTION | Handle vital bar for GamePanel. |
-| [GamePanel.drawHud](../src/app/GamePanel.java#L347) | FUNCTION | Render draw hud using the current graphics state. |
-| [GamePanel.drawTimeOfDay](../src/app/GamePanel.java#L364) | WORLD CLOCK HUD | Show a compact numbered phase and next-change countdown below the resource bars. |
-| [GamePanel.drawBossHealth](../src/app/GamePanel.java#L371) | BOSS HUD | Show one continuous health bar only during a nearby arena fight. |
-| [GamePanel.drawMap](../src/app/GamePanel.java#L384) | FUNCTION | Render draw map using the current graphics state. |
-| [GamePanel.drawJournal](../src/app/GamePanel.java#L391) | FUNCTION | Render draw journal using the current graphics state. |
-| [GamePanel.drawDiagnostics](../src/app/GamePanel.java#L407) | FUNCTION | Render draw diagnostics using the current graphics state. |
-| [GamePanel.drawTitle](../src/app/GamePanel.java#L415) | FUNCTION | Render draw title using the current graphics state. |
-| [GamePanel.drawModal](../src/app/GamePanel.java#L431) | FUNCTION | Render draw modal using the current graphics state. |
+| [GamePanel.GamePanel](../src/app/GamePanel.java#L60) | FUNCTION | Initialize GamePanel state. |
+| [GamePanel.mousePressed](../src/app/GamePanel.java#L66) | UI INPUT ROUTING | Select hotbar boxes without leaking UI clicks into combat. |
+| [GamePanel.mouseReleased](../src/app/GamePanel.java#L78) | HOTBAR DRAG | Swap dropped slots through deferred input, then release held combat buttons. |
+| [GamePanel.focusLost](../src/app/GamePanel.java#L89) | FUNCTION | Handle focus lost for GamePanel. |
+| [GamePanel.pointer](../src/app/GamePanel.java#L97) | POINTER COORDINATES | Scale inventory clicks with the same viewport transform used for rendering. |
+| [GamePanel.pointerSlot](../src/app/GamePanel.java#L99) | SCALED UI HIT TEST | Convert native window coordinates into the shared art-resolution hotbar layout. |
+| [GamePanel.reset](../src/app/GamePanel.java#L104) | SESSION: RESTART | Create a fresh world, actors, inventory, quests and timing state. |
+| [GamePanel.start](../src/app/GamePanel.java#L119) | FUNCTION | Handle start for GamePanel. |
+| [GamePanel.stop](../src/app/GamePanel.java#L124) | FUNCTION | Handle stop for GamePanel. |
+| [GamePanel.run](../src/app/GamePanel.java#L129) | TIMING: FIXED STEP | Advance simulation at 60 Hz and interpolate rendering. |
+| [GamePanel.targetX](../src/app/GamePanel.java#L150) | FUNCTION | Handle target x for GamePanel. |
+| [GamePanel.targetY](../src/app/GamePanel.java#L152) | FUNCTION | Handle target y for GamePanel. |
+| [GamePanel.freezeInterpolation](../src/app/GamePanel.java#L154) | FUNCTION | Handle freeze interpolation for GamePanel. |
+| [GamePanel.update](../src/app/GamePanel.java#L159) | SIMULATION / DSA EVENT QUEUE | Apply input, update actors, enqueue defeats, then process rewards safely. |
+| [GamePanel.closeInventory](../src/app/GamePanel.java#L215) | MODAL INPUT | Release mouse actions and discard queued UI clicks without retriggering held keys. |
+| [GamePanel.inventoryAction](../src/app/GamePanel.java#L217) | INVENTORY TRANSACTION | Apply references on the simulation thread and route drinking through the normal animated use action. |
+| [GamePanel.updateInventory](../src/app/GamePanel.java#L233) | PAUSED UI / FIFO | Process bag selection and bounded pointer commands while gameplay clocks remain frozen. |
+| [GamePanel.updateNavigation](../src/app/GamePanel.java#L244) | DSA: BFS / A* CACHES | Refresh enemy flow distances and the optional player trail when needed. |
+| [GamePanel.processEvents](../src/app/GamePanel.java#L276) | DSA: FIFO QUEUE | Remove defeat events in insertion order after actor updates, then award progression. |
+| [GamePanel.interact](../src/app/GamePanel.java#L294) | GAMEPLAY INTERACTION | Open a nearby gate or talk to the nearest available villager. |
+| [GamePanel.objectiveSite](../src/app/GamePanel.java#L304) | BOSS OBJECTIVE SELECTION | Route the optional trail to the nearest undefeated villain. |
+| [GamePanel.paintComponent](../src/app/GamePanel.java#L313) | OOP: POLYMORPHISM / SORTING | Sort Drawable objects by feet depth and dispatch each concrete draw implementation. |
+| [GamePanel.visible](../src/app/GamePanel.java#L370) | FUNCTION | Handle visible for GamePanel. |
+| [GamePanel.card](../src/app/GamePanel.java#L374) | FUNCTION | Handle card for GamePanel. |
+| [GamePanel.text](../src/app/GamePanel.java#L379) | FUNCTION | Handle text for GamePanel. |
+| [GamePanel.center](../src/app/GamePanel.java#L381) | FUNCTION | Handle center for GamePanel. |
+| [GamePanel.vitalBar](../src/app/GamePanel.java#L385) | FUNCTION | Handle vital bar for GamePanel. |
+| [GamePanel.drawHud](../src/app/GamePanel.java#L393) | FUNCTION | Render draw hud using the current graphics state. |
+| [GamePanel.drawTimeOfDay](../src/app/GamePanel.java#L410) | WORLD CLOCK HUD | Show a compact numbered phase and next-change countdown below the resource bars. |
+| [GamePanel.drawBossHealth](../src/app/GamePanel.java#L417) | BOSS HUD | Show one continuous health bar only during a nearby arena fight. |
+| [GamePanel.drawMap](../src/app/GamePanel.java#L430) | FUNCTION | Render draw map using the current graphics state. |
+| [GamePanel.drawJournal](../src/app/GamePanel.java#L437) | FUNCTION | Render draw journal using the current graphics state. |
+| [GamePanel.drawDiagnostics](../src/app/GamePanel.java#L453) | FUNCTION | Render draw diagnostics using the current graphics state. |
+| [GamePanel.drawTitle](../src/app/GamePanel.java#L461) | FUNCTION | Render draw title using the current graphics state. |
+| [GamePanel.drawModal](../src/app/GamePanel.java#L477) | FUNCTION | Render draw modal using the current graphics state. |
 
 ## src/app/KeyHandler.java
 
@@ -47,20 +51,22 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [KeyHandler.pressed](../src/app/KeyHandler.java#L31) | INPUT EDGE | Test a one-shot action without consuming it twice. |
 | [KeyHandler.combat](../src/app/KeyHandler.java#L33) | EQUIPMENT INPUT | Route the selected slot into spear input or held shield defense. |
 | [KeyHandler.keyPressed](../src/app/KeyHandler.java#L40) | DSA: HASH SET / INPUT EDGES | Suppress repeat actions and select slots with 1 through 9. |
-| [KeyHandler.keyReleased](../src/app/KeyHandler.java#L62) | HELD INPUT | Release a key from held membership. |
-| [KeyHandler.mousePressed](../src/app/KeyHandler.java#L64) | MOUSE INPUT | Keep one primary edge and a held right-click shield input. |
-| [KeyHandler.mouseReleased](../src/app/KeyHandler.java#L69) | MOUSE INPUT | Release mouse state independently of the pointer position. |
-| [KeyHandler.selectSlot](../src/app/KeyHandler.java#L74) | HOTBAR INPUT | Queue an exact selection and discard older wheel movement. |
-| [KeyHandler.swapSlots](../src/app/KeyHandler.java#L76) | HOTBAR INPUT | Queue a completed drag without copying any item counts. |
-| [KeyHandler.mouseWheelMoved](../src/app/KeyHandler.java#L78) | WHEEL INPUT | Accumulate bounded wheel movement until the next simulation step. |
-| [KeyHandler.clampScroll](../src/app/KeyHandler.java#L80) | INPUT BOUND | Bound wheel accumulation to a safe signed integer range. |
-| [KeyHandler.mouseClicked](../src/app/KeyHandler.java#L82) | LISTENER CONTRACT | Leave click handling to fresh press edges. |
-| [KeyHandler.mouseEntered](../src/app/KeyHandler.java#L84) | LISTENER CONTRACT | Keep controls unchanged when the cursor enters the game. |
-| [KeyHandler.mouseExited](../src/app/KeyHandler.java#L86) | LISTENER CONTRACT | Keep held controls until release or focus loss. |
-| [KeyHandler.held](../src/app/KeyHandler.java#L88) | HASH SET MEMBERSHIP | Accept WASD or arrow-key movement aliases. |
-| [KeyHandler.poll](../src/app/KeyHandler.java#L90) | INPUT SNAPSHOT | Atomically consume action edges and hotbar commands while preserving held controls. |
-| [KeyHandler.defer](../src/app/KeyHandler.java#L97) | DEFERRED INPUT | Retain consumable, combat and selection edges through hit-stop. |
-| [KeyHandler.clear](../src/app/KeyHandler.java#L103) | FOCUS / RESET | Drop all held inputs, drag commands and pending action edges. |
+| [KeyHandler.keyReleased](../src/app/KeyHandler.java#L63) | HELD INPUT | Release a key from held membership. |
+| [KeyHandler.mousePressed](../src/app/KeyHandler.java#L65) | MOUSE INPUT | Keep one primary edge and a held right-click shield input. |
+| [KeyHandler.mouseReleased](../src/app/KeyHandler.java#L70) | MOUSE INPUT | Release mouse state independently of the pointer position. |
+| [KeyHandler.selectSlot](../src/app/KeyHandler.java#L75) | HOTBAR INPUT | Queue an exact selection and discard older wheel movement. |
+| [KeyHandler.swapSlots](../src/app/KeyHandler.java#L77) | HOTBAR INPUT | Queue a completed drag without copying any item counts. |
+| [KeyHandler.mouseWheelMoved](../src/app/KeyHandler.java#L79) | WHEEL INPUT | Accumulate bounded wheel movement until the next simulation step. |
+| [KeyHandler.clampScroll](../src/app/KeyHandler.java#L81) | INPUT BOUND | Bound wheel accumulation to a safe signed integer range. |
+| [KeyHandler.mouseClicked](../src/app/KeyHandler.java#L83) | LISTENER CONTRACT | Leave click handling to fresh press edges. |
+| [KeyHandler.mouseEntered](../src/app/KeyHandler.java#L85) | LISTENER CONTRACT | Keep controls unchanged when the cursor enters the game. |
+| [KeyHandler.mouseExited](../src/app/KeyHandler.java#L87) | LISTENER CONTRACT | Keep held controls until release or focus loss. |
+| [KeyHandler.held](../src/app/KeyHandler.java#L89) | HASH SET MEMBERSHIP | Accept WASD or arrow-key movement aliases. |
+| [KeyHandler.poll](../src/app/KeyHandler.java#L91) | INPUT SNAPSHOT | Atomically consume action edges and hotbar commands while preserving held controls. |
+| [KeyHandler.defer](../src/app/KeyHandler.java#L98) | DEFERRED INPUT | Retain consumable, combat and selection edges through hit-stop. |
+| [KeyHandler.useSelectedItem](../src/app/KeyHandler.java#L104) | INVENTORY USE EDGE | Resume a deliberate inventory-use command through the normal player input path. |
+| [KeyHandler.clearOverlayActions](../src/app/KeyHandler.java#L106) | MODAL INPUT | Release mouse/actions while preserving held-key membership to suppress I/Esc autorepeat. |
+| [KeyHandler.clear](../src/app/KeyHandler.java#L108) | FOCUS / RESET | Drop all held inputs, drag commands and pending action edges. |
 
 ## src/app/Main.java
 
@@ -137,12 +143,11 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [ShieldGuard.update](../src/combat/ShieldGuard.java#L16) | FUNCTION | Advance update state with elapsed time. |
-| [ShieldGuard.load](../src/combat/ShieldGuard.java#L18) | FUNCTION | Load or validate load data. |
-| [ShieldGuard.faces](../src/combat/ShieldGuard.java#L30) | FUNCTION | Handle faces for ShieldGuard. |
-| [ShieldGuard.block](../src/combat/ShieldGuard.java#L43) | FUNCTION | Handle block for ShieldGuard. |
-| [ShieldGuard.impact](../src/combat/ShieldGuard.java#L52) | FUNCTION | Handle impact for ShieldGuard. |
-| [ShieldGuard.drawImpact](../src/combat/ShieldGuard.java#L54) | FUNCTION | Render draw impact using the current graphics state. |
+| [ShieldGuard.update](../src/combat/ShieldGuard.java#L14) | FUNCTION | Advance update state with elapsed time. |
+| [ShieldGuard.load](../src/combat/ShieldGuard.java#L16) | FUNCTION | Load or validate load data. |
+| [ShieldGuard.faces](../src/combat/ShieldGuard.java#L28) | FUNCTION | Handle faces for ShieldGuard. |
+| [ShieldGuard.block](../src/combat/ShieldGuard.java#L41) | FUNCTION | Handle block for ShieldGuard. |
+| [ShieldGuard.drawImpact](../src/combat/ShieldGuard.java#L49) | FUNCTION | Render draw impact using the current graphics state. |
 
 ## src/combat/ShieldMeter.java
 
@@ -173,19 +178,19 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [SpearAttack.lungeSpeed](../src/combat/SpearAttack.java#L71) | FUNCTION | Handle lunge speed for SpearAttack. |
 | [SpearAttack.blue](../src/combat/SpearAttack.java#L80) | FUNCTION | Handle blue for SpearAttack. |
 | [SpearAttack.loadWeapon](../src/combat/SpearAttack.java#L86) | ASSET PREPARATION | Cache the supplied spearhead and matching shaft before gameplay. |
-| [SpearAttack.clamp](../src/combat/SpearAttack.java#L110) | FUNCTION | Handle clamp for SpearAttack. |
-| [SpearAttack.smooth](../src/combat/SpearAttack.java#L112) | FUNCTION | Handle smooth for SpearAttack. |
-| [SpearAttack.forward](../src/combat/SpearAttack.java#L114) | FUNCTION | Handle forward for SpearAttack. |
-| [SpearAttack.pulse](../src/combat/SpearAttack.java#L118) | FUNCTION | Handle pulse for SpearAttack. |
-| [SpearAttack.bodyDirection](../src/combat/SpearAttack.java#L122) | FUNCTION | Handle body direction for SpearAttack. |
-| [SpearAttack.bodyOffsetX](../src/combat/SpearAttack.java#L131) | FUNCTION | Handle body offset x for SpearAttack. |
-| [SpearAttack.bodyOffsetY](../src/combat/SpearAttack.java#L136) | FUNCTION | Handle body offset y for SpearAttack. |
-| [SpearAttack.pose](../src/combat/SpearAttack.java#L144) | COMBAT: SHARED GEOMETRY | Solve the body hand pivot and blade path used by both damage and rendering. |
-| [SpearAttack.update](../src/combat/SpearAttack.java#L196) | COMBAT: SWEPT COLLISION / HASH SET | Sample the actual spear path and damage each enemy once per stage. |
-| [SpearAttack.behind](../src/combat/SpearAttack.java#L227) | FUNCTION | Handle behind for SpearAttack. |
-| [SpearAttack.behindBody](../src/combat/SpearAttack.java#L232) | FUNCTION | Handle behind body for SpearAttack. |
-| [SpearAttack.trail](../src/combat/SpearAttack.java#L234) | FUNCTION | Handle trail for SpearAttack. |
-| [SpearAttack.draw](../src/combat/SpearAttack.java#L263) | FUNCTION | Render draw using the current graphics state. |
+| [SpearAttack.clamp](../src/combat/SpearAttack.java#L120) | FUNCTION | Handle clamp for SpearAttack. |
+| [SpearAttack.smooth](../src/combat/SpearAttack.java#L122) | FUNCTION | Handle smooth for SpearAttack. |
+| [SpearAttack.forward](../src/combat/SpearAttack.java#L124) | FUNCTION | Handle forward for SpearAttack. |
+| [SpearAttack.pulse](../src/combat/SpearAttack.java#L128) | FUNCTION | Handle pulse for SpearAttack. |
+| [SpearAttack.bodyDirection](../src/combat/SpearAttack.java#L132) | FUNCTION | Handle body direction for SpearAttack. |
+| [SpearAttack.bodyOffsetX](../src/combat/SpearAttack.java#L141) | FUNCTION | Handle body offset x for SpearAttack. |
+| [SpearAttack.bodyOffsetY](../src/combat/SpearAttack.java#L146) | FUNCTION | Handle body offset y for SpearAttack. |
+| [SpearAttack.pose](../src/combat/SpearAttack.java#L154) | COMBAT: SHARED GEOMETRY | Solve the body hand pivot and blade path used by both damage and rendering. |
+| [SpearAttack.update](../src/combat/SpearAttack.java#L206) | COMBAT: SWEPT COLLISION / HASH SET | Sample the actual spear path and damage each enemy once per stage. |
+| [SpearAttack.behind](../src/combat/SpearAttack.java#L237) | FUNCTION | Handle behind for SpearAttack. |
+| [SpearAttack.behindBody](../src/combat/SpearAttack.java#L242) | FUNCTION | Handle behind body for SpearAttack. |
+| [SpearAttack.trail](../src/combat/SpearAttack.java#L244) | FUNCTION | Handle trail for SpearAttack. |
+| [SpearAttack.draw](../src/combat/SpearAttack.java#L273) | FUNCTION | Render draw using the current graphics state. |
 
 ## src/contracts/Damageable.java
 
@@ -222,9 +227,11 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [Hotbar.selectedItem](../src/dsa/Hotbar.java#L16) | ARRAY ACCESS | Read the selected equipment or consumable reference. |
 | [Hotbar.select](../src/dsa/Hotbar.java#L18) | ARRAY SELECTION | Select one of the nine indexed slots. |
 | [Hotbar.indexOf](../src/dsa/Hotbar.java#L20) | ARRAY SEARCH | Find an item's current slot after rearrangement for the direct healing shortcut. |
-| [Hotbar.cycle](../src/dsa/Hotbar.java#L22) | MODULAR INDEXING | Wrap mouse-wheel selection in either direction without overflow. |
-| [Hotbar.swap](../src/dsa/Hotbar.java#L24) | ARRAY SWAP | Exchange two references while preserving the selected item and inventory quantities. |
-| [Hotbar.check](../src/dsa/Hotbar.java#L29) | VALIDATION | Reject an index outside the fixed hotbar array. |
+| [Hotbar.assign](../src/dsa/Hotbar.java#L22) | INVENTORY ARRAY ASSIGNMENT | Move an existing reference or bind a bag item, preserving uniqueness and item quantities. |
+| [Hotbar.clear](../src/dsa/Hotbar.java#L25) | INVENTORY ARRAY CLEAR | Unbind a slot without consuming anything from the shared inventory. |
+| [Hotbar.cycle](../src/dsa/Hotbar.java#L27) | MODULAR INDEXING | Wrap mouse-wheel selection in either direction without overflow. |
+| [Hotbar.swap](../src/dsa/Hotbar.java#L29) | ARRAY SWAP | Exchange two references while preserving the selected item and inventory quantities. |
+| [Hotbar.check](../src/dsa/Hotbar.java#L34) | VALIDATION | Reject an index outside the fixed hotbar array. |
 
 ## src/dsa/Inventory.java
 
@@ -468,50 +475,53 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [Player.Player](../src/entities/Player.java#L44) | FUNCTION | Initialize Player state. |
-| [Player.health](../src/entities/Player.java#L51) | OOP: ENCAPSULATION | Read current private health through the damage contract. |
-| [Player.maxHealth](../src/entities/Player.java#L53) | OOP: ENCAPSULATION | Read the maximum health allowed for Agyu. |
-| [Player.energy](../src/entities/Player.java#L55) | OOP: COMPOSITION | Read current energy from the owned EnergyMeter. |
-| [Player.maxEnergy](../src/entities/Player.java#L57) | RESOURCE LIMIT | Read the shared energy capacity. |
-| [Player.energyExhausted](../src/entities/Player.java#L59) | FUNCTION | Handle energy exhausted for Player. |
-| [Player.dashing](../src/entities/Player.java#L61) | FUNCTION | Handle dashing for Player. |
-| [Player.dashCooldown](../src/entities/Player.java#L63) | FUNCTION | Handle dash cooldown for Player. |
-| [Player.inventory](../src/entities/Player.java#L65) | FUNCTION | Handle inventory for Player. |
-| [Player.protection](../src/entities/Player.java#L67) | RESOURCE READ | Read blue potion damage absorption separately from directional guarding. |
-| [Player.maxProtection](../src/entities/Player.java#L69) | RESOURCE READ | Read the fixed blue potion shield capacity. |
-| [Player.hotbar](../src/entities/Player.java#L71) | COMPOSED ARRAY | Expose validated slot operations without exposing its backing array. |
-| [Player.itemMessage](../src/entities/Player.java#L73) | ITEM FEEDBACK | Read the last short potion-use result for the hotbar. |
-| [Player.itemMessageTime](../src/entities/Player.java#L75) | ITEM FEEDBACK | Read how long temporary item feedback remains visible. |
-| [Player.message](../src/entities/Player.java#L77) | ITEM FEEDBACK | Keep failed or successful item actions visible briefly. |
-| [Player.drinking](../src/entities/Player.java#L79) | ITEM RENDER STATE | Expose an active drinking action to the HUD and renderer. |
-| [Player.drinkProgress](../src/entities/Player.java#L81) | ITEM PROGRESS | Read the active action's normalized progress for the selected slot. |
-| [Player.drinkPose](../src/entities/Player.java#L83) | ITEM POSE | Read the authored pose selected by the drinking timeline. |
-| [Player.heldItem](../src/entities/Player.java#L85) | VISIBLE EQUIPMENT | Show the current bottle during a sip and only owned equipment otherwise. |
-| [Player.potionUseful](../src/entities/Player.java#L87) | RESOURCE VALIDATION | Test whether a resource still needs recovery at start and at the sip commit. |
-| [Player.usePotion](../src/entities/Player.java#L89) | ITEM ACTION / ENCAPSULATION | Start a validated raise-sip-lower action; consumption happens only at the sip. |
-| [Player.sipPotion](../src/entities/Player.java#L102) | ONE-SHOT ITEM COMMIT | Spend one useful potion at the mouth-contact frame and apply its matching resource/effect. |
-| [Player.cancelDrink](../src/entities/Player.java#L112) | ITEM INTERRUPTION | Release the bottle animation without consuming an uncommitted potion. |
-| [Player.itemsInput](../src/entities/Player.java#L115) | ARRAY SELECTION / EQUIPMENT | Apply hotbar commands and route the primary action to the selected owned item. |
-| [Player.savePrev](../src/entities/Player.java#L134) | FUNCTION | Handle save prev for Player. |
-| [Player.airborne](../src/entities/Player.java#L136) | FUNCTION | Handle airborne for Player. |
-| [Player.jumpHeight](../src/entities/Player.java#L138) | FUNCTION | Handle jump height for Player. |
-| [Player.comboStep](../src/entities/Player.java#L140) | FUNCTION | Handle combo step for Player. |
-| [Player.comboName](../src/entities/Player.java#L142) | FUNCTION | Handle combo name for Player. |
-| [Player.feetBox](../src/entities/Player.java#L144) | FUNCTION | Handle feet box for Player. |
-| [Player.update](../src/entities/Player.java#L147) | PLAYER STATE MACHINE | Resolve input priority, movement, jumps, shield, energy and spear combos. |
-| [Player.updateDash](../src/entities/Player.java#L248) | FUNCTION | Advance update dash state with elapsed time. |
-| [Player.moveFromInput](../src/entities/Player.java#L275) | FUNCTION | Handle move from input for Player. |
-| [Player.facingFor](../src/entities/Player.java#L287) | FUNCTION | Handle facing for for Player. |
-| [Player.resetCombo](../src/entities/Player.java#L296) | FUNCTION | Handle reset combo for Player. |
-| [Player.beginAttack](../src/entities/Player.java#L301) | COMBAT: COMPOSITION | Start the selected spear move and reset matching combo timers. |
-| [Player.approach](../src/entities/Player.java#L313) | FUNCTION | Handle approach for Player. |
-| [Player.setState](../src/entities/Player.java#L318) | FUNCTION | Handle set state for Player. |
-| [Player.move](../src/entities/Player.java#L321) | FUNCTION | Handle move for Player. |
-| [Player.vec](../src/entities/Player.java#L332) | FUNCTION | Handle vec for Player. |
-| [Player.blocksFrom](../src/entities/Player.java#L343) | FUNCTION | Handle blocks from for Player. |
-| [Player.damage](../src/entities/Player.java#L348) | OOP: ENCAPSULATION | Resolve dash/guard protection, update private health and apply hurt/death state. |
-| [Player.sortY](../src/entities/Player.java#L364) | FUNCTION | Handle sort y for Player. |
-| [Player.draw](../src/entities/Player.java#L367) | FUNCTION | Render draw using the current graphics state. |
+| [Player.Player](../src/entities/Player.java#L45) | FUNCTION | Initialize Player state. |
+| [Player.health](../src/entities/Player.java#L52) | OOP: ENCAPSULATION | Read current private health through the damage contract. |
+| [Player.maxHealth](../src/entities/Player.java#L54) | OOP: ENCAPSULATION | Read the maximum health allowed for Agyu. |
+| [Player.energy](../src/entities/Player.java#L56) | OOP: COMPOSITION | Read current energy from the owned EnergyMeter. |
+| [Player.maxEnergy](../src/entities/Player.java#L58) | RESOURCE LIMIT | Read the shared energy capacity. |
+| [Player.energyExhausted](../src/entities/Player.java#L60) | FUNCTION | Handle energy exhausted for Player. |
+| [Player.dashing](../src/entities/Player.java#L62) | FUNCTION | Handle dashing for Player. |
+| [Player.dashCooldown](../src/entities/Player.java#L64) | FUNCTION | Handle dash cooldown for Player. |
+| [Player.inventory](../src/entities/Player.java#L66) | FUNCTION | Handle inventory for Player. |
+| [Player.protection](../src/entities/Player.java#L68) | RESOURCE READ | Read blue potion damage absorption separately from directional guarding. |
+| [Player.maxProtection](../src/entities/Player.java#L70) | RESOURCE READ | Read the fixed blue potion shield capacity. |
+| [Player.hotbar](../src/entities/Player.java#L72) | COMPOSED ARRAY | Expose validated slot operations without exposing its backing array. |
+| [Player.itemMessage](../src/entities/Player.java#L74) | ITEM FEEDBACK | Read the last short potion-use result for the hotbar. |
+| [Player.itemMessageTime](../src/entities/Player.java#L76) | ITEM FEEDBACK | Read how long temporary item feedback remains visible. |
+| [Player.message](../src/entities/Player.java#L78) | ITEM FEEDBACK | Keep failed or successful item actions visible briefly. |
+| [Player.drinking](../src/entities/Player.java#L80) | ITEM RENDER STATE | Expose an active drinking action to the HUD and renderer. |
+| [Player.drinkProgress](../src/entities/Player.java#L82) | ITEM PROGRESS | Read the active action's normalized progress for the selected slot. |
+| [Player.drinkPose](../src/entities/Player.java#L84) | ITEM POSE | Read the authored pose selected by the drinking timeline. |
+| [Player.heldItem](../src/entities/Player.java#L86) | VISIBLE EQUIPMENT | Show the current bottle during a sip and only owned equipment otherwise. |
+| [Player.equipItem](../src/entities/Player.java#L88) | INVENTORY EQUIP | Move an owned item to a hotbar slot without duplicating supplies and cancel conflicting hand actions. |
+| [Player.clearSlot](../src/entities/Player.java#L95) | INVENTORY STOW | Remove a quick reference while retaining every item quantity in the bag. |
+| [Player.inventoryCanUse](../src/entities/Player.java#L97) | INVENTORY USE AVAILABILITY | Enable the inventory use action only for owned, useful potions and stable player states. |
+| [Player.potionUseful](../src/entities/Player.java#L100) | RESOURCE VALIDATION | Test whether a resource still needs recovery at start and at the sip commit. |
+| [Player.usePotion](../src/entities/Player.java#L102) | ITEM ACTION / ENCAPSULATION | Start a validated raise-sip-lower action; consumption happens only at the sip. |
+| [Player.sipPotion](../src/entities/Player.java#L115) | ONE-SHOT ITEM COMMIT | Spend one useful potion at the mouth-contact frame and apply its matching resource/effect. |
+| [Player.cancelDrink](../src/entities/Player.java#L125) | ITEM INTERRUPTION | Release the bottle animation without consuming an uncommitted potion. |
+| [Player.itemsInput](../src/entities/Player.java#L128) | ARRAY SELECTION / EQUIPMENT | Apply hotbar commands and route the primary action to the selected owned item. |
+| [Player.savePrev](../src/entities/Player.java#L150) | FUNCTION | Handle save prev for Player. |
+| [Player.airborne](../src/entities/Player.java#L152) | FUNCTION | Handle airborne for Player. |
+| [Player.jumpHeight](../src/entities/Player.java#L154) | FUNCTION | Handle jump height for Player. |
+| [Player.comboStep](../src/entities/Player.java#L156) | FUNCTION | Handle combo step for Player. |
+| [Player.comboName](../src/entities/Player.java#L158) | FUNCTION | Handle combo name for Player. |
+| [Player.feetBox](../src/entities/Player.java#L160) | FUNCTION | Handle feet box for Player. |
+| [Player.update](../src/entities/Player.java#L163) | PLAYER STATE MACHINE | Resolve input priority, movement, jumps, shield, energy and spear combos. |
+| [Player.updateDash](../src/entities/Player.java#L264) | FUNCTION | Advance update dash state with elapsed time. |
+| [Player.moveFromInput](../src/entities/Player.java#L289) | FUNCTION | Handle move from input for Player. |
+| [Player.facingFor](../src/entities/Player.java#L304) | FUNCTION | Handle facing for for Player. |
+| [Player.resetCombo](../src/entities/Player.java#L313) | FUNCTION | Handle reset combo for Player. |
+| [Player.beginAttack](../src/entities/Player.java#L318) | COMBAT: COMPOSITION | Start the selected spear move and reset matching combo timers. |
+| [Player.approach](../src/entities/Player.java#L330) | FUNCTION | Handle approach for Player. |
+| [Player.setState](../src/entities/Player.java#L335) | FUNCTION | Handle set state for Player. |
+| [Player.move](../src/entities/Player.java#L338) | FUNCTION | Handle move for Player. |
+| [Player.vec](../src/entities/Player.java#L349) | FUNCTION | Handle vec for Player. |
+| [Player.blocksFrom](../src/entities/Player.java#L360) | FUNCTION | Handle blocks from for Player. |
+| [Player.damage](../src/entities/Player.java#L365) | OOP: ENCAPSULATION | Resolve dash/guard protection, update private health and apply hurt/death state. |
+| [Player.sortY](../src/entities/Player.java#L381) | FUNCTION | Handle sort y for Player. |
+| [Player.draw](../src/entities/Player.java#L384) | FUNCTION | Render draw using the current graphics state. |
 
 ## src/entities/Sigbin.java
 
@@ -579,10 +589,10 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
 | [Assets.load](../src/rendering/Assets.java#L23) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
-| [Assets.frames](../src/rendering/Assets.java#L48) | FUNCTION | Handle frames for Assets. |
-| [Assets.directional](../src/rendering/Assets.java#L55) | DSA: 2D ARRAY / MIRRORING | Assemble DOWN, UP, LEFT and RIGHT animation arrays. |
-| [Assets.load](../src/rendering/Assets.java#L62) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
-| [Assets.flip](../src/rendering/Assets.java#L78) | ASSET PREPARATION | Mirror exact RGBA pixels without changing semi-transparent edge colors. |
+| [Assets.frames](../src/rendering/Assets.java#L50) | FUNCTION | Handle frames for Assets. |
+| [Assets.directional](../src/rendering/Assets.java#L57) | DSA: 2D ARRAY / MIRRORING | Assemble DOWN, UP, LEFT and RIGHT animation arrays. |
+| [Assets.load](../src/rendering/Assets.java#L64) | ASSET STARTUP | Load current animation frames, combat bodies, shield poses and village images. |
+| [Assets.flip](../src/rendering/Assets.java#L80) | ASSET PREPARATION | Mirror exact RGBA pixels without changing semi-transparent edge colors. |
 
 ## src/rendering/BossArt.java
 
@@ -662,17 +672,32 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [HeldItemArt.HeldItemArt](../src/rendering/HeldItemArt.java#L21) | STATIC CACHE | Prevent instances of the shared animation cache. |
-| [HeldItemArt.load](../src/rendering/HeldItemArt.java#L23) | CACHE STARTUP / ARRAY COMPOSITION | Register source bodies and prepare every held-item combination, including mirrored left poses. |
-| [HeldItemArt.compose](../src/rendering/HeldItemArt.java#L60) | STARTUP COMPOSITOR | Layer a cached selected item at the authored fist, preserving original finger pixels. |
-| [HeldItemArt.spearAngle](../src/rendering/HeldItemArt.java#L84) | EQUIPMENT DIRECTION | Point a selected spear forward in the current facing direction. |
-| [HeldItemArt.bottleAngle](../src/rendering/HeldItemArt.java#L86) | SIP DIRECTION | Bring the bottle opening toward the visible lips as the wrist lifts and tilts. |
-| [HeldItemArt.index](../src/rendering/HeldItemArt.java#L91) | ARRAY ACCESS | Include the empty-hand entry after the concrete item types. |
-| [HeldItemArt.frame](../src/rendering/HeldItemArt.java#L93) | CACHED FRAME | Read a prepared item/body pose without allocating during paint. |
-| [HeldItemArt.ghost](../src/rendering/HeldItemArt.java#L95) | CACHED AFTERIMAGE | Reuse selected equipment in dash afterimages rather than showing an unequipped spear. |
-| [HeldItemArt.draw](../src/rendering/HeldItemArt.java#L97) | CACHED DRAW | Draw a selected-item composite about its shared foot anchor. |
-| [HeldItemArt.drawDrinking](../src/rendering/HeldItemArt.java#L99) | WALKING DRINK CACHE | Combine authored sipping and walking steps through cached full sprites. |
-| [HeldItemArt.walkPose](../src/rendering/HeldItemArt.java#L104) | LOCOMOTION POSE | Alternate authored steps and centered passing poses at walking or sprint cadence. |
+| [HeldItemArt.HeldItemArt](../src/rendering/HeldItemArt.java#L24) | STATIC CACHE | Prevent instances of the shared animation cache. |
+| [HeldItemArt.load](../src/rendering/HeldItemArt.java#L26) | CACHE STARTUP / ARRAY COMPOSITION | Register source bodies and prepare every held-item combination, including mirrored left poses. |
+| [HeldItemArt.withLegs](../src/rendering/HeldItemArt.java#L102) | WALK FRAME COMPOSITION | Retain the equipment pose above the hip and apply the footfall below it. |
+| [HeldItemArt.compose](../src/rendering/HeldItemArt.java#L113) | STARTUP COMPOSITOR | Layer a cached selected item at the authored fist, preserving original finger pixels. |
+| [HeldItemArt.pixelClean](../src/rendering/HeldItemArt.java#L134) | PIXEL ART CLEANUP | Remove translucent edge haze while retaining crisp opaque source pixels and proportions. |
+| [HeldItemArt.withoutCarryArm](../src/rendering/HeldItemArt.java#L144) | ARM MASK | Remove the old bent hand in the replacement arm region and restore the tunic edge. |
+| [HeldItemArt.withoutShieldHand](../src/rendering/HeldItemArt.java#L177) | SHIELD HAND OCCLUSION | Tuck the old hanging hand behind the held shield in front and rear views. |
+| [HeldItemArt.shieldX](../src/rendering/HeldItemArt.java#L193) | EQUIPMENT COORDINATES | Keep the shield on Agyu's left and centered over the braced wrist in profile. |
+| [HeldItemArt.carryGrip](../src/rendering/HeldItemArt.java#L197) | RIGHT-HAND GRIP | Register the right-hand shaft to a stable whole-pixel position across the walk cycle. |
+| [HeldItemArt.carryArm](../src/rendering/HeldItemArt.java#L202) | BENT CARRY ARM | Replace the masked arm with a bent forearm and a small fist that overlaps the pole. |
+| [HeldItemArt.drawShield](../src/rendering/HeldItemArt.java#L226) | NATIVE SHIELD LAYER | Fit the wooden shield over the forearm using a narrower profile in the side views. |
+| [HeldItemArt.composeGear](../src/rendering/HeldItemArt.java#L235) | CACHED GEAR POSE | Combine the shared torso, the current step and clean gear layers at one native foot anchor. |
+| [HeldItemArt.drawCarriedSpear](../src/rendering/HeldItemArt.java#L259) | SPEAR ORIENTATION | Keep the relaxed spear vertical and aim the braced spear along the facing direction. |
+| [HeldItemArt.bottleAngle](../src/rendering/HeldItemArt.java#L279) | SIP DIRECTION | Bring the bottle opening toward the visible lips as the wrist lifts and tilts. |
+| [HeldItemArt.index](../src/rendering/HeldItemArt.java#L284) | ARRAY ACCESS | Include the empty-hand entry after the concrete item types. |
+| [HeldItemArt.frame](../src/rendering/HeldItemArt.java#L286) | CACHED FRAME | Read a prepared item/body pose without allocating during paint. |
+| [HeldItemArt.ghost](../src/rendering/HeldItemArt.java#L288) | CACHED AFTERIMAGE | Reuse selected equipment in dash afterimages rather than showing an unequipped spear. |
+| [HeldItemArt.draw](../src/rendering/HeldItemArt.java#L290) | CACHED DRAW | Draw a selected-item composite about its shared foot anchor. |
+| [HeldItemArt.guardFrame](../src/rendering/HeldItemArt.java#L292) | SHARED GUARD CACHE | Use one body and gait for every selected item, with a carried spear only when equipped. |
+| [HeldItemArt.drawGuard](../src/rendering/HeldItemArt.java#L299) | SHIELD WALK CACHE | Keep shield arms braced and advance shared authored leg steps during guarded movement. |
+| [HeldItemArt.isProfile](../src/rendering/HeldItemArt.java#L303) | PROFILE FACING | Identify the directions that use the full side walk cycle. |
+| [HeldItemArt.profileIndex](../src/rendering/HeldItemArt.java#L307) | MIRRORED CACHE INDEX | Map left and right onto the parallel profile animation caches. |
+| [HeldItemArt.profileFrame](../src/rendering/HeldItemArt.java#L311) | PROFILE WALK CACHE | Advance each cached profile frame by traveled distance. |
+| [HeldItemArt.drawProfileWalk](../src/rendering/HeldItemArt.java#L316) | PROFILE WALK DRAW | Draw the cached side cycle at the shared foot anchor. |
+| [HeldItemArt.drawDrinking](../src/rendering/HeldItemArt.java#L320) | WALKING DRINK CACHE | Combine authored sipping and walking steps through cached full sprites. |
+| [HeldItemArt.walkPose](../src/rendering/HeldItemArt.java#L325) | LOCOMOTION POSE | Alternate authored steps and centered passing poses at walking or sprint cadence. |
 
 ## src/rendering/HotbarHud.java
 
@@ -684,26 +709,29 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [HotbarHud.slotAt](../src/rendering/HotbarHud.java#L22) | SHARED HIT GEOMETRY | Match only the visible slot interior and reject gaps, text and margins. |
 | [HotbarHud.draw](../src/rendering/HotbarHud.java#L27) | EQUIPMENT HUD | Place keys and counts in their own corners and show only one compact context label. |
 
+## src/rendering/InventoryScreen.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [InventoryScreen.open](../src/rendering/InventoryScreen.java#L19) | BAG SELECTION | Inspect the equipped item without changing its slot or quantity. |
+| [InventoryScreen.item](../src/rendering/InventoryScreen.java#L21) | ARRAY LOOKUP | Resolve the selected bag card through the fixed item catalog. |
+| [InventoryScreen.select](../src/rendering/InventoryScreen.java#L23) | BAG SELECTION | Accept only a concrete item card. |
+| [InventoryScreen.cycle](../src/rendering/InventoryScreen.java#L25) | CYCLIC SELECTION | Move around the bag with bounded mouse-wheel input. |
+| [InventoryScreen.turn](../src/rendering/InventoryScreen.java#L27) | PREVIEW FACING | Rotate a static equipment preview without updating the live actor. |
+| [InventoryScreen.hit](../src/rendering/InventoryScreen.java#L29) | SHARED HIT GEOMETRY | Decode clicks on cards, quick slots and action buttons in art-resolution coordinates. |
+| [InventoryScreen.inside](../src/rendering/InventoryScreen.java#L40) | RECTANGLE TEST | Reject borders and gaps outside a concrete UI control. |
+| [InventoryScreen.tint](../src/rendering/InventoryScreen.java#L42) | ITEM PALETTE | Match health, energy and shield potions to their resource colors. |
+| [InventoryScreen.box](../src/rendering/InventoryScreen.java#L45) | PANEL FRAME | Draw a crisp inset box with a one-pixel highlight. |
+| [InventoryScreen.button](../src/rendering/InventoryScreen.java#L50) | ACTION BUTTON | Show disabled actions explicitly while retaining shared pointer bounds. |
+| [InventoryScreen.draw](../src/rendering/InventoryScreen.java#L55) | PAUSED INVENTORY DRAW | Present the bag, held-item preview and editable hotbar without mutating gameplay. |
+
 ## src/rendering/MountainArt.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [MountainArt.MountainArt](../src/rendering/MountainArt.java#L17) | CACHE UTILITY | Prevent instances of this shared artwork cache. |
-| [MountainArt.load](../src/rendering/MountainArt.java#L19) | CACHE STARTUP | Publish one mountain and four reusable waterfall and mist frames. |
-| [MountainArt.mountain](../src/rendering/MountainArt.java#L26) | RENDER LOOKUP | Return the 1024 by 1280 mountain, with the waterfall source at local 512,704. |
-| [MountainArt.waterfall](../src/rendering/MountainArt.java#L28) | ANIMATION ARRAY | Return a cached 160 by 448 falling-water phase. |
-| [MountainArt.mist](../src/rendering/MountainArt.java#L30) | ANIMATION ARRAY | Return a cached 256 by 96 pool mist phase, centered below the waterfall foot. |
-| [MountainArt.buildMountain](../src/rendering/MountainArt.java#L32) | PIXEL ART CACHE | Build an asymmetric range with stratified cliffs, moss ledges and wooded foothills. |
-| [MountainArt.texture](../src/rendering/MountainArt.java#L111) | SEEDED ROCK DETAIL | Add muted mineral chips and small fissures inside the opaque mountain silhouette. |
-| [MountainArt.buildFall](../src/rendering/MountainArt.java#L122) | CACHED ANIMATION ART | Draw a continuous luminous drop with four displaced streak and splash phases. |
-| [MountainArt.buildMist](../src/rendering/MountainArt.java#L149) | CACHED POOL MIST | Cache layered translucent splash clouds and foam ripples beneath the fall. |
-| [MountainArt.moss](../src/rendering/MountainArt.java#L166) | PIXEL FOLIAGE | Place a broken moss clump with ochre lichen and a shaded lower edge. |
-| [MountainArt.shrub](../src/rendering/MountainArt.java#L173) | PIXEL FOLIAGE | Add a small wooded ledge silhouette with layered highland foliage. |
-| [MountainArt.enlarge](../src/rendering/MountainArt.java#L181) | NEAREST PIXEL SCALE | Expand a prepared half-resolution cache without smoothing or interpolation blur. |
-| [MountainArt.clamp](../src/rendering/MountainArt.java#L187) | PIXEL PALETTE | Keep textured rock channels in the legal byte range. |
-| [MountainArt.polygon](../src/rendering/MountainArt.java#L189) | PIXEL GEOMETRY | Build one integer-pixel silhouette from paired coordinate arrays. |
-| [MountainArt.fill](../src/rendering/MountainArt.java#L191) | PIXEL GEOMETRY | Fill a flat facet before applying seeded chips and ledge detail. |
-| [MountainArt.color](../src/rendering/MountainArt.java#L193) | PIXEL PALETTE | Select an opaque cached-art palette color. |
+| [MountainArt.MountainArt](../src/rendering/MountainArt.java#L9) | STATIC CACHE | Prevent instances of the shared scenery accessors. |
+| [MountainArt.mountain](../src/rendering/MountainArt.java#L11) | REGISTERED MOUNTAIN | Reuse the prepared 1024 by 1280 mountain silhouette. |
+| [MountainArt.waterfall](../src/rendering/MountainArt.java#L13) | CASCADE CACHE | Reuse one animated upper waterfall phase from the original GIF. |
 
 ## src/rendering/PotionArt.java
 
@@ -724,6 +752,15 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [PotionEffects.update](../src/rendering/PotionEffects.java#L15) | ACTIVE SIMULATION | Advance bounded animation phases and expire one-shot effects. |
 | [PotionEffects.remaining](../src/rendering/PotionEffects.java#L17) | ANIMATION READ | Read a timer for deterministic pause and expiry checks. |
 | [PotionEffects.draw](../src/rendering/PotionEffects.java#L19) | CACHED FRAME RENDER | Draw supplied recovery effects and loop a subdued shield aura while protection remains. |
+
+## src/rendering/ProfileWalkArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [ProfileWalkArt.ProfileWalkArt](../src/rendering/ProfileWalkArt.java#L14) | ART CACHE UTILITY | Restrict construction to the profile animation cache. |
+| [ProfileWalkArt.steps](../src/rendering/ProfileWalkArt.java#L17) | SOURCE FOOTFALLS | Fit the original walk to the standing boots without changing the ground anchor. |
+| [ProfileWalkArt.groundedSole](../src/rendering/ProfileWalkArt.java#L44) | GROUND REGISTRATION | Find the planted sole so the lifted foot keeps its clearance while the stride stays grounded. |
+| [ProfileWalkArt.bootWidth](../src/rendering/ProfileWalkArt.java#L52) | BOOT REGISTRATION | Measure the silhouette of the standing and starting walk frames. |
 
 ## src/rendering/RpgArt.java
 
@@ -752,10 +789,11 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [RpgTerrain.RpgTerrain](../src/rendering/RpgTerrain.java#L12) | FUNCTION | Prevent instances of this static helper class. |
-| [RpgTerrain.load](../src/rendering/RpgTerrain.java#L14) | FUNCTION | Load or validate load data. |
-| [RpgTerrain.distance](../src/rendering/RpgTerrain.java#L44) | FUNCTION | Handle distance for RpgTerrain. |
-| [RpgTerrain.tile](../src/rendering/RpgTerrain.java#L53) | RENDER: ARRAY CACHE | Select the prebuilt transition image from world edge masks. |
+| [RpgTerrain.RpgTerrain](../src/rendering/RpgTerrain.java#L11) | FUNCTION | Prevent instances of this static helper class. |
+| [RpgTerrain.load](../src/rendering/RpgTerrain.java#L13) | FUNCTION | Load or validate load data. |
+| [RpgTerrain.shoreDistance](../src/rendering/RpgTerrain.java#L45) | ROUNDED SHORELINE | Round exposed water corners using signed arc distance rather than square corner strips. |
+| [RpgTerrain.distance](../src/rendering/RpgTerrain.java#L54) | FUNCTION | Handle distance for RpgTerrain. |
+| [RpgTerrain.tile](../src/rendering/RpgTerrain.java#L63) | RENDER: ARRAY CACHE | Select the prebuilt transition image from world edge masks. |
 
 ## src/rendering/VillageArt.java
 
@@ -764,6 +802,25 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [VillageArt.VillageArt](../src/rendering/VillageArt.java#L14) | FUNCTION | Prevent instances of this static helper class. |
 | [VillageArt.load](../src/rendering/VillageArt.java#L16) | FUNCTION | Load or validate load data. |
 | [VillageArt.tile](../src/rendering/VillageArt.java#L27) | FUNCTION | Handle tile for VillageArt. |
+
+## src/rendering/WaterfallArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WaterfallArt.WaterfallArt](../src/rendering/WaterfallArt.java#L15) | STATIC CACHE | Prevent instances of shared art. |
+| [WaterfallArt.load](../src/rendering/WaterfallArt.java#L17) | ASSET STARTUP | Validate and slice the registered waterfall PNG caches once. |
+| [WaterfallArt.read](../src/rendering/WaterfallArt.java#L30) | IMAGE VALIDATION | Load packaged resources or repository files with exact expected dimensions. |
+| [WaterfallArt.ensure](../src/rendering/WaterfallArt.java#L37) | CACHE AVAILABILITY | Support world/map tools that request scenery before normal asset startup. |
+| [WaterfallArt.mountain](../src/rendering/WaterfallArt.java#L39) | MOUNTAIN CACHE | Reuse the detailed forest escarpment prepared at native pixel resolution. |
+| [WaterfallArt.cove](../src/rendering/WaterfallArt.java#L41) | ANIMATION ARRAY | Reuse one complete painted pond and lower cascade phase. |
+| [WaterfallArt.upper](../src/rendering/WaterfallArt.java#L43) | ANIMATION ARRAY | Reuse the source-fed high mountain cascade. |
+| [WaterfallArt.fall](../src/rendering/WaterfallArt.java#L45) | ANIMATION ARRAY | Expose the registered lower falling-water source for validation and tooling. |
+| [WaterfallArt.water](../src/rendering/WaterfallArt.java#L47) | ANIMATION ARRAY | Reuse original jade water texture throughout the river. |
+| [WaterfallArt.water](../src/rendering/WaterfallArt.java#L49) | WORLD TEXTURE VARIANTS | Reuse the matching tile within a seamless 64 by 128 river pattern. |
+| [WaterfallArt.mouth](../src/rendering/WaterfallArt.java#L51) | CACHED OUTLET | Reuse the tapered connector phase sharing the cove's native texture and banks. |
+| [WaterfallArt.mouthWet](../src/rendering/WaterfallArt.java#L53) | PHYSICAL OUTLET MASK | Query water from the same connector mask used for painting. |
+| [WaterfallArt.bank](../src/rendering/WaterfallArt.java#L55) | NATIVE BANK STRIPS | Read a source rock/moss shoreline pixel at a bounded distance from water. |
+| [WaterfallArt.wet](../src/rendering/WaterfallArt.java#L57) | PHYSICAL SURFACE MASK | Query authored water, including submerged lily-pad islands. |
 
 ## src/rendering/WildlifeArt.java
 
@@ -774,6 +831,14 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [WildlifeArt.load](../src/rendering/WildlifeArt.java#L26) | ASSET STARTUP | Prepare original, mirrored and flash variants once and publish complete animation caches. |
 | [WildlifeArt.scarePortrait](../src/rendering/WildlifeArt.java#L59) | CACHED CLOSE-UP | Return the detailed supplied front pose prepared specifically for the brief scare overlay. |
 | [WildlifeArt.frame](../src/rendering/WildlifeArt.java#L61) | CACHED FRAME LOOKUP | Select an existing transparent pose without allocating or advancing simulation. |
+
+## src/rendering/WoodenShieldArt.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WoodenShieldArt.WoodenShieldArt](../src/rendering/WoodenShieldArt.java#L12) | STATIC ART | Keep the shield images in one shared cache. |
+| [WoodenShieldArt.face](../src/rendering/WoodenShieldArt.java#L15) | IMAGE CACHE | Return the shield face or the strapped reverse. |
+| [WoodenShieldArt.build](../src/rendering/WoodenShieldArt.java#L20) | PIXEL SHIELD CONSTRUCTION | Draw a continuous rim around wood, a centered boss and leather straps. |
 
 ## src/rendering/WorldLighting.java
 
@@ -818,40 +883,44 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
 | [ForestRegion.ForestRegion](../src/world/ForestRegion.java#L25) | SEEDED WORLD | Connect the four gates to a woodland loop and reserve combat clearings. |
-| [ForestRegion.store](../src/world/ForestRegion.java#L63) | CONSTRUCTION INDEX | Index one root only in construction buckets that overlap its footprint. |
-| [ForestRegion.arenas](../src/world/ForestRegion.java#L68) | ENCAPSULATION | Expose three immutable distant arenas assigned to the villain encounters. |
-| [ForestRegion.route](../src/world/ForestRegion.java#L70) | TRAIL WAYPOINTS | Join authored bends into connected paths through each forest region. |
-| [ForestRegion.cacheGround](../src/world/ForestRegion.java#L72) | TEXTURE CACHE | Prepare shaded woodland grass once without changing the source images. |
-| [ForestRegion.ground](../src/world/ForestRegion.java#L80) | RENDER LOOKUP | Reuse a shaded grass tile without allocating during rendering. |
-| [ForestRegion.contains](../src/world/ForestRegion.java#L82) | REGION QUERY | Identify world positions beyond the timber enclosure. |
-| [ForestRegion.treeCount](../src/world/ForestRegion.java#L88) | CACHED SCENERY | Report the generated exterior population without traversing it again. |
-| [ForestRegion.camp](../src/world/ForestRegion.java#L90) | ENCAPSULATION | Return a copy of an authored outdoor respawn clearing. |
-| [ForestRegion.trailAt](../src/world/ForestRegion.java#L92) | CACHED ARRAY LOOKUP | Read a reserved forest trail cell without changing terrain. |
-| [ForestRegion.line](../src/world/ForestRegion.java#L94) | TRAIL GENERATION | Paint a three-cell-wide orthogonal woodland trail, preserving gate and wall tiles. |
-| [ForestRegion.clearing](../src/world/ForestRegion.java#L100) | CLEARING GENERATION | Reserve dry ground and approach space around trails, camps and shrines. |
-| [ForestRegion.reserved](../src/world/ForestRegion.java#L109) | ROOT CLEARANCE | Keep the complete padded root rectangle out of every trail and clearing. |
-| [ForestRegion.dry](../src/world/ForestRegion.java#L115) | TERRAIN VALIDATION | Require the entire padded root footprint to lie on grass inside the world. |
-| [ForestRegion.touchesVillage](../src/world/ForestRegion.java#L122) | WALL CLEARANCE | Preserve an open strip immediately outside the protected village. |
+| [ForestRegion.store](../src/world/ForestRegion.java#L64) | CONSTRUCTION INDEX | Index one root only in construction buckets that overlap its footprint. |
+| [ForestRegion.arenas](../src/world/ForestRegion.java#L69) | ENCAPSULATION | Expose three immutable distant arenas assigned to the villain encounters. |
+| [ForestRegion.route](../src/world/ForestRegion.java#L71) | TRAIL WAYPOINTS | Join authored bends into connected paths through each forest region. |
+| [ForestRegion.cacheGround](../src/world/ForestRegion.java#L73) | TEXTURE CACHE | Prepare shaded woodland grass once without changing the source images. |
+| [ForestRegion.ground](../src/world/ForestRegion.java#L81) | RENDER LOOKUP | Reuse a shaded grass tile without allocating during rendering. |
+| [ForestRegion.contains](../src/world/ForestRegion.java#L83) | REGION QUERY | Identify world positions beyond the timber enclosure. |
+| [ForestRegion.treeCount](../src/world/ForestRegion.java#L89) | CACHED SCENERY | Report the generated exterior population without traversing it again. |
+| [ForestRegion.camp](../src/world/ForestRegion.java#L91) | ENCAPSULATION | Return a copy of an authored outdoor respawn clearing. |
+| [ForestRegion.trailAt](../src/world/ForestRegion.java#L93) | CACHED ARRAY LOOKUP | Read a reserved forest trail cell without changing terrain. |
+| [ForestRegion.line](../src/world/ForestRegion.java#L95) | TRAIL GENERATION | Paint a three-cell-wide orthogonal woodland trail, preserving gate and wall tiles. |
+| [ForestRegion.clearing](../src/world/ForestRegion.java#L101) | CLEARING GENERATION | Reserve dry ground and approach space around trails, camps and shrines. |
+| [ForestRegion.reserved](../src/world/ForestRegion.java#L110) | ROOT CLEARANCE | Keep the complete padded root rectangle out of every trail and clearing. |
+| [ForestRegion.dry](../src/world/ForestRegion.java#L116) | TERRAIN VALIDATION | Require the entire padded root footprint to lie on grass inside the world. |
+| [ForestRegion.touchesVillage](../src/world/ForestRegion.java#L123) | WALL CLEARANCE | Preserve an open strip immediately outside the protected village. |
 
 ## src/world/MountainRiver.java
 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
-| [MountainRiver.MountainRiver](../src/world/MountainRiver.java#L23) | TERRAIN CONSTRUCTION | Raise eastern rock and link the waterfall basin to the existing river and western outflow. |
-| [MountainRiver.source](../src/world/MountainRiver.java#L45) | ENCAPSULATION | Return a copy of the waterfall basin's river source coordinate. |
-| [MountainRiver.bounds](../src/world/MountainRiver.java#L47) | ENCAPSULATION | Return a copy of the full mountain artwork bounds. |
-| [MountainRiver.update](../src/world/MountainRiver.java#L49) | SIMULATION CLOCK | Advance animation only when the world simulation is active. |
-| [MountainRiver.collect](../src/world/MountainRiver.java#L51) | RENDER CULLING | Add the huge mountain only when its art intersects the camera. |
-| [MountainRiver.sortY](../src/world/MountainRiver.java#L53) | SCENERY DEPTH | Draw the solid cliff behind actors walking on its valid shore and viewing deck. |
-| [MountainRiver.lookAhead](../src/world/MountainRiver.java#L55) | SCENIC CAMERA | Gently lift the camera beside the basin while keeping Agyu on screen. |
-| [MountainRiver.draw](../src/world/MountainRiver.java#L60) | CACHED RENDER | Select prebuilt rock, falling-water and spray frames without mutating simulation. |
-| [MountainRiver.rock](../src/world/MountainRiver.java#L70) | CACHED ROCK LOOKUP | Read a generated rock tile without creating images during rendering. |
-| [MountainRiver.buildRock](../src/world/MountainRiver.java#L72) | CACHE CONSTRUCTION | Prepare muted rock grain beneath the cached mountain silhouette. |
-| [MountainRiver.pool](../src/world/MountainRiver.java#L83) | SOURCE BASIN | Stamp a round connected pool under the falling water. |
-| [MountainRiver.channel](../src/world/MountainRiver.java#L88) | RIVER CENTERLINE | Rasterize winding centerline segments with seeded bank-width variation. |
-| [MountainRiver.water](../src/world/MountainRiver.java#L105) | HYDRAULIC / WALL SAFETY | Let water pass under timber walls without creating another walkable entrance. |
-| [MountainRiver.bridge](../src/world/MountainRiver.java#L116) | SAFE CROSSING | Build one three-cell-wide timber crossing only over exterior water. |
-| [MountainRiver.drawCurrents](../src/world/MountainRiver.java#L121) | RIVER MOTION | Animate small downstream streaks on visible open river cells using cached centerline directions. |
+| [MountainRiver.MountainRiver](../src/world/MountainRiver.java#L21) | TERRAIN CONSTRUCTION | Raise eastern rock and link the waterfall basin to the existing river and western outflow. |
+| [MountainRiver.source](../src/world/MountainRiver.java#L41) | ENCAPSULATION | Return a copy of the waterfall basin's river source coordinate. |
+| [MountainRiver.bounds](../src/world/MountainRiver.java#L43) | ENCAPSULATION | Return a copy of the full mountain artwork bounds. |
+| [MountainRiver.coveBounds](../src/world/MountainRiver.java#L45) | COVE GEOMETRY | Return registered artwork bounds for maps and scenery checks. |
+| [MountainRiver.reserved](../src/world/MountainRiver.java#L47) | FOREST CLEARANCE | Keep tree crowns and roots away from the open pond and its walkable shore. |
+| [MountainRiver.underMouth](../src/world/MountainRiver.java#L49) | OUTLET GROUND LAYER | Draw forest ground beneath the exact cove and connector instead of rectangular water backing. |
+| [MountainRiver.mouthBounds](../src/world/MountainRiver.java#L51) | OUTLET GEOMETRY | Return an isolated copy of the exact registered connector extent. |
+| [MountainRiver.update](../src/world/MountainRiver.java#L53) | SIMULATION CLOCK | Advance animation only when the world simulation is active. |
+| [MountainRiver.collect](../src/world/MountainRiver.java#L55) | RENDER CULLING | Add the huge mountain only when its art intersects the camera. |
+| [MountainRiver.sortY](../src/world/MountainRiver.java#L57) | SCENERY DEPTH | Draw the solid cliff behind actors walking on its valid dry shore. |
+| [MountainRiver.lookAhead](../src/world/MountainRiver.java#L59) | SCENIC CAMERA | Gently lift the camera beside the basin while keeping Agyu on screen. |
+| [MountainRiver.draw](../src/world/MountainRiver.java#L64) | CACHED RENDER | Select prebuilt mountain, cascade and cove frames without mutating simulation. |
+| [MountainRiver.drawArt](../src/world/MountainRiver.java#L71) | REGISTERED SCENERY | Align the upper source, lower cliff waterfall, receiving pond and southwest outlet. |
+| [MountainRiver.drawOverview](../src/world/MountainRiver.java#L79) | MAP CACHE | Draw correctly registered scenery into the whole-world map without stretching the mountain. |
+| [MountainRiver.registerCove](../src/world/MountainRiver.java#L83) | ART / COLLISION REGISTRATION | Derive solid water and cliffs from the same native artwork used for rendering. |
+| [MountainRiver.registerMouth](../src/world/MountainRiver.java#L98) | OUTLET COLLISION REGISTRATION | Match tapered water to the prepared mask while retaining solid cliffs and the original pond. |
+| [MountainRiver.channel](../src/world/MountainRiver.java#L109) | RIVER CENTERLINE | Rasterize authored stream routes at a constant width matching the village river. |
+| [MountainRiver.water](../src/world/MountainRiver.java#L123) | HYDRAULIC / WALL SAFETY | Let water pass under timber walls without creating another walkable entrance. |
+| [MountainRiver.bridge](../src/world/MountainRiver.java#L134) | SAFE CROSSING | Build one three-cell-wide timber crossing only over exterior water. |
 
 ## src/world/Palisade.java
 
@@ -888,10 +957,10 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | Method / constructor | Label | Purpose |
 | --- | --- | --- |
 | [VillageMap.VillageMap](../src/world/VillageMap.java#L27) | FUNCTION | Initialize VillageMap state. |
-| [VillageMap.cacheX](../src/world/VillageMap.java#L68) | FUNCTION | Handle cache x for VillageMap. |
-| [VillageMap.cacheY](../src/world/VillageMap.java#L70) | FUNCTION | Handle cache y for VillageMap. |
-| [VillageMap.draw](../src/world/VillageMap.java#L72) | FUNCTION | Render draw using the current graphics state. |
-| [VillageMap.label](../src/world/VillageMap.java#L119) | MAP WAYFINDING | Keep remote clearing and mountain labels inside the full-map viewport. |
+| [VillageMap.cacheX](../src/world/VillageMap.java#L65) | FUNCTION | Handle cache x for VillageMap. |
+| [VillageMap.cacheY](../src/world/VillageMap.java#L67) | FUNCTION | Handle cache y for VillageMap. |
+| [VillageMap.draw](../src/world/VillageMap.java#L69) | FUNCTION | Render draw using the current graphics state. |
+| [VillageMap.label](../src/world/VillageMap.java#L116) | MAP WAYFINDING | Keep remote clearing and mountain labels inside the full-map viewport. |
 
 ## src/world/World.java
 
@@ -934,19 +1003,19 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [World.blockedBruteForce](../src/world/World.java#L338) | VERIFICATION: REFERENCE SEARCH | Check every obstacle for comparison with the spatial index. |
 | [World.collectLandscape](../src/world/World.java#L349) | LANDSCAPE CULLING | Append visible timber defenses and the cached mountain/waterfall to depth sorting. |
 | [World.drawGround](../src/world/World.java#L353) | FUNCTION | Render draw ground using the current graphics state. |
-| [World.Prop](../src/world/World.java#L385) | FUNCTION | Initialize Prop state. |
-| [World.collider](../src/world/World.java#L389) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
-| [World.sortY](../src/world/World.java#L391) | FUNCTION | Handle sort y for World. |
-| [World.draw](../src/world/World.java#L393) | FUNCTION | Render draw using the current graphics state. |
-| [World.Building](../src/world/World.java#L412) | FUNCTION | Initialize Building state. |
-| [World.collider](../src/world/World.java#L418) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
-| [World.sortY](../src/world/World.java#L420) | FUNCTION | Handle sort y for World. |
-| [World.draw](../src/world/World.java#L422) | FUNCTION | Render draw using the current graphics state. |
-| [World.Tree](../src/world/World.java#L435) | ASSET-ALIGNED COLLISION | Cache the sprite/style and place a broad solid root footprint on its actual bark. |
-| [World.collider](../src/world/World.java#L441) | STATIC OBSTACLE | Return the cached tree-root collider used by all actors. |
-| [World.sortY](../src/world/World.java#L443) | DEPTH SORTING | Sort at the actual roots rather than stray grass below the sprite. |
-| [World.draw](../src/world/World.java#L445) | CACHED RENDER | Draw an unoccluded tree for scene exports and generic Drawable callers. |
-| [World.draw](../src/world/World.java#L447) | PLAYER VISIBILITY | Fade only the canopy when it hides Agyu; the root/trunk base remains opaque and solid. |
+| [World.Prop](../src/world/World.java#L384) | FUNCTION | Initialize Prop state. |
+| [World.collider](../src/world/World.java#L388) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
+| [World.sortY](../src/world/World.java#L390) | FUNCTION | Handle sort y for World. |
+| [World.draw](../src/world/World.java#L392) | FUNCTION | Render draw using the current graphics state. |
+| [World.Building](../src/world/World.java#L411) | FUNCTION | Initialize Building state. |
+| [World.collider](../src/world/World.java#L417) | FUNCTION | Expose a static collision footprint through the Obstacle contract. |
+| [World.sortY](../src/world/World.java#L419) | FUNCTION | Handle sort y for World. |
+| [World.draw](../src/world/World.java#L421) | FUNCTION | Render draw using the current graphics state. |
+| [World.Tree](../src/world/World.java#L434) | ASSET-ALIGNED COLLISION | Cache the sprite/style and place a broad solid root footprint on its actual bark. |
+| [World.collider](../src/world/World.java#L440) | STATIC OBSTACLE | Return the cached tree-root collider used by all actors. |
+| [World.sortY](../src/world/World.java#L442) | DEPTH SORTING | Sort at the actual roots rather than stray grass below the sprite. |
+| [World.draw](../src/world/World.java#L444) | CACHED RENDER | Draw an unoccluded tree for scene exports and generic Drawable callers. |
+| [World.draw](../src/world/World.java#L446) | PLAYER VISIBILITY | Fade only the canopy when it hides Agyu; the root/trunk base remains opaque and solid. |
 
 ## tests/ArenaBossTests.java
 
@@ -1163,11 +1232,11 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [ExpansionTests.scenery](../tests/ExpansionTests.java#L105) | CACHE / RENDER | Check large cached mountain art, distinct water phases, culling and read-only drawing. |
 | [ExpansionTests.mountainFrame](../tests/ExpansionTests.java#L134) | OFFSCREEN SCENERY | Render the real mountain and waterfall into a compact local camera. |
 | [ExpansionTests.previews](../tests/ExpansionTests.java#L139) | RENDER EVIDENCE | Export a complete mountain view and the actual waterfall-side game camera. |
-| [ExpansionTests.hash](../tests/ExpansionTests.java#L164) | PIXEL FINGERPRINT | Compare rendered cache contents without counting every pixel as a separate assertion. |
-| [ExpansionTests.tap](../tests/ExpansionTests.java#L166) | INPUT FIXTURE | Dispatch one real key edge into the game panel. |
-| [ExpansionTests.get](../tests/ExpansionTests.java#L168) | TEST REFLECTION | Read session state without widening runtime interfaces. |
-| [ExpansionTests.set](../tests/ExpansionTests.java#L170) | CAMERA FIXTURE | Position the real interpolated camera for review renders. |
-| [ExpansionTests.check](../tests/ExpansionTests.java#L172) | ASSERTION | Count one meaningful property and explain any failure. |
+| [ExpansionTests.hash](../tests/ExpansionTests.java#L175) | PIXEL FINGERPRINT | Compare rendered cache contents without counting every pixel as a separate assertion. |
+| [ExpansionTests.tap](../tests/ExpansionTests.java#L177) | INPUT FIXTURE | Dispatch one real key edge into the game panel. |
+| [ExpansionTests.get](../tests/ExpansionTests.java#L179) | TEST REFLECTION | Read session state without widening runtime interfaces. |
+| [ExpansionTests.set](../tests/ExpansionTests.java#L181) | CAMERA FIXTURE | Position the real interpolated camera for review renders. |
+| [ExpansionTests.check](../tests/ExpansionTests.java#L183) | ASSERTION | Count one meaningful property and explain any failure. |
 
 ## tests/ForestRevisionTests.java
 
@@ -1213,20 +1282,20 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | --- | --- | --- |
 | [GameTests.GameTests](../tests/GameTests.java#L21) | TEST HELPER | Prevent instances of this test/helper class. |
 | [GameTests.main](../tests/GameTests.java#L23) | TEST HELPER | Entry point for this regression suite. |
-| [GameTests.testNavigationEdges](../tests/GameTests.java#L108) | TEST HELPER | Handle test navigation edges for GameTests. |
-| [GameTests.testCombat](../tests/GameTests.java#L122) | TEST HELPER | Handle test combat for GameTests. |
-| [GameTests.testSprites](../tests/GameTests.java#L143) | TEST HELPER | Handle test sprites for GameTests. |
-| [GameTests.testSession](../tests/GameTests.java#L193) | TEST HELPER | Handle test session for GameTests. |
-| [GameTests.testPanelMouse](../tests/GameTests.java#L236) | TEST HELPER | Handle test panel mouse for GameTests. |
-| [GameTests.testPanelCombos](../tests/GameTests.java#L261) | TEST HELPER | Handle test panel combos for GameTests. |
-| [GameTests.mousePanel](../tests/GameTests.java#L281) | TEST HELPER | Handle mouse panel for GameTests. |
-| [GameTests.field](../tests/GameTests.java#L287) | TEST HELPER | Handle field for GameTests. |
-| [GameTests.render](../tests/GameTests.java#L291) | TEST HELPER | Handle render for GameTests. |
-| [GameTests.tap](../tests/GameTests.java#L297) | TEST HELPER | Handle tap for GameTests. |
-| [GameTests.press](../tests/GameTests.java#L301) | TEST HELPER | Handle press for GameTests. |
-| [GameTests.release](../tests/GameTests.java#L303) | TEST HELPER | Handle release for GameTests. |
-| [GameTests.expect](../tests/GameTests.java#L305) | TEST HELPER | Handle expect for GameTests. |
-| [GameTests.check](../tests/GameTests.java#L310) | TEST HELPER | Handle check for GameTests. |
+| [GameTests.testNavigationEdges](../tests/GameTests.java#L112) | TEST HELPER | Handle test navigation edges for GameTests. |
+| [GameTests.testCombat](../tests/GameTests.java#L126) | TEST HELPER | Handle test combat for GameTests. |
+| [GameTests.testSprites](../tests/GameTests.java#L147) | TEST HELPER | Handle test sprites for GameTests. |
+| [GameTests.testSession](../tests/GameTests.java#L197) | TEST HELPER | Handle test session for GameTests. |
+| [GameTests.testPanelMouse](../tests/GameTests.java#L240) | TEST HELPER | Handle test panel mouse for GameTests. |
+| [GameTests.testPanelCombos](../tests/GameTests.java#L265) | TEST HELPER | Handle test panel combos for GameTests. |
+| [GameTests.mousePanel](../tests/GameTests.java#L285) | TEST HELPER | Handle mouse panel for GameTests. |
+| [GameTests.field](../tests/GameTests.java#L291) | TEST HELPER | Handle field for GameTests. |
+| [GameTests.render](../tests/GameTests.java#L295) | TEST HELPER | Handle render for GameTests. |
+| [GameTests.tap](../tests/GameTests.java#L301) | TEST HELPER | Handle tap for GameTests. |
+| [GameTests.press](../tests/GameTests.java#L305) | TEST HELPER | Handle press for GameTests. |
+| [GameTests.release](../tests/GameTests.java#L307) | TEST HELPER | Handle release for GameTests. |
+| [GameTests.expect](../tests/GameTests.java#L309) | TEST HELPER | Handle expect for GameTests. |
+| [GameTests.check](../tests/GameTests.java#L314) | TEST HELPER | Handle check for GameTests. |
 
 ## tests/GuardVisualTests.java
 
@@ -1235,6 +1304,20 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [GuardVisualTests.GuardVisualTests](../tests/GuardVisualTests.java#L16) | TEST HELPER | Prevent instances of this test/helper class. |
 | [GuardVisualTests.run](../tests/GuardVisualTests.java#L18) | TEST HELPER | Handle run for GuardVisualTests. |
 | [GuardVisualTests.check](../tests/GuardVisualTests.java#L79) | TEST HELPER | Handle check for GuardVisualTests. |
+
+## tests/InventoryGuardTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [InventoryGuardTests.InventoryGuardTests](../tests/InventoryGuardTests.java#L17) | TEST UTILITY | Prevent instances of the suite. |
+| [InventoryGuardTests.main](../tests/InventoryGuardTests.java#L19) | TEST ENTRY | Run guarded movement and inventory checks independently. |
+| [InventoryGuardTests.run](../tests/InventoryGuardTests.java#L21) | REGRESSION SUITE | Cover cached walking, modal input and actual player use. |
+| [InventoryGuardTests.steps](../tests/InventoryGuardTests.java#L23) | GUARD GAIT REGRESSION | Keep the torso steady, feet moving and guard speed limited in every facing. |
+| [InventoryGuardTests.inventory](../tests/InventoryGuardTests.java#L49) | INVENTORY INTEGRATION | Exercise real keys, scaled clicks, paused clocks, reference moves and sip-time consumption. |
+| [InventoryGuardTests.tap](../tests/InventoryGuardTests.java#L83) | REAL INPUT | Deliver a fresh keyboard edge and release to the live session. |
+| [InventoryGuardTests.click](../tests/InventoryGuardTests.java#L85) | SCALED POINTER | Send an actual two-times window click through the listener queue. |
+| [InventoryGuardTests.get](../tests/InventoryGuardTests.java#L87) | READ-ONLY TEST ACCESS | Inspect private session state without adding production test hooks. |
+| [InventoryGuardTests.check](../tests/InventoryGuardTests.java#L89) | ASSERTION | Count and explain each behavioral assertion. |
 
 ## tests/JumpTests.java
 
@@ -1245,18 +1328,18 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [JumpTests.inputChecks](../tests/JumpTests.java#L36) | TEST HELPER | Handle input checks for JumpTests. |
 | [JumpTests.arcChecks](../tests/JumpTests.java#L57) | TEST HELPER | Handle arc checks for JumpTests. |
 | [JumpTests.playerChecks](../tests/JumpTests.java#L76) | TEST HELPER | Handle player checks for JumpTests. |
-| [JumpTests.panelChecks](../tests/JumpTests.java#L169) | TEST HELPER | Handle panel checks for JumpTests. |
-| [JumpTests.preview](../tests/JumpTests.java#L218) | TEST HELPER | Handle preview for JumpTests. |
-| [JumpTests.renderPlayer](../tests/JumpTests.java#L243) | TEST HELPER | Handle render player for JumpTests. |
-| [JumpTests.same](../tests/JumpTests.java#L250) | TEST HELPER | Handle same for JumpTests. |
-| [JumpTests.player](../tests/JumpTests.java#L256) | TEST HELPER | Handle player for JumpTests. |
-| [JumpTests.step](../tests/JumpTests.java#L258) | TEST HELPER | Handle step for JumpTests. |
-| [JumpTests.field](../tests/JumpTests.java#L262) | TEST HELPER | Handle field for JumpTests. |
-| [JumpTests.tap](../tests/JumpTests.java#L266) | TEST HELPER | Handle tap for JumpTests. |
-| [JumpTests.press](../tests/JumpTests.java#L268) | TEST HELPER | Handle press for JumpTests. |
-| [JumpTests.release](../tests/JumpTests.java#L272) | TEST HELPER | Handle release for JumpTests. |
-| [JumpTests.mouse](../tests/JumpTests.java#L276) | TEST HELPER | Handle mouse for JumpTests. |
-| [JumpTests.check](../tests/JumpTests.java#L282) | TEST HELPER | Handle check for JumpTests. |
+| [JumpTests.panelChecks](../tests/JumpTests.java#L168) | TEST HELPER | Handle panel checks for JumpTests. |
+| [JumpTests.preview](../tests/JumpTests.java#L217) | TEST HELPER | Handle preview for JumpTests. |
+| [JumpTests.renderPlayer](../tests/JumpTests.java#L242) | TEST HELPER | Handle render player for JumpTests. |
+| [JumpTests.same](../tests/JumpTests.java#L249) | TEST HELPER | Handle same for JumpTests. |
+| [JumpTests.player](../tests/JumpTests.java#L255) | TEST HELPER | Handle player for JumpTests. |
+| [JumpTests.step](../tests/JumpTests.java#L257) | TEST HELPER | Handle step for JumpTests. |
+| [JumpTests.field](../tests/JumpTests.java#L261) | TEST HELPER | Handle field for JumpTests. |
+| [JumpTests.tap](../tests/JumpTests.java#L265) | TEST HELPER | Handle tap for JumpTests. |
+| [JumpTests.press](../tests/JumpTests.java#L267) | TEST HELPER | Handle press for JumpTests. |
+| [JumpTests.release](../tests/JumpTests.java#L271) | TEST HELPER | Handle release for JumpTests. |
+| [JumpTests.mouse](../tests/JumpTests.java#L275) | TEST HELPER | Handle mouse for JumpTests. |
+| [JumpTests.check](../tests/JumpTests.java#L281) | TEST HELPER | Handle check for JumpTests. |
 
 ## tests/MouseGuardTests.java
 
@@ -1319,6 +1402,37 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [PotionHotbarTests.get](../tests/PotionHotbarTests.java#L201) | TEST ACCESS | Read private session state for integration assertions without runtime setters. |
 | [PotionHotbarTests.check](../tests/PotionHotbarTests.java#L203) | ASSERTION | Count a behavioral check and explain any failure. |
 
+## tests/PresentationTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [PresentationTests.PresentationTests](../tests/PresentationTests.java#L17) | TEST UTILITY | Prevent instances of this suite. |
+| [PresentationTests.main](../tests/PresentationTests.java#L19) | TEST ENTRY | Run equipment proportions and river appearance checks independently. |
+| [PresentationTests.run](../tests/PresentationTests.java#L21) | PRESENTATION SUITE | Verify the live renderer and export the previously mismatched scenes. |
+| [PresentationTests.bodies](../tests/PresentationTests.java#L23) | ACTUAL BODY CONSISTENCY | Compare Agyu's red cap geometry across items, movement and guard without including longer weapons. |
+| [PresentationTests.river](../tests/PresentationTests.java#L45) | SHARED TEXTURE SEAM | Check matching outlet pixels, rich water detail, animation and prepared topology variants. |
+| [PresentationTests.colorDistance](../tests/PresentationTests.java#L68) | PIXEL COLOR COMPARISON | Bound the largest channel change at the artwork-to-river join. |
+| [PresentationTests.preview](../tests/PresentationTests.java#L70) | ACTUAL RIVER CAMERA | Export the real game at the waterfall outlet and its accessible southern bank. |
+| [PresentationTests.get](../tests/PresentationTests.java#L82) | TEST SESSION ACCESS | Read the real session state without exposing production mutation. |
+| [PresentationTests.set](../tests/PresentationTests.java#L84) | REVIEW CAMERA | Place the actual interpolated camera for a deterministic seam view. |
+| [PresentationTests.check](../tests/PresentationTests.java#L86) | ASSERTION | Count and explain one presentation property. |
+
+## tests/SpearCarryTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [SpearCarryTests.SpearCarryTests](../tests/SpearCarryTests.java#L15) | TEST UTILITY | Prevent instances of the suite. |
+| [SpearCarryTests.main](../tests/SpearCarryTests.java#L17) | TEST ENTRY | Verify right-handed carrying and export a large actual-player comparison. |
+| [SpearCarryTests.run](../tests/SpearCarryTests.java#L19) | CARRY REGRESSION | Check every cached pose, walking stability, fingers, upright tips and pixel opacity. |
+| [SpearCarryTests.verifyProfileWalk](../tests/SpearCarryTests.java#L68) | SIDE STRIDE REGRESSION | Confirm the cached stride uses every gait phase in both directions and while guarding. |
+| [SpearCarryTests.hasOriginalFeet](../tests/SpearCarryTests.java#L92) | ORIGINAL FEET REGRESSION | Verify the resized walk and guard use only the supplied foot colors. |
+| [SpearCarryTests.bootWidth](../tests/SpearCarryTests.java#L116) | BOOT SIZE REGRESSION | Measure the visible width of both boots at the original ground anchor. |
+| [SpearCarryTests.legHash](../tests/SpearCarryTests.java#L128) | BOOT PHASE COMPARISON | Compare only the footprint below the hip. |
+| [SpearCarryTests.verifyShieldSilhouette](../tests/SpearCarryTests.java#L135) | SHIELD SILHOUETTE REGRESSION | Check that neither shield face contains disconnected crop pixels. |
+| [SpearCarryTests.preview](../tests/SpearCarryTests.java#L156) | ACTUAL CARRY PREVIEW | Render standing, walking and blocking in every direction using the real Player path. |
+| [SpearCarryTests.profilePreview](../tests/SpearCarryTests.java#L171) | WALK CYCLE PREVIEW | Lay out every side footfall and matching braced pose at the same scale. |
+| [SpearCarryTests.check](../tests/SpearCarryTests.java#L193) | ASSERTION | Count and explain each held-weapon property. |
+
 ## tests/TreeBoundaryTests.java
 
 | Method / constructor | Label | Purpose |
@@ -1377,6 +1491,17 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [VillageTests.set](../tests/VillageTests.java#L182) | TEST HELPER | Handle set for VillageTests. |
 | [VillageTests.press](../tests/VillageTests.java#L186) | TEST HELPER | Handle press for VillageTests. |
 | [VillageTests.check](../tests/VillageTests.java#L188) | TEST HELPER | Handle check for VillageTests. |
+
+## tests/WaterfallTests.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WaterfallTests.WaterfallTests](../tests/WaterfallTests.java#L17) | STATIC TEST | Prevent instances of the suite. |
+| [WaterfallTests.main](../tests/WaterfallTests.java#L19) | TEST ENTRY | Run the registered waterfall checks independently. |
+| [WaterfallTests.run](../tests/WaterfallTests.java#L21) | REGRESSION SUITE | Check untouched sources, cached phases and geometry shared with the displayed cove. |
+| [WaterfallTests.wet](../tests/WaterfallTests.java#L56) | HYDRAULIC GRAPH | Include protected culverts and river bridges in hydraulic connectivity. |
+| [WaterfallTests.hash](../tests/WaterfallTests.java#L58) | PIXEL FINGERPRINT | Compare cached RGBA phases without changing their pixels. |
+| [WaterfallTests.check](../tests/WaterfallTests.java#L60) | ASSERTION | Count and explain each regression property. |
 
 ## tests/WildlifeTests.java
 
@@ -1483,6 +1608,27 @@ Source links identify each labeled method or constructor. Inline SECTION labels 
 | [SpriteImporter.frame](../tools/importers/SpriteImporter.java#L66) | IMPORT: IMAGE PACKING | Pack one active frame on a 64x64 transparent canvas at the shared baseline. |
 | [SpriteImporter.death](../tools/importers/SpriteImporter.java#L73) | IMPORT: IMAGE PACKING | Pack the wider 96x64 death pose from the original source sheet. |
 | [SpriteImporter.main](../tools/importers/SpriteImporter.java#L84) | ART TOOL | Entry point for this developer tool. |
+
+## tools/importers/WaterfallSpriteImporter.java
+
+| Method / constructor | Label | Purpose |
+| --- | --- | --- |
+| [WaterfallSpriteImporter.WaterfallSpriteImporter](../tools/importers/WaterfallSpriteImporter.java#L20) | STATIC IMPORTER | Prevent instances of the offline converter. |
+| [WaterfallSpriteImporter.main](../tools/importers/WaterfallSpriteImporter.java#L22) | IMPORT ENTRY | Pack matching pond/river water, sampled banks and a tapered outlet with physical geometry. |
+| [WaterfallSpriteImporter.riverPixel](../tools/importers/WaterfallSpriteImporter.java#L93) | SHARED WATER TEXTURE | Mirror a clean native pond patch into a seamless world-registered water pattern. |
+| [WaterfallSpriteImporter.outlet](../tools/importers/WaterfallSpriteImporter.java#L98) | OUTLET REGISTRATION | Measure the actual stream width within a native cove column. |
+| [WaterfallSpriteImporter.banks](../tools/importers/WaterfallSpriteImporter.java#L104) | NATIVE BANK SAMPLES | Copy the cove's real rock/moss bank pixels into reusable eight-pixel edge strips. |
+| [WaterfallSpriteImporter.wet](../tools/importers/WaterfallSpriteImporter.java#L112) | COLOR REGISTRATION | Identify teal water while excluding warm rocks, golden sand and yellow-green moss. |
+| [WaterfallSpriteImporter.mask](../tools/importers/WaterfallSpriteImporter.java#L114) | DSA FIFO FLOOD FILL | Follow connected water from the pond, then fill small lily-pad islands inside each shoreline span. |
+| [WaterfallSpriteImporter.readGif](../tools/importers/WaterfallSpriteImporter.java#L124) | GIF DELTA COMPOSITION | Honor frame offsets and disposal before sampling the original moving cascade. |
+| [WaterfallSpriteImporter.find](../tools/importers/WaterfallSpriteImporter.java#L143) | METADATA TREE | Locate the named GIF metadata node. |
+| [WaterfallSpriteImporter.value](../tools/importers/WaterfallSpriteImporter.java#L145) | METADATA ATTRIBUTE | Read an integer GIF descriptor attribute. |
+| [WaterfallSpriteImporter.scale](../tools/importers/WaterfallSpriteImporter.java#L147) | NEAREST NEIGHBOR PACKING | Register existing artwork at native resolution without smoothing pixel edges. |
+| [WaterfallSpriteImporter.copy](../tools/importers/WaterfallSpriteImporter.java#L149) | IMAGE COPY | Snapshot a composite only during offline import. |
+| [WaterfallSpriteImporter.paste](../tools/importers/WaterfallSpriteImporter.java#L151) | ATLAS PACKING | Store one registered phase in the horizontal atlas. |
+| [WaterfallSpriteImporter.adjust](../tools/importers/WaterfallSpriteImporter.java#L153) | WATER SHIMMER | Transfer a small source-texture luminance change while retaining painted pool depth and lily details. |
+| [WaterfallSpriteImporter.blend](../tools/importers/WaterfallSpriteImporter.java#L155) | CASCADE BLEND | Register moving source water over the painted waterfall inside its exact wet silhouette. |
+| [WaterfallSpriteImporter.hash](../tools/importers/WaterfallSpriteImporter.java#L157) | ART PROVENANCE | Record SHA-256 for untouched user and generated sources. |
 
 ## tools/importers/WildlifeSpriteImporter.java
 

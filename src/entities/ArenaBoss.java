@@ -43,6 +43,8 @@ abstract class ArenaBoss extends Enemy {
     final String questId(){return quest;}
     // [BLOCK: ENCAPSULATION] ArenaBoss.bossName - Read the display name used by the boss HUD.
     final String bossName(){return title;}
+    // [BLOCK: OOP OVERRIDING] ArenaBoss.coinReward - Give each authored villain a deterministic premium reward.
+    @Override final int coinReward(){return 20+arena.id()*5;}
     // [BLOCK: ENCAPSULATION] ArenaBoss.engaged - Report a living encounter with Agyu inside its arena.
     final boolean engaged(){return active&&alive();}
     // [BLOCK: ENCAPSULATION] ArenaBoss.state - Expose the current attack phase without allowing mutation.

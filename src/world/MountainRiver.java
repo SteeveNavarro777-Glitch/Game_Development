@@ -1,26 +1,24 @@
 /* FILE PURPOSE: MOUNTAIN RIVER | Solid eastern highlands, animated waterfall and a continuous river through protected village culverts.
  * Course examples: cached arrays, immutable geometry and Drawable polymorphism; docs/CODE_GUIDE.md.
  */
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /** Terrain and artwork are prepared once; only simulation time controls water animation. */
 final class MountainRiver implements Drawable {
     static final int CENTER_C=176,SOURCE_R=82;
-    private static final BufferedImage[] ROCK=buildRock();
     private final World world;
     private final Rectangle2D.Double visual=new Rectangle2D.Double((CENTER_C+.5)*World.T-512,46*World.T,1024,1280);
-    private record Flow(double x,double y,double dx,double dy) {}
-    private final List<Flow> currents=new ArrayList<>();
+    static final int COVE_X=(int)((CENTER_C+.5)*World.T)-WaterfallArt.FALL_X,COVE_Y=SOURCE_R*World.T-WaterfallArt.FOOT;
+    private final Rectangle2D.Double cove=new Rectangle2D.Double(COVE_X,COVE_Y,WaterfallArt.WIDTH,WaterfallArt.HEIGHT);
+    private final Rectangle2D.Double mouth=new Rectangle2D.Double(COVE_X-172,COVE_Y+235,192,288);
+    private final Rectangle2D full=visual.createUnion(cove).createUnion(mouth);
     private double time;
     // [BLOCK: TERRAIN CONSTRUCTION] MountainRiver.MountainRiver - Raise eastern rock and link the waterfall basin to the existing river and western outflow.
-    MountainRiver(World world,long seed){
+    MountainRiver(World world){
         this.world=world;
         BufferedImage silhouette=MountainArt.mountain();
         for(int r=46;r<=86;r++)for(int c=160;c<world.cols;c++){
@@ -32,70 +30,90 @@ final class MountainRiver implements Drawable {
         }
         // Source water descends the cliff; the basin remains impassable to all walking actors.
         for(int r=68;r<=SOURCE_R;r++)for(int c=CENTER_C-1;c<=CENTER_C+1;c++)world.tile[r][c]=World.WATER;
-        pool(CENTER_C,84,6,5);
-        channel(new int[][]{{CENTER_C,SOURCE_R},{176,86},{166,90},{153,87},{141,82},{128,84},{115,84},{108,83}},seed);
-        channel(new int[][]{{51,83},{39,84},{29,89},{16,90},{0,94}},seed^0x52L);
+        channel(new int[][]{{168,87},{163,89},{153,87},{141,82},{128,84},{115,84},{108,83}});
+        registerCove();registerMouth();
+        channel(new int[][]{{51,83},{39,84},{29,89},{16,90},{0,94}});
         // Existing city crossings stay untouched; these four forest bridges preserve the outer/inner trails.
         for(int c:new int[]{16,42,117,144})bridge(c);
-        // A small timber jetty reaches the basin without making the waterfall/cliff walkable.
-        for(int r=84;r<=91;r++)for(int c=CENTER_C-1;c<=CENTER_C+1;c++)
-            if(world.tile[r][c]==World.WATER)world.tile[r][c]=World.BRIDGE;
+        // The pond is open water; its dry southern beach is the viewing area.
     }
     // [BLOCK: ENCAPSULATION] MountainRiver.source - Return a copy of the waterfall basin's river source coordinate.
     Point source(){return new Point(CENTER_C,SOURCE_R);}
     // [BLOCK: ENCAPSULATION] MountainRiver.bounds - Return a copy of the full mountain artwork bounds.
-    Rectangle2D bounds(){return (Rectangle2D)visual.clone();}
+    Rectangle2D bounds(){return (Rectangle2D)full.clone();}
+    // [BLOCK: COVE GEOMETRY] MountainRiver.coveBounds - Return registered artwork bounds for maps and scenery checks.
+    Rectangle2D coveBounds(){return (Rectangle2D)cove.clone();}
+    // [BLOCK: FOREST CLEARANCE] MountainRiver.reserved - Keep tree crowns and roots away from the open pond and its walkable shore.
+    boolean reserved(Rectangle2D box){Rectangle2D area=cove.createUnion(mouth);return box.intersects(area.getX()-64,area.getY()-32,area.getWidth()+128,area.getHeight()+96);}
+    // [BLOCK: OUTLET GROUND LAYER] MountainRiver.underMouth - Draw forest ground beneath the exact cove and connector instead of rectangular water backing.
+    boolean underMouth(int c,int r){double x=(c+.5)*World.T,y=(r+.5)*World.T;return mouth.contains(x,y)||cove.contains(x,y);}
+    // [BLOCK: OUTLET GEOMETRY] MountainRiver.mouthBounds - Return an isolated copy of the exact registered connector extent.
+    Rectangle2D mouthBounds(){return (Rectangle2D)mouth.clone();}
     // [BLOCK: SIMULATION CLOCK] MountainRiver.update - Advance animation only when the world simulation is active.
     void update(double dt){time+=Math.max(0,dt);}
     // [BLOCK: RENDER CULLING] MountainRiver.collect - Add the huge mountain only when its art intersects the camera.
-    void collect(List<Drawable> target,int cx,int cy,int width,int height){if(visual.intersects(cx,cy,width,height))target.add(this);}
-    // [BLOCK: SCENERY DEPTH] MountainRiver.sortY - Draw the solid cliff behind actors walking on its valid shore and viewing deck.
+    void collect(List<Drawable> target,int cx,int cy,int width,int height){if(full.intersects(cx,cy,width,height))target.add(this);}
+    // [BLOCK: SCENERY DEPTH] MountainRiver.sortY - Draw the solid cliff behind actors walking on its valid dry shore.
     public double sortY(){return visual.y-1;}
     // [BLOCK: SCENIC CAMERA] MountainRiver.lookAhead - Gently lift the camera beside the basin while keeping Agyu on screen.
     double lookAhead(double x,double y){
         double dx=Math.abs(x-(CENTER_C+.5)*World.T),dy=Math.abs(y-86*World.T);
-        return 130*Math.max(0,Math.min(1,Math.min((8*World.T-dx)/(3*World.T),(10*World.T-dy)/(4*World.T))));
+        return 84*Math.max(0,Math.min(1,Math.min((8*World.T-dx)/(3*World.T),(10*World.T-dy)/(4*World.T))));
     }
-    // [BLOCK: CACHED RENDER] MountainRiver.draw - Select prebuilt rock, falling-water and spray frames without mutating simulation.
+    // [BLOCK: CACHED RENDER] MountainRiver.draw - Select prebuilt mountain, cascade and cove frames without mutating simulation.
     public void draw(Graphics2D target,int cx,int cy,double alpha){
         Graphics2D g=(Graphics2D)target.create();
         try{
-            g.drawImage(MountainArt.mountain(),(int)visual.x-cx,(int)visual.y-cy,null);
-            int phase=(int)(time*6)%4,x=(int)((CENTER_C+.5)*World.T)-cx,base=SOURCE_R*World.T-cy;
-            g.drawImage(MountainArt.waterfall(phase),x-80,base-448,null);
-            g.drawImage(MountainArt.mist(phase),x-128,base-24,null);
+            drawArt(g,cx,cy,(int)(time*6)%WaterfallArt.FRAMES);
         }finally{g.dispose();}
     }
-    // [BLOCK: CACHED ROCK LOOKUP] MountainRiver.rock - Read a generated rock tile without creating images during rendering.
-    static BufferedImage rock(int variant){return ROCK[Math.floorMod(variant,ROCK.length)];}
-    // [BLOCK: CACHE CONSTRUCTION] MountainRiver.buildRock - Prepare muted rock grain beneath the cached mountain silhouette.
-    private static BufferedImage[] buildRock(){
-        BufferedImage[] out=new BufferedImage[4];
-        for(int i=0;i<out.length;i++){
-            out[i]=new BufferedImage(World.T,World.T,BufferedImage.TYPE_INT_ARGB);Graphics2D g=out[i].createGraphics();
-            Random random=new Random(577+i);
-            try{g.setColor(new Color(0x606957));g.fillRect(0,0,World.T,World.T);
-                for(int n=0;n<120;n++){g.setColor(new Color(n%3==0?0x77806B:n%3==1?0x4F5B4D:0x64725C));g.fillRect(random.nextInt(32),random.nextInt(32),2,1);}
-            }finally{g.dispose();}
-        }return out;
+    // [BLOCK: REGISTERED SCENERY] MountainRiver.drawArt - Align the upper source, lower cliff waterfall, receiving pond and southwest outlet.
+    private void drawArt(Graphics2D g,int cx,int cy,int phase){
+        g.drawImage(MountainArt.mountain(),(int)visual.x-cx,(int)visual.y-cy,null);
+        g.drawImage(WaterfallArt.mouth(phase),(int)mouth.x-cx,(int)mouth.y-cy,null);
+        int center=(int)((CENTER_C+.5)*World.T)-cx;
+        g.drawImage(WaterfallArt.upper(phase),center-48,68*World.T-cy,null);
+        g.drawImage(WaterfallArt.cove(phase),COVE_X-cx,COVE_Y-cy,null);
     }
-    // [BLOCK: SOURCE BASIN] MountainRiver.pool - Stamp a round connected pool under the falling water.
-    private void pool(int c,int r,int rx,int ry){
-        for(int y=r-ry;y<=r+ry;y++)for(int x=c-rx;x<=c+rx;x++)
-            if(world.inside(x,y)&&Math.pow((x-c)/(rx+.4),2)+Math.pow((y-r)/(ry+.4),2)<=1)water(x,y);
+    // [BLOCK: MAP CACHE] MountainRiver.drawOverview - Draw correctly registered scenery into the whole-world map without stretching the mountain.
+    void drawOverview(Graphics2D target,int width,int height){
+        Graphics2D g=(Graphics2D)target.create();try{g.scale(width/(double)(world.cols*World.T),height/(double)(world.rows*World.T));drawArt(g,0,0,0);}finally{g.dispose();}
     }
-    // [BLOCK: RIVER CENTERLINE] MountainRiver.channel - Rasterize winding centerline segments with seeded bank-width variation.
-    private void channel(int[][] points,long seed){
-        Random random=new Random(seed);
+    // [BLOCK: ART / COLLISION REGISTRATION] MountainRiver.registerCove - Derive solid water and cliffs from the same native artwork used for rendering.
+    private void registerCove(){
+        BufferedImage image=WaterfallArt.cove(0);
+        for(int r=World.row(COVE_Y);r<=World.row(COVE_Y+WaterfallArt.HEIGHT-1);r++)
+            for(int c=World.col(COVE_X);c<=World.col(COVE_X+WaterfallArt.WIDTH-1);c++){
+                if(!world.inside(c,r))continue;
+                int sx=(int)((c+.5)*World.T-COVE_X),sy=(int)((r+.5)*World.T-COVE_Y),wet=0;
+                for(int y=r*World.T-COVE_Y;y<(r+1)*World.T-COVE_Y;y++)
+                    for(int x=c*World.T-COVE_X;x<(c+1)*World.T-COVE_X;x++)if(WaterfallArt.wet(x,y))wet++;
+                boolean painted=sx>=0&&sy>=0&&sx<image.getWidth()&&sy<image.getHeight()&&(image.getRGB(sx,sy)>>>24)>64;
+                if(wet>=World.T*World.T*.24)world.tile[r][c]=World.WATER;
+                else if(painted&&sy<WaterfallArt.FOOT-6)world.tile[r][c]=World.MOUNTAIN;
+                else if(world.tile[r][c]==World.WATER||painted&&world.tile[r][c]==World.MOUNTAIN)world.tile[r][c]=World.GRASS;
+            }
+    }
+    // [BLOCK: OUTLET COLLISION REGISTRATION] MountainRiver.registerMouth - Match tapered water to the prepared mask while retaining solid cliffs and the original pond.
+    private void registerMouth(){
+        for(int r=World.row(mouth.getMinY());r<World.row(mouth.getMaxY());r++)
+            for(int c=World.col(mouth.getMinX());c<World.col(mouth.getMaxX());c++){
+                if(!world.inside(c,r))continue;int wet=0;
+                for(int y=r*World.T;y<(r+1)*World.T;y++)for(int x=c*World.T;x<(c+1)*World.T;x++)
+                    if(WaterfallArt.mouthWet(x-(int)mouth.x,y-(int)mouth.y)||WaterfallArt.wet(x-COVE_X,y-COVE_Y))wet++;
+                if(wet>=World.T*World.T*.24)world.tile[r][c]=World.WATER;
+                else if(world.tile[r][c]==World.WATER)world.tile[r][c]=World.GRASS;
+            }
+    }
+    // [BLOCK: RIVER CENTERLINE] MountainRiver.channel - Rasterize authored stream routes at a constant width matching the village river.
+    private void channel(int[][] points){
         for(int i=1;i<points.length;i++){
             int x=points[i-1][0],y=points[i-1][1],tx=points[i][0],ty=points[i][1];
-            double length=Math.hypot(tx-x,ty-y),vx=(tx-x)/Math.max(1,length),vy=(ty-y)/Math.max(1,length);
             int dx=Math.abs(tx-x),dy=-Math.abs(ty-y),sx=Integer.compare(tx,x),sy=Integer.compare(ty,y),error=dx+dy;
             while(true){
-                int radius=2+(random.nextInt(5)==0?1:0);
+                int radius=1;
                 for(int r=y-radius;r<=y+radius;r++)for(int c=x-radius;c<=x+radius;c++)
                     if(Math.hypot(c-x,r-y)<=radius+.4)water(c,r);
-                currents.add(new Flow((x+.5)*World.T,(y+.5)*World.T,vx,vy));
                 if(x==tx&&y==ty)break;int twice=2*error;
                 if(twice>=dy){error+=dy;x+=sx;}if(twice<=dx){error+=dx;y+=sy;}
             }
@@ -116,18 +134,5 @@ final class MountainRiver implements Drawable {
     private void bridge(int center){
         for(int r=0;r<world.rows;r++)for(int c=center-1;c<=center+1;c++)
             if(world.tile[r][c]==World.WATER&&!world.inVillage((c+.5)*World.T,(r+.5)*World.T))world.tile[r][c]=World.BRIDGE;
-    }
-    // [BLOCK: RIVER MOTION] MountainRiver.drawCurrents - Animate small downstream streaks on visible open river cells using cached centerline directions.
-    void drawCurrents(Graphics2D target,int cx,int cy,int width,int height){
-        Graphics2D g=(Graphics2D)target.create();
-        try{
-            g.setColor(new Color(193,247,237,125));int i=0;
-            for(Flow flow:currents){double offset=(time*22+i++*7)%28;
-                int x=(int)(flow.x+flow.dx*offset),y=(int)(flow.y+flow.dy*offset);
-                if(x<cx||y<cy||x>=cx+width||y>=cy+height)continue;
-                if(world.tile[World.row(y)][World.col(x)]!=World.WATER)continue;
-                g.drawLine(x-cx,y-cy,(int)(x-flow.dx*5)-cx,(int)(y-flow.dy*5)-cy);
-            }
-        }finally{g.dispose();}
     }
 }

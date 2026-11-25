@@ -31,7 +31,7 @@ final class PotionArt {
         ICONS[Inventory.Item.SPEAR.ordinal()]=spear;
         BufferedImage shield=new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);g=shield.createGraphics();
         try{g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            g.drawImage(ShieldGuard.bodies[Player.Dir.DOWN.ordinal()][0],5,5,27,27,17,36,32,51,null);
+            g.drawImage(WoodenShieldArt.face(false),6,3,20,25,null);
         }finally{g.dispose();}
         ICONS[Inventory.Item.SHIELD.ordinal()]=shield;
     }

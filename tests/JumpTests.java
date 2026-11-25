@@ -97,8 +97,7 @@ public final class JumpTests {
                 g.translate(96,100);g.scale(GameScale.AGYU,GameScale.AGYU);
                 g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 g.setColor(new Color(0, 0, 0, 70)); g.fillOval(-11, -4, 22, 8);
-                BufferedImage body = Assets.idle[direction.ordinal()][(int) (view.animTime * 5) % Assets.idle[direction.ordinal()].length];
-                g.drawImage(body, -body.getWidth() / 2, -body.getHeight() + 1 - 18, null);
+                HeldItemArt.draw(g,0,-18,Inventory.Item.SPEAR,direction,0);
             } finally { g.dispose(); }
             boolean equal = true;
             for (int py = 0; py < 144; py++) for (int px = 0; px < 192; px++)
@@ -168,7 +167,7 @@ public final class JumpTests {
     // [BLOCK: TEST HELPER] JumpTests.panelChecks - Handle panel checks for JumpTests.
     private static void panelChecks() throws Exception {
         GamePanel panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H);
-        tap(panel, KeyEvent.VK_ENTER);
+        TitleMenuTests.startGame(panel);
         Player actor = (Player) field(panel, "player");
         Fx.hitStop = .04; press(panel.keys, KeyEvent.VK_SPACE); panel.update(DT); release(panel.keys, KeyEvent.VK_SPACE);
         check(!actor.airborne(), "Jump ignored hit-stop");
@@ -205,7 +204,7 @@ public final class JumpTests {
         check(!actor.airborne() && actor.jumpHeight() == 0, "Defeat overlay froze Agyu above the ground");
         BufferedImage first = renderPlayer(actor, 0), last = renderPlayer(actor, 1);
         check(same(first, last), "Landed corpse retained stale jump interpolation");
-        panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); tap(panel, KeyEvent.VK_ENTER);
+        panel = new GamePanel(); panel.setSize(GamePanel.W, GamePanel.H); TitleMenuTests.startGame(panel);
         actor = (Player) field(panel, "player");
         QuestLog log = (QuestLog) field(panel, "quests");
         for(String boss:QuestLog.BOSSES)log.finish(boss); tap(panel, KeyEvent.VK_SPACE);
